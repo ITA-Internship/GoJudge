@@ -16,6 +16,7 @@ This guide applies to every intern on the GoJudge team. It defines how work is s
 - Specifications must be reviewed by another pair before implementation starts.
 - API and data contracts must be agreed before any dependent development begins.
 - Specifications must be updated when requirements change. Code and specification must not drift apart.
+- The mentor owns requirement priorities and approves significant scope changes.
 
 The full workflow is described in [docs/sdd-workflow.md](docs/sdd-workflow.md).
 
@@ -32,17 +33,22 @@ The full workflow is described in [docs/sdd-workflow.md](docs/sdd-workflow.md).
 
 ## 4. GitHub Issue Workflow
 
-1. Open an issue using the [feature issue template](.github/ISSUE_TEMPLATE/).
-2. Link the issue to the feature ID (for example, F06) and the MVP scope.
-3. Write the specification in `specs/features/` and link it from the issue.
-4. Move the issue to development only once the specification is approved and the [Definition of Ready](#10-definition-of-ready) is met.
+1. Open an issue using the [feature issue template](.github/ISSUE_TEMPLATE/). The template applies the `spec:draft` label.
+2. Link the issue to the feature ID (for example, F06) and the MVP scope. The mentor sets the priority.
+3. Write the specification in `specs/features/` and link it from the issue. Set the label to `spec:in-review` when you submit it for review.
+4. Set the label to `spec:approved` only once the specification is approved and the [Definition of Ready](#10-definition-of-ready) is met.
+5. Set the label to `in-progress` when the implementation branch is started, and to `in-review` when the pull request is open.
+6. Set the label to `done` and close the issue once the feature is merged and the [Definition of Done](#11-definition-of-done) is met.
+
+Keep exactly one state label on an issue at a time. The full state model is in [docs/sdd-workflow.md](docs/sdd-workflow.md#6-github-issue-states).
 
 ## 5. Specification Review Process
 
 - The author's pair requests review from at least one other pair.
 - Reviewers check that the specification covers acceptance criteria, contracts, dependencies and security considerations.
 - The specification is approved only when reviewers have no open blocking comments.
-- Changes to an approved specification require a new review.
+- Specification approval is separate from pull request approval. Approving a specification does not approve the code, and approving a pull request does not replace specification approval.
+- A material change to an approved specification requires renewed cross-pair review before implementation continues. Material changes include acceptance criteria, functional requirements, contracts, scope, dependencies and security considerations. Editorial changes do not need renewed review.
 
 ## 6. Implementation Guidelines
 
@@ -67,7 +73,7 @@ The full workflow is described in [docs/sdd-workflow.md](docs/sdd-workflow.md).
 
 ## 9. Code Review Rules
 
-- At least one reviewer from another pair must approve the pull request.
+- At least one reviewer from another pair must approve the pull request. This is implementation approval, not specification approval.
 - Reviewers check the implementation against the specification, test coverage, readability and security.
 - Authors respond to every comment, either by changing the code or by explaining why not.
 - Authors must not merge their own pull requests.
@@ -91,6 +97,8 @@ A feature is complete when:
 - code review is approved by a reviewer from another pair;
 - documentation is updated;
 - the feature is integrated into `main`.
+
+A feature reaches `done` once these requirements are met. The weekly Friday demo is not a Definition of Done requirement and is not a prerequisite for merging.
 
 ## 12. AI-Assisted Development Policy
 

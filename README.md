@@ -77,8 +77,9 @@ See [docs/sdd-workflow.md](docs/sdd-workflow.md) for the full workflow and [spec
 ## Team Organisation
 
 - **Team:** 8 Go Developer interns.
-- **Structure:** 4 rotating pairs. Pairs review each other's specifications and pull requests.
-- **Duration:** 12 weeks.
+- **Structure:** 4 development pairs, rotating every two weeks at sprint boundaries. Pairs review each other's specifications and pull requests.
+- **Mentor:** owns requirement priorities and approves significant scope changes.
+- **Duration:** 12 weeks. Demos take place weekly on Fridays.
 
 Contribution rules and review responsibilities are described in [CONTRIBUTING.md](CONTRIBUTING.md).
 

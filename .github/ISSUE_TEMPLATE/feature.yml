@@ -1,4 +1,82 @@
-# TODO: add feature issue form fields
 name: Feature request
-description: TODO
-body: []
+description: Request a GoJudge feature. Implementation starts only after the specification is approved.
+title: "[F00] "
+labels: ["spec:draft"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Create this issue first. Then write the feature specification from [specs/templates/feature-spec-template.md](../../specs/templates/feature-spec-template.md) and place it in `specs/features/`. See [docs/sdd-workflow.md](../../docs/sdd-workflow.md).
+
+  - type: input
+    id: feature-id
+    attributes:
+      label: Feature ID
+      description: MVP feature ID (F01–F12). Use the next free ID if this is a new feature.
+      placeholder: F00
+    validations:
+      required: true
+
+  - type: input
+    id: feature-title
+    attributes:
+      label: Feature Title
+      placeholder: Submit solutions asynchronously
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-goal
+    attributes:
+      label: User Goal
+      description: Who needs this, and what do they want to achieve? Use the form "As a [role], I want [capability], so that [value]."
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What is in scope, and what is explicitly out of scope?
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Draft criteria in Given / When / Then form. The specification will number and refine them (AC-01, AC-02, …).
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Related features (F00–F12), contracts that must be agreed with other pairs, and known blockers. Write "None" if there are none.
+    validations:
+      required: true
+
+  - type: textarea
+    id: security-considerations
+    attributes:
+      label: Security Considerations
+      description: Authentication, authorisation, input validation, sensitive data and, if learner code is executed, execution isolation. Write "Not applicable" with a reason if none apply.
+    validations:
+      required: true
+
+  - type: textarea
+    id: mentor-approval
+    attributes:
+      label: Mentor Approval
+      description: Required for requirement priority decisions and significant scope changes. Link or name the mentor's approval. Leave blank otherwise.
+
+  - type: checkboxes
+    id: spec-confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I understand that implementation will not begin until the feature specification is approved by a reviewer from another pair (status **Approved**).
+          required: true
+        - label: I understand that any change to an approved specification requires renewed review before implementation continues.
+          required: true
