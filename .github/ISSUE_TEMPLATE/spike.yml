@@ -1,0 +1,111 @@
+name: Technical spike
+description: Time-boxed investigation that answers one question. Needs a Spike Brief, not a Feature Specification.
+title: "[SPIKE] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Publish this Spike Brief before the timebox starts. The report goes to `docs/spikes/SPK-XX.md`. Spike experiment code stays on a `spike/` branch and is not merged to `main`. See [CONTRIBUTING.md §5.3](../../CONTRIBUTING.md#53-spike-briefs-and-reports) and [docs/sdd-workflow.md §2.3](../../docs/sdd-workflow.md#23-technical-spike-lifecycle).
+
+  - type: input
+    id: spike-id
+    attributes:
+      label: Spike ID
+      description: Plan or backlog reference, for example SPK-01.
+      placeholder: SPK-01
+    validations:
+      required: true
+
+  - type: dropdown
+    id: owner-pair
+    attributes:
+      label: Owner pair
+      options:
+        - Pair A
+        - Pair B
+        - Pair C
+        - Pair D
+    validations:
+      required: true
+
+  - type: input
+    id: timebox
+    attributes:
+      label: Timebox
+      description: Pair-days and dates. The timebox is not extended without mentor approval.
+      placeholder: "8 pair-days, Mon 2 Nov to Fri 13 Nov 2026, report due 15:00 on 13 Nov"
+    validations:
+      required: true
+
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis
+      description: The statement the spike tests. One sentence where possible.
+    validations:
+      required: true
+
+  - type: textarea
+    id: experiment
+    attributes:
+      label: Experiment
+      description: What will be done, and what will be observed. Use trusted inputs only where the plan requires it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: success-criteria
+    attributes:
+      label: Success criteria
+      description: Each criterion measurable, with its pass threshold. Each is recorded as Verified, Partially verified or Not verified.
+      placeholder: |
+        SC-01: ... (10 of 10 runs)
+    validations:
+      required: true
+
+  - type: textarea
+    id: failure-criteria
+    attributes:
+      label: Failure criteria
+      description: Each condition that makes the outcome No-go. Report to the mentor on the day a failure criterion is met.
+      placeholder: |
+        F-01: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: required-evidence
+    attributes:
+      label: Required evidence
+      description: For each criterion, what is recorded and where the raw record is kept.
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Work items the spike needs, and decisions it tests. Decisions not yet approved are marked provisional. Write "None" if there are none.
+    validations:
+      required: true
+
+  - type: input
+    id: report-location
+    attributes:
+      label: Report location
+      description: Repository path of the report.
+      placeholder: docs/spikes/SPK-01.md
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I confirm this spike uses a Spike Brief, not a Feature Specification.
+          required: true
+        - label: Spike experiment code will be kept on a spike/ branch and will not be merged to main.
+          required: true
+        - label: The report will be reviewed by at least one pair other than the owner pair.
+          required: true

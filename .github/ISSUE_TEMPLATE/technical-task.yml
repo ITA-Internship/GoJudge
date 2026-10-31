@@ -1,0 +1,117 @@
+name: Technical task
+description: Infrastructure, tooling, documentation, ADR or contract work. Not a feature. Needs acceptance criteria, not a Feature Specification.
+title: "[TASK] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for technical tasks and contracts. Features use the feature request form, which needs an approved Feature Specification. Technical spikes use the technical spike form. See [CONTRIBUTING.md](../../CONTRIBUTING.md) and [docs/sdd-workflow.md](../../docs/sdd-workflow.md).
+
+  - type: input
+    id: task-id
+    attributes:
+      label: Task ID
+      description: Backlog or plan reference, for example INF-03 or CON-01.
+      placeholder: INF-03
+    validations:
+      required: true
+
+  - type: dropdown
+    id: work-type
+    attributes:
+      label: Work type
+      description: Contracts also need cross-pair review before dependent implementation begins (CONTRIBUTING §5.2).
+      options:
+        - Infrastructure or tooling
+        - Documentation or ADR
+        - Contract
+    validations:
+      required: true
+
+  - type: dropdown
+    id: owner-pair
+    attributes:
+      label: Owner pair
+      options:
+        - Pair A
+        - Pair B
+        - Pair C
+        - Pair D
+    validations:
+      required: true
+
+  - type: input
+    id: estimate
+    attributes:
+      label: Estimate (pair-days)
+      placeholder: "1.5"
+    validations:
+      required: true
+
+  - type: input
+    id: sprint
+    attributes:
+      label: Sprint
+      placeholder: "Sprint 1 (2–13 November 2026)"
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: What this task achieves, in one or two sentences.
+    validations:
+      required: true
+
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Deliverables
+      description: What will exist when the task is complete.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: Numbered and testable. Each criterion must have evidence in the pull request.
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Other work items, and decisions this task depends on. Mark decisions that are not yet approved as provisional. Write "None" if there are none.
+    validations:
+      required: true
+
+  - type: textarea
+    id: documentation
+    attributes:
+      label: Documentation
+      description: Relevant repository documents, linked by relative path.
+
+  - type: checkboxes
+    id: definition-of-done
+    attributes:
+      label: Definition of Done
+      description: Tick when the task is complete. See CONTRIBUTING §11.
+      options:
+        - label: Every acceptance criterion is met and its evidence is recorded in the pull request.
+        - label: CI passes, where code or configuration changed.
+        - label: Documentation is updated.
+        - label: No secrets or environment-specific configuration are committed.
+        - label: A reviewer from a different pair has approved the pull request.
+        - label: The change is merged into main, and the issue is labelled done and closed.
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I confirm this is a technical task, not an MVP feature. Feature behaviour needs the feature request form and an approved Feature Specification.
+          required: true

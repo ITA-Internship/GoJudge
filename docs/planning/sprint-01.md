@@ -1,6 +1,6 @@
 # Sprint 1 Plan: 2–13 November 2026
 
-**Status:** Draft for mentor review. Not approved. No GitHub Issues have been created from this plan.
+**Status:** Approved for Sprint 1 execution (2 November 2026), on the requester's instruction, after the SDD documents were made consistent for the four work item types. No GitHub Issues have been created from this plan. The mentor's Day-1 decisions are listed in §8.1 and still need recording.
 
 **Sources:** [Product Backlog](../product/product-backlog.md) (revision 3, §5 spikes, §9 Sprint 1, §11.3 overhead), [MVP Proposal](../product/mvp-proposal.md), [SDD Workflow](../sdd-workflow.md), [Contributing Guide](../../CONTRIBUTING.md), [Feature Specification Template](../../specs/templates/feature-spec-template.md).
 
@@ -96,6 +96,20 @@ Backlog §9 gave Pair A INF-01, INF-02, INF-03, INF-04 and INF-08. This plan giv
 
 ---
 
+### 4.5 Work item types
+
+Each Sprint 1 issue is one of the four work item types in [CONTRIBUTING §2](../../CONTRIBUTING.md#2-sdd-rules-and-work-item-types). Estimates, owners and dependencies are unchanged from §4.1.
+
+| Work item | Type | Required before work | Artefact | Branch prefix |
+|-----------|------|----------------------|----------|---------------|
+| SPEC-F01 (S1-09) | Feature | Approved Feature Specification | `specs/features/F01-accounts-and-access.md` | `docs/` for the specification |
+| CON-01 (S1-08) | Contract | Cross-pair review and dependent-pair agreement | `docs/contracts/CON-01.md` | `docs/` |
+| INF-04 (S1-07) | Technical task (documentation or ADR) | Acceptance criteria | `docs/architecture/adr/ADR-001.md`, `ADR-002.md` and the template | `docs/` |
+| INF-01, INF-02, INF-03 (S1-05, S1-06, S1-01) | Technical task (infrastructure) | Acceptance criteria | Repository changes and README | `infra/` |
+| SPK-01, SPK-02, SPK-03 (S1-02, S1-03, S1-04) | Technical spike | Spike Brief on the issue | Report at `docs/spikes/SPK-01.md`, `SPK-02.md`, `SPK-03.md`. Experiment code on `spike/`, not merged. | `spike/` for code. `docs/` for reports. |
+
+---
+
 ## 5. Four Parallel Workstreams
 
 Pair labels A–D are placeholders. The mentor assigns named interns to pairs at the start of the sprint. Named interns are not assigned in this plan.
@@ -132,7 +146,7 @@ Pair B has no review load, so its 0.25 headroom is the least. Pair B's agreement
 
 **Measurable deliverables:**
 
-- Spike report merged to `docs/spikes/` by end of day 10, with SC-01 to SC-10 each recorded as Verified, Partially verified or Not verified, using §7.1.
+- Spike report merged to `docs/spikes/SPK-01.md` by end of day 10, with SC-01 to SC-10 each recorded as Verified, Partially verified or Not verified, using §7.1.
 - Negative-case programs for the spike, held in a spike branch. Not merged to `main`.
 
 ### 5.4 WS-3 Identity and messaging (Pair C)
@@ -152,10 +166,10 @@ Pair B has no review load, so its 0.25 headroom is the least. Pair B's agreement
 
 **Measurable deliverables:**
 
-- **Day 1:** ADR-0001 records the Go version pin (DEC-14) as provisional. INF-01 starts.
+- **Day 1:** ADR-001 (`docs/architecture/adr/ADR-001.md`) records the Go version pin (DEC-14) as provisional. INF-01 starts.
 - **Day 3:** Repository builds and passes lint locally. INF-02 CI pipeline runs on push and pull request. Green on `main` by day 5.
-- **Day 4:** ADR-0002 records the local cluster choice (DEC-06) as provisional. ADR template merged (INF-04).
-- **Day 5:** CON-01 draft circulated to Pairs A, B and C for agreement. Agreement recorded by day 8.
+- **Day 4:** ADR-002 (`docs/architecture/adr/ADR-002.md`) records the local cluster choice (DEC-06) as provisional. ADR template merged (INF-04).
+- **Day 5:** CON-01 draft (`docs/contracts/CON-01.md`) circulated to Pairs A, B and C for agreement. Agreement recorded by day 8.
 - **Day 8:** SPEC-F01 in cross-pair review, reviewed by Pairs A and C.
 
 Pair D's headroom (0.75) is held for review responses and for the mentor's decisions in §8.
@@ -254,7 +268,7 @@ Success criteria: SC-A to SC-D from [backlog §5.3](../product/product-backlog.m
 | MA-15 | Accept the Sprint 1 plan at 24.5 pair-days, replacing the backlog's 28.5 | Sprint 1 cannot start at 28.5 | Accept §2 and §4 of this plan. |
 | MA-05 | Confirm Auth0 tenant access for SPK-02, or accept a documented fixture | SPK-02 starts on day 1 | If access is not in place, accept the fixture route with F-07 as the fallback. |
 | MA-12 | Confirm the spike timebox rule (no extension without approval) | Sets how each spike ends | Confirm. |
-| MA-17 | **New.** Confirm that spikes are exempt from specification approval, because they produce reports and not features | SDD says no implementation starts before approval, and spikes write code. Without a ruling, SPK-01 is blocked. | Confirm the exemption, with the rule that spike code is not merged to `main` and is not production code. |
+| MA-17 | **Resolved.** Spikes need a Spike Brief, not a Feature Specification (approved work item rules, CONTRIBUTING §2). | Previously, SDD had no spike rule and SPK-01 was blocked. | Spike experiment code stays on a `spike/` branch and is not merged to `main`. |
 | MA-11 | Confirm all four pairs are present for all 10 working days | The plan assumes it | Confirm, or give the absence and the plan will be re-cut. |
 | MA-18 | **New.** Confirm pairs B and C need no general training beyond their spikes (§3, item 1) | Basis for the 2.0 headroom | Confirm. If not, training returns to 6 and headroom falls to 0. |
 
@@ -283,18 +297,18 @@ Success criteria: SC-A to SC-D from [backlog §5.3](../product/product-backlog.m
 
 **These issues are proposed, not created.** Create them only after the mentor accepts this plan. Issue numbers are assigned by GitHub on creation. The S1 numbers here are plan references.
 
-Labels: the six agreed labels are used for specification and implementation items. Spikes have no agreed label. Proposed: `in-progress` when started and `done` when closed. A spike label is an open question for the mentor (§10).
+Labels: only the six agreed workflow labels are used. No new labels are introduced. Feature items use the `spec:` states, then `in-progress`, `in-review` and `done`. Technical tasks, spikes and contracts use `in-progress`, `in-review` (while the pull request is open) and `done`. See [CONTRIBUTING §4](../../CONTRIBUTING.md#4-github-issue-workflow).
 
 | Ref | Title | Pair | Depends on | Estimate (pair-days) | Acceptance criteria | Labels |
 |-----|-------|------|------------|----------------------|---------------------|--------|
-| S1-01 | [INF-03] Local infrastructure: cluster, PostgreSQL, RabbitMQ | A | DEC-06 (provisional, day 1) | 4 | (1) Cluster running by end of day 2 (M1). (2) RabbitMQ and PostgreSQL reachable by end of day 3 (M2). (3) Setup steps in the README, reproduced by a second pair (M3, day 4). | `in-progress`, `done` |
-| S1-02 | [SPK-01] Secure Go execution spike | B | S1-01 M1; DEC-01 and DEC-02 provisional | 8 | SC-01 to SC-10 recorded with Verified, Partially verified or Not verified per criterion. Outcome per §7.1. Report merged to `docs/spikes/` by 13 Nov 15:00. | `in-progress`, `done` |
-| S1-03 | [SPK-02] Auth0 OIDC integration check | C | DEC-03 provisional; MA-05 | 2 | SC-A to SC-C recorded. Failure criteria F-06 and F-07 reported. Report by end of day 2. | `in-progress`, `done` |
-| S1-04 | [SPK-03] RabbitMQ and Watermill check | C | S1-01 M2; DEC-04 provisional | 4 | SC-A to SC-D recorded. Failure criteria F-08 to F-10 reported. Report by end of day 6. | `in-progress`, `done` |
-| S1-05 | [INF-01] Go module, layout, lint and format | D | DEC-14 (provisional, day 1) | 1.5 | `go.mod` with the Go version from ADR-0001. Lint and format configured. Repository builds and passes lint locally. Layout section in the README. | `in-progress`, `done` |
-| S1-06 | [INF-02] CI baseline on GitHub Actions | D | S1-05 | 1.5 | Pipeline runs on push and pull request. Build, lint, unit-test and dependency checks configured. Green on `main` by day 5. No secrets in the repository. | `in-progress`, `done` |
-| S1-07 | [INF-04] ADR process and first records | D | None | 0.5 | ADR template merged. ADR-0001 (Go version, DEC-14) and ADR-0002 (local cluster, DEC-06) recorded as Provisional. | `in-progress`, `done` |
-| S1-08 | [CON-01] Submission lifecycle and verdict model | D | None | 1.5 | States, transitions and verdicts agreed. Agreement from Pairs A, B and C recorded on the issue by day 8. Infrastructure vs test-failure classification stated. | `in-progress`, `done` |
+| S1-01 | [INF-03] Local infrastructure: cluster, PostgreSQL, RabbitMQ | A | DEC-06 (provisional, day 1) | 4 | (1) Cluster running by end of day 2 (M1). (2) RabbitMQ and PostgreSQL reachable by end of day 3 (M2). (3) Setup steps in the README, reproduced by a second pair (M3, day 4). | `in-progress`, `in-review`, `done` |
+| S1-02 | [SPK-01] Secure Go execution spike | B | S1-01 M1; DEC-01 and DEC-02 provisional | 8 | SC-01 to SC-10 recorded with Verified, Partially verified or Not verified per criterion. Outcome per §7.1. Report merged to `docs/spikes/SPK-01.md` by 13 Nov 15:00. | `in-progress`, `in-review`, `done` |
+| S1-03 | [SPK-02] Auth0 OIDC integration check | C | DEC-03 provisional; MA-05 | 2 | SC-A to SC-C recorded. Failure criteria F-06 and F-07 reported. Report by end of day 2. | `in-progress`, `in-review`, `done` |
+| S1-04 | [SPK-03] RabbitMQ and Watermill check | C | S1-01 M2; DEC-04 provisional | 4 | SC-A to SC-D recorded. Failure criteria F-08 to F-10 reported. Report by end of day 6. | `in-progress`, `in-review`, `done` |
+| S1-05 | [INF-01] Go module, layout, lint and format | D | DEC-14 (provisional, day 1) | 1.5 | `go.mod` with the Go version from ADR-001. Lint and format configured. Repository builds and passes lint locally. Layout section in the README. | `in-progress`, `in-review`, `done` |
+| S1-06 | [INF-02] CI baseline on GitHub Actions | D | S1-05 | 1.5 | Pipeline runs on push and pull request. Build, lint, unit-test and dependency checks configured. Green on `main` by day 5. No secrets in the repository. | `in-progress`, `in-review`, `done` |
+| S1-07 | [INF-04] ADR process and first records | D | None | 0.5 | ADR template merged in `docs/architecture/adr/`. ADR-001 (Go version, DEC-14) and ADR-002 (local cluster, DEC-06) recorded as Provisional. | `in-progress`, `in-review`, `done` |
+| S1-08 | [CON-01] Submission lifecycle and verdict model | D | None | 1.5 | States, transitions and verdicts agreed. Agreement from Pairs A, B and C recorded on the issue by day 8. Infrastructure vs test-failure classification stated. Contract in `docs/contracts/CON-01.md`. | `in-progress`, `in-review`, `done` |
 | S1-09 | [SPEC-F01] Accounts and access specification | D | S1-08 (draft) | 1.5 | Spec written from `specs/templates/feature-spec-template.md`. Acceptance criteria numbered AC-01 onward. Security section complete. Status set to In Review (`spec:in-review`) by day 8. Reviewed by Pairs A and C. | `spec:draft`, then `spec:in-review`, then `spec:approved` at the start of Sprint 2 |
 
 **Not proposed as Sprint 1 issues:** SPEC-F02, CON-04 (Sprint 2), INF-08 (Sprint 3), and all other backlog items.
@@ -312,7 +326,7 @@ Labels: the six agreed labels are used for specification and implementation item
 | R5 | Cross-pair review of SPEC-F01 and CON-01 takes longer than the review overhead | Review is allocated to Pairs A and C from day 5. Pair D does not chase reviews outside its headroom. |
 | R6 | Spike reports are merged late, so the Sprint 2 decisions (DEC-01 to DEC-04) slip | Reports are merged on the day their timebox ends. |
 | R7 | SPEC-F02 and CON-04 move to Sprint 2, raising its load | Sprint 2 load to be re-checked at the Sprint 2 planning. |
-| Q1 | Spike label: the six agreed labels do not cover spikes | Mentor decision (§8.1, MA-17 follow-up). Proposed: `in-progress` and `done` only. |
+| Q1 | Spike label | Resolved. Spikes use `in-progress`, `in-review` and `done`, within the six agreed labels. |
 | Q2 | No additional engineering support is assumed | Confirmed by MA-11. If support is added, it is recorded as a backlog change, not absorbed here. |
 
 ---
@@ -321,12 +335,12 @@ Labels: the six agreed labels are used for specification and implementation item
 
 **Exit criteria (13 November, 15:00):**
 
-- SPK-01, SPK-02 and SPK-03 reports merged to `docs/spikes/`, each with its outcome.
+- SPK-01, SPK-02 and SPK-03 reports merged to `docs/spikes/SPK-01.md`, `SPK-02.md` and `SPK-03.md`, each with its outcome.
 - INF-02 green on `main`.
 - INF-03 meets M1, M2 and M3.
 - CON-01 agreed by Pairs A, B and C, with agreement on the issue.
 - SPEC-F01 in review, with reviews from Pairs A and C.
-- ADR-0001 and ADR-0002 recorded as Provisional.
+- ADR-001 and ADR-002 recorded as Provisional in `docs/architecture/adr/`.
 
 **Demos:**
 
