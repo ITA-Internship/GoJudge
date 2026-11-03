@@ -97,6 +97,11 @@ Contribution rules and review responsibilities are described in [CONTRIBUTING.md
 │   ├── features/                # Approved feature specifications
 │   └── templates/
 │       └── feature-spec-template.md
+├── cmd/                 # Main applications for this project
+├── internal/            # Private application and library code
+├── pkg/                 # Library code safe to be imported by external applications
+├── .golangci.yml        # Go linter configuration
+├── go.mod               # Go module definition
 ├── .gitignore
 ├── CONTRIBUTING.md
 └── README.md
