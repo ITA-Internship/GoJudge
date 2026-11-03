@@ -8,6 +8,9 @@
 ## Context
 [Describe the context of this decision]
 
+## Decision Driver & Approval Condition
+[Mention dependencies and condition for final approval, e.g., confirmation by MA-XX.]
+
 ## Considered Options
 * [Option 1]
 * [Option 2]
