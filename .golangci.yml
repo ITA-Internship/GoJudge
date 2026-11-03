@@ -18,3 +18,6 @@ linters:
     - staticcheck # Comprehensive bug and performance analyzer
     - ineffassign # Detects unused assignments
     - gosimple    # Suggests code simplifications
+
+    # Security
+    - gosec      # Inspects source code for security problems
