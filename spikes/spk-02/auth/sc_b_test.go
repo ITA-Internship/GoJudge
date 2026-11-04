@@ -20,7 +20,6 @@ func TestSCB_1_RejectTamperedToken(t *testing.T) {
 		[]string{"Learner"},
 		time.Now().Add(15*time.Minute),
 	)
-
 	tamperedToken := validToken[:len(validToken)-6] + "TAMPER"
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/protected", nil)

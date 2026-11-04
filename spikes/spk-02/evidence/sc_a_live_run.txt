@@ -1,10 +1,10 @@
 ﻿=== RUN   TestSCA_LiveTenantToken_ThroughMiddleware
 === RUN   TestSCA_LiveTenantToken_ThroughMiddleware/learner
-    sc_a_test.go:130: live learner token verified against tenant JWKS: HTTP 200, role=learner
+    sc_a_test.go:86: live learner token verified against tenant JWKS: HTTP 200, role=learner
 === RUN   TestSCA_LiveTenantToken_ThroughMiddleware/administrator
-    sc_a_test.go:130: live administrator token verified against tenant JWKS: HTTP 200, role=administrator
---- PASS: TestSCA_LiveTenantToken_ThroughMiddleware (0.36s)
-    --- PASS: TestSCA_LiveTenantToken_ThroughMiddleware/learner (0.00s)
+    sc_a_test.go:86: live administrator token verified against tenant JWKS: HTTP 200, role=administrator
+--- PASS: TestSCA_LiveTenantToken_ThroughMiddleware (0.83s)
+    --- PASS: TestSCA_LiveTenantToken_ThroughMiddleware/learner (0.83s)
     --- PASS: TestSCA_LiveTenantToken_ThroughMiddleware/administrator (0.00s)
 PASS
-ok  	spk02/auth	3.337s
+ok  	spk02/auth	4.222s

@@ -1,14 +1,11 @@
-# SPK-02 SC-B raw test run
-# date: 2026-11-04T08:31Z  go: go version go1.27.3 windows/amd64  base commit: 9a52070 (+ uncommitted logging change)
-# cmd: go test ./... -run TestSCB -v -count=1
-=== RUN   TestSCB_1_RejectTamperedToken
-    sc_b_test.go:35: rejected: HTTP 401: unauthorized: token signature is invalid: crypto/rsa: verification error
---- PASS: TestSCB_1_RejectTamperedToken (0.03s)
+﻿=== RUN   TestSCB_1_RejectTamperedToken
+    sc_b_test.go:34: rejected: HTTP 401: unauthorized: jwt invalid: failed to parse and validate token: jwt.ParseString: failed to parse string: jwt.VerifyCompact: signature verification failed for RS256: crypto/rsa: verification error
+--- PASS: TestSCB_1_RejectTamperedToken (0.09s)
 === RUN   TestSCB_2_RejectExpiredToken
-    sc_b_test.go:60: rejected: HTTP 401: unauthorized: token has invalid claims: token is expired
---- PASS: TestSCB_2_RejectExpiredToken (0.02s)
+    sc_b_test.go:59: rejected: HTTP 401: unauthorized: jwt invalid: failed to parse and validate token: jwt.ParseString: failed to parse string: jwt.Validate: validation failed: "exp" not satisfied: token is expired
+--- PASS: TestSCB_2_RejectExpiredToken (0.03s)
 === RUN   TestSCB_3_RejectWrongAudienceToken
-    sc_b_test.go:85: rejected: HTTP 401: unauthorized: token has invalid claims: token has invalid audience
---- PASS: TestSCB_3_RejectWrongAudienceToken (0.04s)
+    sc_b_test.go:84: rejected: HTTP 401: unauthorized: jwt invalid: audience validation failed: token audience [https://wrong-audience.unauthorized.local] does not match any expected audience [https://gojudge-api]
+--- PASS: TestSCB_3_RejectWrongAudienceToken (0.10s)
 PASS
-ok  	spk02/auth	3.157s
+ok  	spk02/auth	3.977s

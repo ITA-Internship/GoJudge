@@ -10,22 +10,31 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type fixtureClaims struct {
+	Roles []string `json:"https://gojudge-api/roles"`
+	jwt.RegisteredClaims
+}
+
 type testRig struct {
 	privKey *rsa.PrivateKey
 	pubKey  *rsa.PublicKey
 	handler http.Handler
 }
 
-// newTestRig boots an in-memory fixture environment
+// newTestRig boots an in-memory fixture environment backed by the official Auth0 middleware
 func newTestRig(t *testing.T) *testRig {
 	t.Helper()
+
 	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		t.Fatalf("failed generating test RSA keypair: %v", err)
 	}
-
 	pubKey := &privKey.PublicKey
-	keyFunc := MakeRSAKeyFunc(pubKey)
+
+	jwtValidator, err := NewStaticValidator(pubKey)
+	if err != nil {
+		t.Fatalf("failed creating Auth0 validator: %v", err)
+	}
 
 	protectedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		role, ok := RoleFromContext(r.Context())
@@ -40,14 +49,15 @@ func newTestRig(t *testing.T) *testRig {
 	return &testRig{
 		privKey: privKey,
 		pubKey:  pubKey,
-		handler: AuthMiddleware(keyFunc, protectedHandler),
+		handler: AuthMiddleware(jwtValidator, protectedHandler),
 	}
 }
 
 // issueFixtureToken mints signed RS256 OIDC tokens for testing
 func (r *testRig) issueFixtureToken(t *testing.T, sub, iss, aud string, roles []string, exp time.Time) string {
 	t.Helper()
-	claims := CustomClaims{
+
+	claims := fixtureClaims{
 		Roles: roles,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   sub,
@@ -57,6 +67,7 @@ func (r *testRig) issueFixtureToken(t *testing.T, sub, iss, aud string, roles []
 			IssuedAt:  jwt.NewNumericDate(time.Now().Add(-1 * time.Minute)),
 		},
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	signed, err := token.SignedString(r.privKey)
 	if err != nil {
