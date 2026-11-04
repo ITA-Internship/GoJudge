@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -31,6 +32,7 @@ func TestSCB_1_RejectTamperedToken(t *testing.T) {
 	if rec.Code != http.StatusUnauthorized {
 		t.Fatalf("SC-B 1/3 failed: expected HTTP 401 for tampered token, got %d", rec.Code)
 	}
+	t.Logf("rejected: HTTP %d: %s", rec.Code, strings.TrimSpace(rec.Body.String()))
 }
 
 // TestSCB_2_RejectExpiredToken verifies rejection of expired tokens
@@ -55,6 +57,7 @@ func TestSCB_2_RejectExpiredToken(t *testing.T) {
 	if rec.Code != http.StatusUnauthorized {
 		t.Fatalf("SC-B 2/3 failed: expected HTTP 401 for expired token, got %d", rec.Code)
 	}
+	t.Logf("rejected: HTTP %d: %s", rec.Code, strings.TrimSpace(rec.Body.String()))
 }
 
 // TestSCB_3_RejectWrongAudienceToken verifies rejection of mismatched audience tokens
@@ -79,4 +82,5 @@ func TestSCB_3_RejectWrongAudienceToken(t *testing.T) {
 	if rec.Code != http.StatusUnauthorized {
 		t.Fatalf("SC-B 3/3 failed: expected HTTP 401 for wrong-audience token, got %d", rec.Code)
 	}
+	t.Logf("rejected: HTTP %d: %s", rec.Code, strings.TrimSpace(rec.Body.String()))
 }
