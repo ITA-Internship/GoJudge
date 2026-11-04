@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: spk01-sc-03-      # K8s додасть унікальний суфікс
+  namespace: spk01
+  labels:
+    app: spk01
+    criterion: SC-03
+spec:
+  backoffLimit: 0                 # не перезапускати після падіння
+  activeDeadlineSeconds: 60       # страховка, якщо ліміт не спрацює
+  ttlSecondsAfterFinished: 600    # 10 хв, щоб встигнути подивитись под
+  template:
+    metadata:
+      labels:
+        app: spk01
+        criterion: SC-03
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 1
+      containers:
+        - name: judge
+          image: gojudge-spk01:dev
+          imagePullPolicy: Never
+          command: ["go", "test", "-json", "-run", "^TestMemoryExhaustion$", "./..."]
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"     # саме цей ліміт ми перевіряємо
+              cpu: "1"

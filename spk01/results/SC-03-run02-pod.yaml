@@ -1,0 +1,174 @@
+﻿apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2026-11-04T18:42:05Z"
+  generateName: spk01-sc-03-kfbmb-
+  generation: 1
+  labels:
+    app: spk01
+    batch.kubernetes.io/controller-uid: 74fe0f4b-ee0a-450b-844c-cf07d8f0cb2d
+    batch.kubernetes.io/job-name: spk01-sc-03-kfbmb
+    controller-uid: 74fe0f4b-ee0a-450b-844c-cf07d8f0cb2d
+    criterion: SC-03
+    job-name: spk01-sc-03-kfbmb
+  name: spk01-sc-03-kfbmb-z2k9k
+  namespace: spk01
+  ownerReferences:
+  - apiVersion: batch/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Job
+    name: spk01-sc-03-kfbmb
+    uid: 74fe0f4b-ee0a-450b-844c-cf07d8f0cb2d
+  resourceVersion: "11650"
+  uid: f2892cda-916d-4e6a-9c4e-ab21d503373d
+spec:
+  containers:
+  - command:
+    - go
+    - test
+    - -json
+    - -run
+    - ^TestMemoryExhaustion$
+    - ./...
+    image: gojudge-spk01:dev
+    imagePullPolicy: Never
+    name: judge
+    resources:
+      limits:
+        cpu: "1"
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-xk4xh
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: k3d-gojudge-server-0
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Never
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 1
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: kube-api-access-xk4xh
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2026-11-04T18:42:13Z"
+    observedGeneration: 1
+    status: "False"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2026-11-04T18:42:05Z"
+    observedGeneration: 1
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2026-11-04T18:42:12Z"
+    observedGeneration: 1
+    reason: PodFailed
+    status: "False"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2026-11-04T18:42:12Z"
+    observedGeneration: 1
+    reason: PodFailed
+    status: "False"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2026-11-04T18:42:05Z"
+    observedGeneration: 1
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - allocatedResources:
+      cpu: 250m
+      memory: 512Mi
+    containerID: containerd://13259cdbbb09055b36d5668133b0193ff1e01915687e7bb5b2147f8c8d186641
+    image: docker.io/library/gojudge-spk01:dev
+    imageID: sha256:301dc377b4e67c1f96095fa31e10bc2220164fe4658e8a54c449bd39655ad09c
+    lastState: {}
+    name: judge
+    ready: false
+    resources:
+      limits:
+        cpu: "1"
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    restartCount: 0
+    started: false
+    state:
+      terminated:
+        containerID: containerd://13259cdbbb09055b36d5668133b0193ff1e01915687e7bb5b2147f8c8d186641
+        exitCode: 137
+        finishedAt: "2026-11-04T18:42:12Z"
+        reason: OOMKilled
+        startedAt: "2026-11-04T18:42:07Z"
+    user:
+      linux:
+        gid: 0
+        supplementalGroups:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 6
+        - 10
+        - 11
+        - 20
+        - 26
+        - 27
+        uid: 0
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-xk4xh
+      readOnly: true
+      recursiveReadOnly: Disabled
+  hostIP: 172.21.0.3
+  hostIPs:
+  - ip: 172.21.0.3
+  observedGeneration: 1
+  phase: Failed
+  podIP: 10.42.0.12
+  podIPs:
+  - ip: 10.42.0.12
+  qosClass: Burstable
+  startTime: "2026-11-04T18:42:05Z"

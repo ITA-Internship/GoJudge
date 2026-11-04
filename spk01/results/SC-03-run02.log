@@ -1,0 +1,7 @@
+﻿{"Time":"2026-11-04T18:42:11.351292826Z","Action":"start","Package":"trusted"}
+{"Time":"2026-11-04T18:42:11.354949865Z","Action":"run","Package":"trusted","Test":"TestMemoryExhaustion"}
+{"Time":"2026-11-04T18:42:11.355023567Z","Action":"output","Package":"trusted","Test":"TestMemoryExhaustion","Output":"=== RUN   TestMemoryExhaustion\n","OutputType":"frame"}
+{"Time":"2026-11-04T18:42:11.478784129Z","Action":"output","Package":"trusted","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 100 MiB\n"}
+{"Time":"2026-11-04T18:42:11.602647963Z","Action":"output","Package":"trusted","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 200 MiB\n"}
+{"Time":"2026-11-04T18:42:11.741390976Z","Action":"output","Package":"trusted","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 300 MiB\n"}
+{"Time":"2026-11-04T18:42:11.887755306Z","Action":"output","Package":"trusted","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 400 MiB\n"}

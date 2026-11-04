@@ -1,0 +1,5 @@
+﻿SC-03 run01 job=spk01-sc-03-k6kmp pod=spk01-sc-03-k6kmp-qtmlf reason=OOMKilled exitCode=137
+SC-03 run02 job=spk01-sc-03-kfbmb pod=spk01-sc-03-kfbmb-z2k9k reason=OOMKilled exitCode=137
+SC-03 run03 job=spk01-sc-03-94zx6 pod=spk01-sc-03-94zx6-d7wlg reason=OOMKilled exitCode=137
+SC-03 run04 job=spk01-sc-03-qjhr7 pod=spk01-sc-03-qjhr7-5glmt reason=OOMKilled exitCode=137
+SC-03 run05 job=spk01-sc-03-zgjg9 pod=spk01-sc-03-zgjg9-rkjnz reason=OOMKilled exitCode=137
