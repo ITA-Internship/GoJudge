@@ -1,8 +1,8 @@
 ## RabbitMQ
 
 RabbitMQ 4.4.0 (with the management UI) runs in the namespace `gojudge`.
-Manifests: `infra/k8s/rabbitmq/rabbitmq.yaml`. The cluster from the section
-above must be running.
+Manifests: `infra/k8s/rabbitmq/rabbitmq.yaml`. The local cluster must be
+running (see the "Local cluster" section in [`infra/README.md`](../../README.md)).
 
 ### Credentials
 
