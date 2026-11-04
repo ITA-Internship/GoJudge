@@ -1,0 +1,13 @@
+{"Time":"2026-11-04T21:30:19.745248161Z","Action":"start","Package":"trusted"}
+{"Time":"2026-11-04T21:30:19.749166616Z","Action":"run","Package":"trusted","Test":"TestPrivilegeCheck"}
+{"Time":"2026-11-04T21:30:19.74926998Z","Action":"output","Package":"trusted","Test":"TestPrivilegeCheck","Output":"=== RUN   TestPrivilegeCheck\n","OutputType":"frame"}
+{"Time":"2026-11-04T21:30:19.749291978Z","Action":"output","Package":"trusted","Test":"TestPrivilegeCheck","Output":"    privcheck_test.go:15: uid=65532 gid=65532\n"}
+{"Time":"2026-11-04T21:30:19.750006084Z","Action":"output","Package":"trusted","Test":"TestPrivilegeCheck","Output":"    privcheck_test.go:24: setuid(0) blocked: operation not permitted\n"}
+{"Time":"2026-11-04T21:30:19.750056735Z","Action":"output","Package":"trusted","Test":"TestPrivilegeCheck","Output":"    privcheck_test.go:32: token absent: stat /var/run/secrets/kubernetes.io/serviceaccount/token: no such file or directory\n"}
+{"Time":"2026-11-04T21:30:19.750208744Z","Action":"output","Package":"trusted","Test":"TestPrivilegeCheck","Output":"    privcheck_test.go:42: CapEff:\t0000000000000000\n"}
+{"Time":"2026-11-04T21:30:19.750231313Z","Action":"output","Package":"trusted","Test":"TestPrivilegeCheck","Output":"    privcheck_test.go:42: NoNewPrivs:\t1\n"}
+{"Time":"2026-11-04T21:30:19.750240785Z","Action":"output","Package":"trusted","Test":"TestPrivilegeCheck","Output":"--- PASS: TestPrivilegeCheck (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-04T21:30:19.750244253Z","Action":"pass","Package":"trusted","Test":"TestPrivilegeCheck","Elapsed":0}
+{"Time":"2026-11-04T21:30:19.750265833Z","Action":"output","Package":"trusted","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-04T21:30:19.750784014Z","Action":"output","Package":"trusted","Output":"ok  \ttrusted\t0.005s\n"}
+{"Time":"2026-11-04T21:30:19.751635776Z","Action":"pass","Package":"trusted","Elapsed":0.006}
