@@ -21,12 +21,12 @@ kubectl -n gojudge create secret generic postgres-credentials \
   --from-literal=password="$POSTGRES_PASSWORD" \
   --from-literal=database="$POSTGRES_DB"
 kubectl apply -f infra/k8s/postgres/postgres.yaml
-kubectl -n gojudge rollout status deploy/postgres
+kubectl -n gojudge rollout status statefulset/postgres
 ```
 
 ### Check
 ```bash
-kubectl -n gojudge exec deploy/postgres -- sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "select 1;"'
+kubectl -n gojudge exec postgres-0 -- sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "select 1;"'
 ```
 You must see `1`
 
