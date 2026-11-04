@@ -15,6 +15,7 @@ import (
 
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
@@ -57,6 +58,10 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		return nil, fmt.Errorf("failed to create Job: %w", err)
 	}
 	jobName := createdJob.Name
+
+	if opts.Criterion == "SC-10" {
+		return runCancellationTest(ctx, cs, opts, outputDir, startTime, createdJob)
+	}
 
 	var (
 		podName          string
@@ -228,6 +233,121 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		TestsPassed:        testSummary.TestsPassed,
 		TestsFailed:        testSummary.TestsFailed,
 		PackageVerdict:     testSummary.PackageVerdict,
+		Pass:               isPass,
+		LogFile:            filepath.Join("results", logFileName),
+	}
+
+	return record, nil
+}
+
+// runCancellationTest verifies SC-10: manual cancellation terminates a running Job within 30 seconds.
+func runCancellationTest(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options, outputDir string, startTime time.Time, job *batchv1.Job) (*measure.RunRecord, error) {
+	jobName := job.Name
+	var (
+		podName       string
+		podRunningAt  time.Time
+		logContent    bytes.Buffer
+		logStreamDone = make(chan struct{})
+	)
+
+	// 1. Wait until Pod is in Running phase
+	err := wait.PollUntilContextTimeout(ctx, 100*time.Millisecond, 30*time.Second, true, func(ctx context.Context) (bool, error) {
+		pods, err := cs.CoreV1().Pods(opts.Namespace).List(ctx, metav1.ListOptions{
+			LabelSelector: "batch.kubernetes.io/job-name=" + jobName,
+		})
+		if err == nil && len(pods.Items) > 0 {
+			p := pods.Items[0]
+			podName = p.Name
+			if p.Status.Phase == corev1.PodRunning {
+				podRunningAt = time.Now()
+				return true, nil
+			}
+		}
+		return false, nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("pod for job %s did not become Running: %w", jobName, err)
+	}
+
+	// 2. Start live log stream
+	go func(targetPod string) {
+		defer close(logStreamDone)
+		req := cs.CoreV1().Pods(opts.Namespace).GetLogs(targetPod, &corev1.PodLogOptions{
+			Container: "judge",
+			Follow:    true,
+		})
+		stream, err := req.Stream(ctx)
+		if err != nil {
+			return
+		}
+		defer stream.Close()
+		_, _ = io.Copy(&logContent, stream)
+	}(podName)
+
+	// Let the workload run actively for 2 seconds before cancellation
+	time.Sleep(2 * time.Second)
+
+	// 3. Issue manual cancel request
+	cancelRequestedAt := time.Now()
+	deletePolicy := metav1.DeletePropagationForeground
+	err = cs.BatchV1().Jobs(opts.Namespace).Delete(ctx, jobName, metav1.DeleteOptions{
+		PropagationPolicy: &deletePolicy,
+	})
+	if err != nil && !apierrors.IsNotFound(err) {
+		return nil, fmt.Errorf("failed to issue delete for job %s: %w", jobName, err)
+	}
+
+	// 4. Poll until BOTH Job and Pod are completely deleted from etcd
+	var jobFinishedAt time.Time
+	pollErr := wait.PollUntilContextTimeout(ctx, 100*time.Millisecond, 40*time.Second, true, func(ctx context.Context) (bool, error) {
+		_, jobErr := cs.BatchV1().Jobs(opts.Namespace).Get(ctx, jobName, metav1.GetOptions{})
+		jobGone := apierrors.IsNotFound(jobErr)
+
+		podGone := true
+		if podName != "" {
+			_, podErr := cs.CoreV1().Pods(opts.Namespace).Get(ctx, podName, metav1.GetOptions{})
+			podGone = apierrors.IsNotFound(podErr)
+		}
+
+		if jobGone && podGone {
+			jobFinishedAt = time.Now()
+			return true, nil
+		}
+		return false, nil
+	})
+	if pollErr != nil {
+		return nil, fmt.Errorf("job %s was not deleted within timeout: %w", jobName, pollErr)
+	}
+
+	// 5. Ensure log stream flushes
+	select {
+	case <-logStreamDone:
+	case <-time.After(2 * time.Second):
+	}
+
+	// 6. Save raw logs
+	logFileName := fmt.Sprintf("%s-run%02d.log", opts.Criterion, opts.RunIndex)
+	logPath := filepath.Join(outputDir, logFileName)
+	_ = os.WriteFile(logPath, logContent.Bytes(), 0644)
+
+	cancelDuration := jobFinishedAt.Sub(cancelRequestedAt)
+	cancelLatencyMs := cancelDuration.Milliseconds()
+	isPass := cancelDuration <= 30*time.Second
+
+	record := &measure.RunRecord{
+		Criterion:          opts.Criterion,
+		RunIndex:           opts.RunIndex,
+		JobName:            jobName,
+		PodName:            podName,
+		CreatedAt:          startTime,
+		PodRunningAt:       podRunningAt,
+		JobFinishedAt:      jobFinishedAt,
+		StartupLatencyMs:   podRunningAt.Sub(startTime).Milliseconds(),
+		ExecutionLatencyMs: cancelDuration.Milliseconds(),
+		TotalDurationMs:    jobFinishedAt.Sub(startTime).Milliseconds(),
+		CancelLatencyMs:    cancelLatencyMs,
+		Condition:          "Cancelled",
+		Reason:             "UserCancelRequest",
 		Pass:               isPass,
 		LogFile:            filepath.Join("results", logFileName),
 	}

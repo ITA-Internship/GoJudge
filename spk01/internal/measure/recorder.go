@@ -21,6 +21,7 @@ type RunRecord struct {
 	ExecutionLatencyMs int64     `json:"execution_latency_ms"`
 	TotalDurationMs    int64     `json:"total_duration_ms"`
 	OverrunMs          int64     `json:"overrun_ms,omitempty"`
+	CancelLatencyMs    int64     `json:"cancel_latency_ms,omitempty"`
 	Condition          string    `json:"condition"` // "Complete" or "Failed"
 	Reason             string    `json:"reason,omitempty"`
 	TerminatedReason   string    `json:"terminated_reason,omitempty"`
