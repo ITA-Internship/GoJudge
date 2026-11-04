@@ -1,0 +1,3 @@
+{"Time":"2026-11-04T12:54:54.030230574Z","Action":"start","Package":"trusted"}
+{"Time":"2026-11-04T12:54:54.032682412Z","Action":"run","Package":"trusted","Test":"TestInfiniteLoop"}
+{"Time":"2026-11-04T12:54:54.032728121Z","Action":"output","Package":"trusted","Test":"TestInfiniteLoop","Output":"=== RUN   TestInfiniteLoop\n","OutputType":"frame"}
