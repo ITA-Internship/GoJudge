@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: spk01-manual-test
+  namespace: spk01
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 1
+      containers:
+        - name: judge
+          image: gojudge-spk01:dev
+          imagePullPolicy: Never
+          command: ["go", "test", "-json", "-run", "^TestAddSuccess$", "./..."]
