@@ -8,51 +8,68 @@
 - **Status:** Completed within timebox
 - **Dependencies:** DEC-03 (provisional), MA-05
 
-## 1. Objective
+## 1. Objective & Hypothesis
 - **Objective:** Answer one question: can the Go API validate Auth0 OIDC tokens and map the role claim to `learner` or `administrator`, using either the Auth0 development tenant or a documented fixture?
+- **Hypothesis:** The Go API can verify an Auth0 OIDC token, and map its role claim to `learner` or `administrator`.
 
 ## 2. Experiment Setup & Sign-In Path (SC-A)
-- **Sign-In Path Used:** Auth0 development tenant (`https://dev-05kxujwqfcu8g5po.us.auth0.com/`) with documented RS256 middleware fixture.
-- **Development Tenant Status:** Tested directly against real OIDC tokens minted by the Auth0 development tenant for test identities `learner@test.local` and `admin@test.local`.
+- **Sign-In Path Used:** Documented fixture route (`fixture_test.go`, `sc_a_test.go`).
+- **Tenant Testing Status:** Live Auth0 development tenant was **not tested** end-to-end against a live JWKS signature verification endpoint during this spike run. Token payloads minted by the tenant were inspected structurally (`tenant_payload_test.go`), while the middleware validation flow was demonstrated via the documented RS256 fixture.
+- **Secrets & Environment Policy:** No secrets, credentials, live tokens, or environment-specific tenant URLs are committed. All test assertions rely on generic placeholders and environment variables.
+- **Experimental Code Isolation:** Code is retained on branch `spike/SPK-02-auth0-oidc` and not merged into `main` per CONTRIBUTING §11.
 
 ## 3. Success Criteria & Recorded Evidence
 
 | Criterion | Status | Evidence Summary |
 | :--- | :--- | :--- |
-| **SC-A** | **Verified** | Sign-in demonstrated with tokens issued by the Auth0 development tenant (`dev-05kxujwqfcu8g5po.us.auth0.com`) and validated through Go middleware (`sc_a_test.go`, `tenant_payload_test.go`). |
-| **SC-B** | **Verified** | Middleware validates signature, issuer, audience, and expiry. Rejected 3 of 3 invalid tokens (`sc_b_test.go`). |
-| **SC-C** | **Verified** | Role claims map to `learner` and `administrator` for both test users (`sc_c_test.go`, `tenant_payload_test.go`). |
+| **SC-A** | **Partially verified** | Sign-in demonstrated once via documented fixture (`sc_a_test.go`). The live development tenant was not tested for signature verification; recorded as a named risk. |
+| **SC-B** | **Verified** | Middleware validates signature, issuer, audience, and expiry. Rejected 3 of 3 invalid tokens (`sc_b_test.go`). Raw execution log included below. |
+| **SC-C** | **Verified** | Custom role claim (`https://gojudge-api/roles`) deterministically maps to `learner` and `administrator` for two test identities (`sc_c_test.go`). |
 
 ### SC-A Evidence: Sign-In Path
-- **Observation:** Real OIDC tokens from the Auth0 development tenant were obtained using Resource Owner Password flow. Tokens carried valid issuer (`https://dev-05kxujwqfcu8g5po.us.auth0.com/`), audience (`https://gojudge-api`), and RS256 signature header (`kid: RyfLIkH8Sjvhswo8zMgRe-`). Presented tokens were accepted by the middleware with `HTTP 200 OK`.
-- **Tested Against Tenant:** Yes, demonstrated with live tenant tokens.
+- **Demonstration:** An RS256 token matching the Auth0 claims schema was issued via the documented fixture and presented to the Go HTTP middleware via `Authorization: Bearer <token>`. The middleware validated claims and responded with `HTTP 200 OK`.
+- **Tenant Validation:** Tenant not tested end-to-end for signature verification; fixture route used per MA-05 fallback.
 
-### SC-B Evidence: Three Rejection Results (3 of 3)
-Raw test run execution record is stored in Pair C spike workspace (`sc_b_test.go`):
+### SC-B Evidence: Raw Rejection Records (3 of 3)
+The three required rejection conditions were executed against the middleware in `sc_b_test.go`. The raw test execution log is recorded below:
+
+```text
+=== RUN   TestSCB_1_RejectTamperedToken
+--- PASS: TestSCB_1_RejectTamperedToken (0.08s)
+=== RUN   TestSCB_2_RejectExpiredToken
+--- PASS: TestSCB_2_RejectExpiredToken (0.05s)
+=== RUN   TestSCB_3_RejectWrongAudienceToken
+--- PASS: TestSCB_3_RejectWrongAudienceToken (0.08s)
+PASS
+```
+
 1. **Tampered Token (`TestSCB_1_RejectTamperedToken`):**
-   - **Input:** Token with corrupted signature suffix.
+   - **Input:** Token with corrupted signature bytes.
    - **Result:** Rejected with `HTTP 401 Unauthorized` (`crypto/rsa: verification error`).
 2. **Expired Token (`TestSCB_2_RejectExpiredToken`):**
    - **Input:** Token with expiration timestamp set in the past (`exp = now - 10m`).
    - **Result:** Rejected with `HTTP 401 Unauthorized` (`token has invalid claims: token is expired`).
 3. **Wrong-Audience Token (`TestSCB_3_RejectWrongAudienceToken`):**
-   - **Input:** Token targeting `https://wrong-audience.unauthorized.local` instead of `https://gojudge-api`.
+   - **Input:** Token targeted to an unauthorized audience.
    - **Result:** Rejected with `HTTP 401 Unauthorized` (`token has invalid claims: token has invalid audience`).
 
 ### SC-C Evidence: Role Claim Mapping
-Verified for both test users authenticated against the development tenant:
+Verified for two test user identities presenting tokens to the protected middleware:
 
-| User Account | Subject ID (`sub`) | Role Claim (`https://gojudge-api/roles`) | Mapped Internal Role | Status |
+| Test Identity | Test Case | Custom Role Claim | Mapped Go Role | HTTP Result |
 | :--- | :--- | :--- | :--- | :--- |
-| `learner@test.local` | `auth0\|6ae9c01e857a316fec15076a` | `["Learner"]` | `RoleLearner` | `200 OK` |
-| `admin@test.local` | `auth0\|6ae9c0656ca5342184adb3a1` | `["Adminisrator"]` | `RoleAdministrator` | `200 OK` |
+| `learner@test.local` | `TestSCC_User1_LearnerMapping` | `["Learner"]` | `RoleLearner` (`learner`) | `200 OK` |
+| `admin@test.local` | `TestSCC_User2_AdministratorMapping` | `["Adminisrator"]` | `RoleAdministrator` (`administrator`) | `200 OK` |
 
-The role extractor normalizes claim casing and accounts for tenant custom action typos, mapping deterministically to application role types.
+The mapping normalizes case sensitivity and accounts for tenant custom action typos, mapping reliably to internal domain roles.
 
 ## 4. Failure Criteria Check
 - **F-06 (Middleware accepts tampered or expired token):** **Not met** (SC-B rejected 3 of 3).
-- **F-07 (Neither development tenant nor documented fixture available by day 2):** **Not met** (Development tenant available and tested).
+- **F-07 (Neither development tenant nor documented fixture available by day 2):** **Not met** (Documented fixture available and demonstrated).
 
-## 5. Outcome & Follow-On Decision
-- **Outcome:** **Go**
-- **Follow-on Decision:** **DEC-03** (Authentication with Auth0) is approved for production implementation.
+## 5. Named Risks
+- **Live Tenant Signature Verification Untested:** Because the documented fixture route was utilized for SC-A, runtime dynamic JWKS key retrieval (`/.well-known/jwks.json`) and key caching against the live development tenant remain untested. This risk must be addressed during F01-01 upon final resolution of MA-05.
+
+## 6. Outcome & Follow-On Decision
+- **Outcome:** **Conditional go**
+- **Follow-on Decision:** **DEC-03**
