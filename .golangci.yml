@@ -1,23 +1,23 @@
+version: "2"
+
 run:
   timeout: 5m
   issues-exit-code: 1
   tests: true
 
 linters:
-  
-  disable-all: true
-
+  default: none
   enable:
-    # Formatting and imports
-    - gofmt      # Checks whether code is properly formatted
-    - goimports  # Checks whether imports are sorted and grouped correctly
-    
     # Bug detection and standard practices
     - govet      # Reports suspicious constructs (e.g., Printf arg mismatches)
     - errcheck   # Checks for unchecked errors (critical for Go)
     - staticcheck # Comprehensive bug and performance analyzer
     - ineffassign # Detects unused assignments
-    - gosimple    # Suggests code simplifications
 
     # Security
     - gosec      # Inspects source code for security problems
+formatters:
+  enable:
+    # Formatting and imports
+    - gofmt      # Checks whether code is properly formatted
+    - goimports  # Checks whether imports are sorted and grouped correctly
