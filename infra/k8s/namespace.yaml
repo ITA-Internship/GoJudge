@@ -1,0 +1,5 @@
+# Shared namespace for local services (PostgreSQL, RabbitMQ).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gojudge
