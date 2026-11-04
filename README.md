@@ -98,6 +98,7 @@ Contribution rules and review responsibilities are described in [CONTRIBUTING.md
 │   └── templates/
 │       └── feature-spec-template.md
 ├── cmd/                 # Main applications for this project
+│   └── gojudge/             # Placeholder entry point; replace with real code
 ├── internal/            # Private application and library code
 ├── pkg/                 # Library code safe to be imported by external applications
 ├── .golangci.yml        # Go linter configuration
@@ -126,7 +127,18 @@ Full rules are in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Automated tests are required for new behaviour.
 - All configured CI checks must pass before merging.
 - Implementation must match the approved specification.
-- Test tooling and CI configuration are **to be documented** once they are added to the repository.
+
+### Continuous integration
+
+Checks run on every push to `main` and every pull request into `main`.
+They are defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml):
+
+| Job | What it runs |
+|-----|--------------|
+| Build | `go build ./...` |
+| Lint | `golangci-lint` with [`.golangci.yml`](.golangci.yml) |
+| Unit tests | `go test -race -cover ./...` |
+| Dependency checks | `go mod verify`, `go mod tidy` diff, `govulncheck` |
 
 ## Documentation
 
