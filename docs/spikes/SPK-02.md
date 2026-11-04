@@ -9,13 +9,15 @@
 - **Dependencies:** DEC-03 (provisional), MA-05
 - **Experiment code:** branch `spike/SPK-02-auth0-oidc`, directory `spikes/spk-02/` (not merged to `main`)
 
-## 1. Objective
+## 1. Objective & Hypothesis
 - **Objective:** Answer one question: can the Go API validate Auth0 OIDC tokens and map the role claim to `learner` or `administrator`, using either the Auth0 development tenant or a documented fixture?
+- **Hypothesis:** The Go API can verify an Auth0 OIDC token, and map its role claim to `learner` or `administrator`.
 
 ## 2. Experiment Setup & Sign-In Path (SC-A)
 - **Sign-In Path Used:** Auth0 development tenant (`<dev-tenant>.auth0.com`). Real tokens were minted with the Resource Owner Password flow for two test identities. A locally generated RSA fixture (`fixture_test.go`) was used for the negative cases in SC-B.
 - **Development Tenant Status:** Tested against the tenant. `TestSCA_LiveTenantToken_ThroughMiddleware` (`sc_a_test.go`) fetches the tenant's JWKS and passes the real learner and administrator tokens (from `AUTH0_LEARNER_TOKEN` and `AUTH0_ADMIN_TOKEN`, not stored) through the middleware, which verifies signature, issuer, audience and expiry.
 - **Tenant access (MA-05):** agreed verbally with the mentor at the daily on 3 Nov 2026. No written record exists yet (see §5).
+- **Secrets & Environment Policy:** No secrets, credentials, live tokens or environment-specific tenant URLs are committed. Tokens are supplied through environment variables and are not logged.
 
 ## 3. Success Criteria & Recorded Evidence
 
