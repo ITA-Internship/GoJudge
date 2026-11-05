@@ -2,13 +2,14 @@
 # Credentials come from the Secret `rabbitmq-credentials`
 # Data is kept in an emptyDir, so queues are lost when the pod is recreated.
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: rabbitmq
   namespace: gojudge
   labels:
     app: rabbitmq
 spec:
+  serviceName: rabbitmq
   replicas: 1
   selector:
     matchLabels:
@@ -27,6 +28,8 @@ spec:
             - name: management
               containerPort: 15672
           env:
+            - name: RABBITMQ_NODENAME
+              value: rabbit@localhost
             - name: RABBITMQ_DEFAULT_USER
               valueFrom:
                 secretKeyRef:
@@ -37,6 +40,9 @@ spec:
                 secretKeyRef:
                   name: rabbitmq-credentials
                   key: password
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/rabbitmq
           readinessProbe:
             exec:
               command: ["rabbitmq-diagnostics", "-q", "ping"]
@@ -49,6 +55,9 @@ spec:
               memory: 256Mi
             limits:
               memory: 1Gi
+      volumes:
+        - name: data
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -58,6 +67,7 @@ metadata:
   labels:
     app: rabbitmq
 spec:
+  clusterIP: None
   selector:
     app: rabbitmq
   ports:
