@@ -1,0 +1,7 @@
+{"Time":"2026-11-05T09:10:20.021440345Z","Action":"start"}
+{"Time":"2026-11-05T09:10:20.023636693Z","Action":"run","Test":"TestAddSuccess"}
+{"Time":"2026-11-05T09:10:20.023715806Z","Action":"output","Test":"TestAddSuccess","Output":"=== RUN   TestAddSuccess\n","OutputType":"frame"}
+{"Time":"2026-11-05T09:10:20.023769531Z","Action":"output","Test":"TestAddSuccess","Output":"--- PASS: TestAddSuccess (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-05T09:10:20.023790872Z","Action":"pass","Test":"TestAddSuccess","Elapsed":0}
+{"Time":"2026-11-05T09:10:20.023808937Z","Action":"output","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-05T09:10:20.024154963Z","Action":"pass","Elapsed":0.003}
