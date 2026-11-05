@@ -1,3 +1,3 @@
-{"Time":"2026-11-04T12:55:09.10862324Z","Action":"start","Package":"trusted"}
-{"Time":"2026-11-04T12:55:09.11199658Z","Action":"run","Package":"trusted","Test":"TestInfiniteLoop"}
-{"Time":"2026-11-04T12:55:09.112067758Z","Action":"output","Package":"trusted","Test":"TestInfiniteLoop","Output":"=== RUN   TestInfiniteLoop\n","OutputType":"frame"}
+{"Time":"2026-11-05T09:08:57.77651862Z","Action":"start"}
+{"Time":"2026-11-05T09:08:57.779249977Z","Action":"run","Test":"TestInfiniteLoop"}
+{"Time":"2026-11-05T09:08:57.779332536Z","Action":"output","Test":"TestInfiniteLoop","Output":"=== RUN   TestInfiniteLoop\n","OutputType":"frame"}
