@@ -1,6 +1,6 @@
 ## PostgreSQL
 
-PostgreSQL 17 in the namespace `gojudge`.
+PostgreSQL 17.11 in the namespace `gojudge`.
 
 ### Start
 
@@ -19,7 +19,8 @@ kubectl apply -f infra/k8s/namespace.yaml
 kubectl -n gojudge create secret generic postgres-credentials \
   --from-literal=username="$POSTGRES_USER" \
   --from-literal=password="$POSTGRES_PASSWORD" \
-  --from-literal=database="$POSTGRES_DB"
+  --from-literal=database="$POSTGRES_DB" \
+  --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -f infra/k8s/postgres/postgres.yaml
 kubectl -n gojudge rollout status statefulset/postgres
 ```
@@ -37,4 +38,10 @@ You must see `1`
   in a second terminal, then use `localhost:5432`
 
 ### Notes
-- Remove PostgreSQL: `kubectl delete -f infra/k8s/postgres/postgres.yaml`
+- Data is kept in volume and survives a pod restart.
+- To reset PostgreSQL (for example, to change the password), delete it with its data, then run the commands from step 3 of "Start" again:
+```bash
+kubectl delete -f infra/k8s/postgres/postgres.yaml
+kubectl -n gojudge delete pvc data-postgres-0
+```
+- `postgres-secret.example.yaml` is only example. Do not apply it
