@@ -45,7 +45,9 @@ spec:
               mountPath: /var/lib/rabbitmq
           readinessProbe:
             exec:
-              command: ["rabbitmq-diagnostics", "-q", "ping"]
+              # Checks that the RabbitMQ application is running and its listeners
+              # (AMQP 5672, management 15672) accept TCP connections.
+              command: ["rabbitmq-diagnostics", "-q", "check_port_connectivity"]
             initialDelaySeconds: 20
             periodSeconds: 10
             timeoutSeconds: 10

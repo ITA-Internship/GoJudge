@@ -6,11 +6,12 @@ running (see the "Local cluster" section in [`infra/README.md`](../../README.md)
 
 ### Credentials
 
-Credentials are never committed. Create a local `.env` file from the example
-and set your own password:
+Credentials are never committed. If you have no local `.env` file yet, create
+it from the example. The command does not overwrite an existing `.env`, so
+values you already set (for example for PostgreSQL) are kept:
 
 ```bash
-cp .env.example .env
+[ -f .env ] || cp .env.example .env
 ```
 
 Edit `.env` and set `RABBITMQ_USER` and `RABBITMQ_PASSWORD`.
@@ -37,10 +38,11 @@ Expected: `partitioned roll out complete: 1 new pods have been updated...`.
 
 ```bash
 kubectl -n gojudge exec statefulset/rabbitmq -- rabbitmq-diagnostics -q ping
+kubectl -n gojudge exec statefulset/rabbitmq -- rabbitmq-diagnostics -q check_port_connectivity
 kubectl -n gojudge run amqp-test --rm -it --restart=Never --image=busybox -- sh -c 'nc -z -w 3 rabbitmq 5672 && echo open'
 ```
 
-Expected: `Ping succeeded` and `open`. Inside the cluster the service is
+Expected: `Ping succeeded`, no error from the connectivity check, and `open`. Inside the cluster the service is
 `rabbitmq.gojudge.svc:5672`.
 
 ### Check from your machine
@@ -87,6 +89,10 @@ AMQP publish and consume on port 5672: OK
 The test queue `smoke-amqp` is durable and is deleted at the end of the test.
 
 ### Notes
+
+- The readiness probe runs `rabbitmq-diagnostics check_port_connectivity`. Unlike
+  `ping`, it fails when the RabbitMQ application is stopped or a listener does
+  not accept connections, so the pod is not marked ready too early.
 
 - Queues must be durable. RabbitMQ 4.x rejects transient non-exclusive queues.
 - Data is stored in an `emptyDir`: queues survive a container restart but are
