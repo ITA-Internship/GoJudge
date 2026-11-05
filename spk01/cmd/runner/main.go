@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -26,17 +27,37 @@ func main() {
 		kubeconfigFlag = flag.String("kubeconfig", "", "Path to kubeconfig file (defaults to ~/.kube/config or $KUBECONFIG)")
 		resultsDirFlag = flag.String("results-dir", "results", "Directory where JSONL and log evidence are stored")
 		filterFlag     = flag.String("filter", "^TestAddSuccess$", "Test filter regex passed to go test -run")
+		baselineFlag   = flag.Bool("baseline", false, "Use unhardened baseline Pod specification (for negative control runs)")
+		dumpSpecFlag   = flag.Bool("dump-spec", false, "Print generated Job specification as formatted JSON and exit")
 	)
 	flag.Parse()
 
 	sc := strings.ToUpper(*scFlag)
+
+	if *dumpSpecFlag {
+		spec := jobspec.Build(jobspec.Options{
+			NamePrefix:      fmt.Sprintf("spk01-%s-", strings.ToLower(sc)),
+			Namespace:       *namespaceFlag,
+			Criterion:       sc,
+			Image:           *imageFlag,
+			TestFilter:      *filterFlag,
+			BaselineProfile: *baselineFlag,
+		})
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "  ")
+		if err := enc.Encode(spec); err != nil {
+			log.Fatalf("Failed to encode Job spec: %v", err)
+		}
+		return
+	}
+
 	if err := os.MkdirAll(*resultsDirFlag, 0755); err != nil {
 		log.Fatalf("Failed to ensure results directory: %v", err)
 	}
 
 	fmt.Println("==================================================================")
 	fmt.Printf("SPK-01 Runner | Criterion: %s | Target Runs: %d\n", sc, *runsFlag)
-	fmt.Printf("Namespace: %s | Image: %s\n", *namespaceFlag, *imageFlag)
+	fmt.Printf("Namespace: %s | Image: %s | Hardened: %v\n", *namespaceFlag, *imageFlag, !*baselineFlag)
 	fmt.Println("==================================================================")
 
 	// Initialize client-go
@@ -46,6 +67,9 @@ func main() {
 	}
 
 	resultsFile := filepath.Join(*resultsDirFlag, fmt.Sprintf("%s.jsonl", strings.ToLower(sc)))
+	// Remove previous batch file so re-running a criterion produces a clean N-line JSONL record
+	_ = os.Remove(resultsFile)
+
 	successCount := 0
 	var totalStartupMs, totalExecMs int64
 
@@ -61,29 +85,34 @@ func main() {
 		fmt.Printf("[%02d/%02d] Starting evaluation run... ", i, *runsFlag)
 
 		opts := jobspec.Options{
-			NamePrefix: fmt.Sprintf("spk01-%s-", strings.ToLower(sc)),
-			Namespace:  *namespaceFlag,
-			Criterion:  sc,
-			RunIndex:   i,
-			Image:      *imageFlag,
-			TestFilter: *filterFlag,
+			NamePrefix:      fmt.Sprintf("spk01-%s-", strings.ToLower(sc)),
+			Namespace:       *namespaceFlag,
+			Criterion:       sc,
+			RunIndex:        i,
+			Image:           *imageFlag,
+			TestFilter:      *filterFlag,
+			BaselineProfile: *baselineFlag,
 		}
 
-		if sc == "SC-02" {
-			// For SC-02: target infinite loop with 5s active deadline
+		switch sc {
+		case "SC-02":
+			// Target infinite loop with 5s active deadline
 			opts.TestFilter = "^TestInfiniteLoop$"
 			deadline := int64(5)
 			opts.ActiveDeadlineSeconds = &deadline
-		} else if sc == "SC-10" {
-			// For SC-10: target infinite loop, runner sends manual cancellation
-			opts.TestFilter = "^TestInfiniteLoop$"
-		} else if sc == "SC-09" {
-			// For SC-09: target normal pass test with 10s TTL controller cleanup
-			opts.TestFilter = "^TestAddSuccess$"
-			ttl := int32(10)
-			opts.TTLSecondsAfterFinish = &ttl
-		} else if sc == "SC-08" {
-			// For SC-08: mixed scenarios (4 pass, 3 assertion fail, 3 deadline timeout)
+		case "SC-03":
+			// Target memory exhaustion payload (512Mi limit)
+			opts.TestFilter = "^TestMemoryExhaustion$"
+			deadline := int64(60)
+			opts.ActiveDeadlineSeconds = &deadline
+		case "SC-05":
+			// Target read-only root filesystem and /tmp write verification
+			opts.TestFilter = "^TestFilesystemWrite$"
+		case "SC-06":
+			// Target non-root, no privilege escalation, and no SA token verification
+			opts.TestFilter = "^TestPrivilegeCheck$"
+		case "SC-08":
+			// Mixed scenarios: 4 pass, 3 assertion fail, 3 deadline timeout
 			switch {
 			case i <= 4:
 				opts.TestFilter = "^TestAddSuccess$"
@@ -94,6 +123,14 @@ func main() {
 				deadline := int64(5)
 				opts.ActiveDeadlineSeconds = &deadline
 			}
+		case "SC-09":
+			// Target normal pass test with 10s K8s TTL controller cleanup
+			opts.TestFilter = "^TestAddSuccess$"
+			ttl := int32(10)
+			opts.TTLSecondsAfterFinish = &ttl
+		case "SC-10":
+			// Target infinite loop, runner sends manual Foreground cancellation
+			opts.TestFilter = "^TestInfiniteLoop$"
 		}
 
 		record, runErr := runner.RunOnce(ctx, cs, opts, *resultsDirFlag)
@@ -111,36 +148,44 @@ func main() {
 			successCount++
 			totalStartupMs += record.StartupLatencyMs
 			totalExecMs += record.ExecutionLatencyMs
-			if sc == "SC-02" {
+			switch sc {
+			case "SC-02":
 				fmt.Printf("PASS | Job: %s | Condition: %s (%s) | Overrun: +%dms\n",
 					record.JobName, record.Condition, record.Reason, record.OverrunMs)
-			} else if sc == "SC-10" {
-				fmt.Printf("PASS | Job: %s | Condition: %s | CancelLatency: %dms (<=30s)\n",
-					record.JobName, record.Condition, record.CancelLatencyMs)
-			} else if sc == "SC-09" {
-				fmt.Printf("PASS | Job: %s | Condition: %s | TTL Actual: %dms (target <= 70000ms)\n",
-					record.JobName, record.Condition, record.TTLActualMs)
-			} else if sc == "SC-08" {
+			case "SC-03":
+				fmt.Printf("PASS | Job: %s | Terminated: %s (ExitCode: %d)\n",
+					record.JobName, record.TerminatedReason, record.ExitCode)
+			case "SC-08":
 				fmt.Printf("PASS | Job: %s | Condition: %s (%s) | Verdict: %s | Log: %s\n",
 					record.JobName, record.Condition, record.Reason, record.PackageVerdict, record.LogFile)
-			} else {
+			case "SC-09":
+				fmt.Printf("PASS | Job: %s | Condition: %s | TTL Actual: %dms (target <= 70000ms)\n",
+					record.JobName, record.Condition, record.TTLActualMs)
+			case "SC-10":
+				fmt.Printf("PASS | Job: %s | Condition: %s | CancelLatency: %dms (<=30s)\n",
+					record.JobName, record.Condition, record.CancelLatencyMs)
+			default:
 				fmt.Printf("PASS | Job: %s | Startup: %dms | Exec: %dms | Verdict: %s\n",
 					record.JobName, record.StartupLatencyMs, record.ExecutionLatencyMs, record.PackageVerdict)
 			}
 		} else {
-			if sc == "SC-02" {
+			switch sc {
+			case "SC-02":
 				fmt.Printf("FAIL | Job: %s | Condition: %s | Reason: %s | Overrun: +%dms\n",
 					record.JobName, record.Condition, record.Reason, record.OverrunMs)
-			} else if sc == "SC-10" {
-				fmt.Printf("FAIL | Job: %s | Condition: %s | CancelLatency: %dms (exceeded 30s)\n",
-					record.JobName, record.Condition, record.CancelLatencyMs)
-			} else if sc == "SC-09" {
-				fmt.Printf("FAIL | Job: %s | Condition: %s | TTL Actual: %dms (exceeded 70000ms)\n",
-					record.JobName, record.Condition, record.TTLActualMs)
-			} else if sc == "SC-08" {
+			case "SC-03":
+				fmt.Printf("FAIL | Job: %s | Terminated: %s (ExitCode: %d)\n",
+					record.JobName, record.TerminatedReason, record.ExitCode)
+			case "SC-08":
 				fmt.Printf("FAIL | Job: %s | Condition: %s (%s) | Verdict: %s | Log: %s\n",
 					record.JobName, record.Condition, record.Reason, record.PackageVerdict, record.LogFile)
-			} else {
+			case "SC-09":
+				fmt.Printf("FAIL | Job: %s | Condition: %s | TTL Actual: %dms (exceeded 70000ms)\n",
+					record.JobName, record.Condition, record.TTLActualMs)
+			case "SC-10":
+				fmt.Printf("FAIL | Job: %s | Condition: %s | CancelLatency: %dms (exceeded 30s)\n",
+					record.JobName, record.Condition, record.CancelLatencyMs)
+			default:
 				fmt.Printf("FAIL | Job: %s | Condition: %s | Reason: %s | Verdict: %s\n",
 					record.JobName, record.Condition, record.Reason, record.PackageVerdict)
 			}

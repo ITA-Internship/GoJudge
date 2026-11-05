@@ -47,6 +47,48 @@ func NewClient(kubeconfigPath string) (*kubernetes.Clientset, error) {
 	return cs, nil
 }
 
+// startPodLogStream launches a background goroutine that streams container logs with Follow=true.
+// Calling the returned waitAndClose function safely stops the stream and waits for the goroutine to exit,
+// eliminating any data race before reading from dst.
+func startPodLogStream(parentCtx context.Context, cs *kubernetes.Clientset, namespace, podName string, dst io.Writer) func() {
+	streamCtx, cancelStream := context.WithCancel(parentCtx)
+	done := make(chan struct{})
+
+	go func() {
+		defer close(done)
+		req := cs.CoreV1().Pods(namespace).GetLogs(podName, &corev1.PodLogOptions{
+			Container: "judge",
+			Follow:    true,
+		})
+		stream, err := req.Stream(streamCtx)
+		if err != nil {
+			return
+		}
+		defer stream.Close()
+		_, _ = io.Copy(dst, stream)
+	}()
+
+	return func() {
+		select {
+		case <-done:
+		case <-time.After(1500 * time.Millisecond):
+			cancelStream()
+			<-done
+		}
+		cancelStream()
+	}
+}
+
+// extractContainerTermination inspects a Pod's container statuses for the "judge" container's exit state.
+func extractContainerTermination(pod *corev1.Pod) (exitCode int32, reason string, found bool) {
+	for _, cs := range pod.Status.ContainerStatuses {
+		if cs.Name == "judge" && cs.State.Terminated != nil {
+			return cs.State.Terminated.ExitCode, cs.State.Terminated.Reason, true
+		}
+	}
+	return 0, "", false
+}
+
 // RunOnce executes a single Job, waits for completion, retrieves logs, and records metrics.
 func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options, outputDir string) (*measure.RunRecord, error) {
 	startTime := time.Now()
@@ -72,11 +114,13 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		exitCode         int32
 		terminatedReason string
 		logContent       bytes.Buffer
-		logStreamDone    = make(chan struct{})
-		streamStarted    bool
-		streamCtx, cancelStream = context.WithCancel(ctx)
+		stopLogStream    func()
 	)
-	defer cancelStream()
+	defer func() {
+		if stopLogStream != nil {
+			stopLogStream()
+		}
+	}()
 
 	// 2. Poll until Job succeeds or fails, tracking Pod phase transitions and streaming logs live
 	pollErr := wait.PollUntilContextTimeout(ctx, 100*time.Millisecond, 90*time.Second, true, func(ctx context.Context) (bool, error) {
@@ -100,29 +144,14 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 				}
 
 				// Capture container exit state while Pod is still alive
-				for _, cs := range pod.Status.ContainerStatuses {
-					if cs.Name == "judge" && cs.State.Terminated != nil {
-						exitCode = cs.State.Terminated.ExitCode
-						terminatedReason = cs.State.Terminated.Reason
-					}
+				if code, reason, ok := extractContainerTermination(pod); ok {
+					exitCode = code
+					terminatedReason = reason
 				}
 
-				// Start live stream
-				if !streamStarted && (pod.Status.Phase == corev1.PodRunning || pod.Status.Phase == corev1.PodSucceeded || pod.Status.Phase == corev1.PodFailed) {
-					streamStarted = true
-					go func(targetPod string) {
-						defer close(logStreamDone)
-						req := cs.CoreV1().Pods(opts.Namespace).GetLogs(targetPod, &corev1.PodLogOptions{
-							Container: "judge",
-							Follow:    true,
-						})
-						stream, err := req.Stream(streamCtx)
-						if err != nil {
-							return
-						}
-						defer stream.Close()
-						_, _ = io.Copy(&logContent, stream)
-					}(podName)
+				// Start live stream once
+				if stopLogStream == nil && (pod.Status.Phase == corev1.PodRunning || pod.Status.Phase == corev1.PodSucceeded || pod.Status.Phase == corev1.PodFailed) {
+					stopLogStream = startPodLogStream(ctx, cs, opts.Namespace, podName, &logContent)
 				}
 			}
 		}
@@ -149,16 +178,22 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		return nil, fmt.Errorf("job %s did not reach completion within timeout: %w", jobName, pollErr)
 	}
 
-	// Wait safely for log stream to complete. Cancel stream context if lingering to avoid data race.
-	if streamStarted {
-		select {
-		case <-logStreamDone:
-		case <-time.After(1500 * time.Millisecond):
-			cancelStream()
-			<-logStreamDone
+	// Ensure container termination state is captured if Job finished between Pod.Get and Job.Get
+	if terminatedReason == "" && podName != "" {
+		if pod, err := cs.CoreV1().Pods(opts.Namespace).Get(ctx, podName, metav1.GetOptions{}); err == nil {
+			if code, reason, ok := extractContainerTermination(pod); ok {
+				exitCode = code
+				terminatedReason = reason
+			}
 		}
+	}
+
+	// 4. Wait safely for log stream to complete before reading logContent buffer
+	if stopLogStream != nil {
+		stopLogStream()
+		stopLogStream = nil
 	} else if podName != "" {
-		// Fallback direct read if stream did not start
+		// Fallback direct read if stream did not start before completion
 		req := cs.CoreV1().Pods(opts.Namespace).GetLogs(podName, &corev1.PodLogOptions{
 			Container: "judge",
 		})
@@ -169,10 +204,12 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		}
 	}
 
-	// 5. Save raw log file
+	// 5. Save raw log file to disk BEFORE cleanup
 	logFileName := fmt.Sprintf("%s-run%02d.log", opts.Criterion, opts.RunIndex)
 	logPath := filepath.Join(outputDir, logFileName)
-	_ = os.WriteFile(logPath, logContent.Bytes(), 0644)
+	if err := os.WriteFile(logPath, logContent.Bytes(), 0644); err != nil {
+		return nil, fmt.Errorf("failed to write log file %s: %w", logPath, err)
+	}
 
 	// 6. Parse test2json output
 	testSummary, err := report.Parse(bytes.NewReader(logContent.Bytes()))
@@ -192,12 +229,16 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 	totalMs := jobFinishedAt.Sub(startTime).Milliseconds()
 	var overrunMs int64
 
+	// Verify on-disk log file exists and is non-empty prior to cleanup
+	logStat, statErr := os.Stat(logPath)
+	hasPersistedLogs := statErr == nil && logStat.Size() > 0
+
 	// 8. Determine Criterion pass condition
 	isPass := false
 	var ttlActualMs int64
 	switch opts.Criterion {
-	case "SC-01":
-		// SC-01 passes if Job Completed, package verdict is "pass", tests were executed (>0), and 0 tests failed
+	case "SC-01", "SC-05", "SC-06":
+		// Passes if Job Completed, package verdict is "pass", tests were executed (>0), and 0 tests failed
 		isPass = (finalCondition == "Complete") && (testSummary.PackageVerdict == "pass") && (testSummary.TestsRun > 0) && (testSummary.TestsFailed == 0)
 	case "SC-02":
 		// SC-02 passes if Job Failed with DeadlineExceeded within deadline + 5s
@@ -209,24 +250,26 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		overrunDuration := jobFinishedAt.Sub(expectedDeadline)
 		overrunMs = overrunDuration.Milliseconds()
 		isPass = (finalCondition == "Failed") && (conditionReason == "DeadlineExceeded") && (overrunDuration <= 5*time.Second)
+	case "SC-03":
+		// SC-03 passes if memory exhaustion kills the container with OOMKilled (137) after starting the test
+		isPass = (finalCondition == "Failed") && (terminatedReason == "OOMKilled") && (exitCode == 137) && (testSummary.TestsRun > 0)
 	case "SC-08":
-		// SC-08 passes if logs and reports are retrieved before cleanup across mixed outcomes
-		hasLogs := len(logContent.Bytes()) > 0
+		// SC-08 passes if logs and reports are retrieved and persisted on disk before cleanup across mixed outcomes
 		switch {
 		case opts.RunIndex <= 4:
 			// Success scenario
-			isPass = (finalCondition == "Complete") && (testSummary.PackageVerdict == "pass") && (testSummary.TestsRun > 0) && hasLogs
+			isPass = (finalCondition == "Complete") && (testSummary.PackageVerdict == "pass") && (testSummary.TestsRun > 0) && hasPersistedLogs
 		case opts.RunIndex <= 7:
 			// Test assertion failure scenario: container exited with failure, but logs and fail verdict were fully retrieved
-			isPass = (finalCondition == "Failed") && (testSummary.PackageVerdict == "fail") && (testSummary.TestsRun > 0) && (testSummary.TestsFailed > 0) && hasLogs
+			isPass = (finalCondition == "Failed") && (testSummary.PackageVerdict == "fail") && (testSummary.TestsRun > 0) && (testSummary.TestsFailed > 0) && hasPersistedLogs
 		default:
 			// Deadline timeout scenario: job killed by deadline, but logs up to deadline were captured
-			isPass = (finalCondition == "Failed") && (conditionReason == "DeadlineExceeded") && hasLogs
+			isPass = (finalCondition == "Failed") && (conditionReason == "DeadlineExceeded") && (testSummary.TestsRun > 0) && hasPersistedLogs
 		}
 	case "SC-09":
 		// Handled below during TTL observation
 	default:
-		isPass = (finalCondition == "Complete")
+		isPass = (finalCondition == "Complete") && (testSummary.TestsRun > 0) && (testSummary.TestsFailed == 0)
 	}
 
 	if opts.Criterion == "SC-09" {
@@ -253,17 +296,23 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		if ttlWaitErr == nil {
 			ttlDuration := ttlDeletedAt.Sub(jobFinishedAt)
 			ttlActualMs = ttlDuration.Milliseconds()
-			// Requirement: removed within TTL + 60s
-			isPass = (finalCondition == "Complete") && (ttlDuration <= time.Duration(ttlSeconds+60)*time.Second)
+			// Requirement: test passed and Job+Pod removed within TTL + 60s
+			isPass = (finalCondition == "Complete") &&
+				(testSummary.PackageVerdict == "pass") &&
+				(testSummary.TestsRun > 0) &&
+				(testSummary.TestsFailed == 0) &&
+				(ttlDuration <= time.Duration(ttlSeconds+60)*time.Second)
 		} else {
 			isPass = false
 		}
 	} else {
 		// 9. Clean up Job after data extraction for other criteria (Foreground deletion cascades to Pod)
 		deletePolicy := metav1.DeletePropagationForeground
-		_ = cs.BatchV1().Jobs(opts.Namespace).Delete(ctx, jobName, metav1.DeleteOptions{
+		if delErr := cs.BatchV1().Jobs(opts.Namespace).Delete(ctx, jobName, metav1.DeleteOptions{
 			PropagationPolicy: &deletePolicy,
-		})
+		}); delErr != nil && !apierrors.IsNotFound(delErr) {
+			return nil, fmt.Errorf("failed to clean up job %s: %w", jobName, delErr)
+		}
 	}
 
 	record := &measure.RunRecord{
@@ -298,13 +347,10 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 func runCancellationTest(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options, outputDir string, startTime time.Time, job *batchv1.Job) (*measure.RunRecord, error) {
 	jobName := job.Name
 	var (
-		podName       string
-		podRunningAt  time.Time
-		logContent    bytes.Buffer
-		logStreamDone = make(chan struct{})
-		streamCtx, cancelStream = context.WithCancel(ctx)
+		podName      string
+		podRunningAt time.Time
+		logContent   bytes.Buffer
 	)
-	defer cancelStream()
 
 	// 1. Wait until Pod is in Running phase
 	err := wait.PollUntilContextTimeout(ctx, 100*time.Millisecond, 30*time.Second, true, func(ctx context.Context) (bool, error) {
@@ -326,19 +372,8 @@ func runCancellationTest(ctx context.Context, cs *kubernetes.Clientset, opts job
 	}
 
 	// 2. Start live log stream
-	go func(targetPod string) {
-		defer close(logStreamDone)
-		req := cs.CoreV1().Pods(opts.Namespace).GetLogs(targetPod, &corev1.PodLogOptions{
-			Container: "judge",
-			Follow:    true,
-		})
-		stream, err := req.Stream(streamCtx)
-		if err != nil {
-			return
-		}
-		defer stream.Close()
-		_, _ = io.Copy(&logContent, stream)
-	}(podName)
+	stopLogStream := startPodLogStream(ctx, cs, opts.Namespace, podName, &logContent)
+	defer stopLogStream()
 
 	// Let the workload run actively for 2 seconds before cancellation
 	time.Sleep(2 * time.Second)
@@ -376,17 +411,14 @@ func runCancellationTest(ctx context.Context, cs *kubernetes.Clientset, opts job
 	}
 
 	// 5. Ensure log stream flushes cleanly without race
-	select {
-	case <-logStreamDone:
-	case <-time.After(1500 * time.Millisecond):
-		cancelStream()
-		<-logStreamDone
-	}
+	stopLogStream()
 
 	// 6. Save raw logs
 	logFileName := fmt.Sprintf("%s-run%02d.log", opts.Criterion, opts.RunIndex)
 	logPath := filepath.Join(outputDir, logFileName)
-	_ = os.WriteFile(logPath, logContent.Bytes(), 0644)
+	if err := os.WriteFile(logPath, logContent.Bytes(), 0644); err != nil {
+		return nil, fmt.Errorf("failed to write log file %s: %w", logPath, err)
+	}
 
 	cancelDuration := jobFinishedAt.Sub(cancelRequestedAt)
 	cancelLatencyMs := cancelDuration.Milliseconds()

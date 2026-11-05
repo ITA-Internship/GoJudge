@@ -44,3 +44,58 @@ func TestParseNoTestsToRunTrap(t *testing.T) {
 		t.Errorf("expected PackageVerdict=pass from go test, got %s", s.PackageVerdict)
 	}
 }
+
+func TestParseFail(t *testing.T) {
+	input := `{"Time":"2026-11-05T10:00:00Z","Action":"run","Package":"trusted","Test":"TestFailAssertion"}
+{"Time":"2026-11-05T10:00:00Z","Action":"output","Package":"trusted","Test":"TestFailAssertion","Output":"=== RUN   TestFailAssertion\n"}
+{"Time":"2026-11-05T10:00:00Z","Action":"output","Package":"trusted","Test":"TestFailAssertion","Output":"    calc_test.go:21: intentional failure\n"}
+{"Time":"2026-11-05T10:00:00Z","Action":"fail","Package":"trusted","Test":"TestFailAssertion","Elapsed":0.00}
+{"Time":"2026-11-05T10:00:00Z","Action":"output","Package":"trusted","Output":"FAIL\n"}
+{"Time":"2026-11-05T10:00:00Z","Action":"fail","Package":"trusted","Elapsed":0.01}
+`
+	s, err := Parse(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if s.TestsRun != 1 || s.TestsFailed != 1 || s.TestsPassed != 0 {
+		t.Errorf("unexpected counts: run=%d passed=%d failed=%d", s.TestsRun, s.TestsPassed, s.TestsFailed)
+	}
+	if s.PackageVerdict != "fail" {
+		t.Errorf("expected PackageVerdict=fail, got %s", s.PackageVerdict)
+	}
+}
+
+func TestParseTruncatedStream(t *testing.T) {
+	// Stream killed mid-execution by DeadlineExceeded or OOMKilled
+	input := `{"Time":"2026-11-05T10:00:00Z","Action":"start","Package":"trusted"}
+{"Time":"2026-11-05T10:00:00Z","Action":"run","Package":"trusted","Test":"TestInfiniteLoop"}
+{"Time":"2026-11-05T10:00:00Z","Action":"output","Package":"trusted","Test":"TestInfiniteLoop","Output":"=== RUN   TestInfiniteLoop\n"}
+`
+	s, err := Parse(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if s.TestsRun != 1 {
+		t.Errorf("expected TestsRun=1, got %d", s.TestsRun)
+	}
+	if s.PackageVerdict != "unknown" {
+		t.Errorf("expected PackageVerdict=unknown on truncated stream, got %s", s.PackageVerdict)
+	}
+}
+
+func TestParseNonJSONNoiseBetweenLines(t *testing.T) {
+	input := `some container startup banner
+{"Time":"2026-11-05T10:00:00Z","Action":"run","Package":"trusted","Test":"TestAddSuccess"}
+non-json stderr line
+{"Time":"2026-11-05T10:00:00Z","Action":"pass","Package":"trusted","Test":"TestAddSuccess","Elapsed":0.01}
+{"Time":"2026-11-05T10:00:00Z","Action":"pass","Package":"trusted","Elapsed":0.02}
+`
+	s, err := Parse(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if s.TestsRun != 1 || s.TestsPassed != 1 || s.PackageVerdict != "pass" {
+		t.Errorf("unexpected summary after noise: %+v", s)
+	}
+}
+
