@@ -82,6 +82,18 @@ func main() {
 			opts.TestFilter = "^TestAddSuccess$"
 			ttl := int32(10)
 			opts.TTLSecondsAfterFinish = &ttl
+		} else if sc == "SC-08" {
+			// For SC-08: mixed scenarios (4 pass, 3 assertion fail, 3 deadline timeout)
+			switch {
+			case i <= 4:
+				opts.TestFilter = "^TestAddSuccess$"
+			case i <= 7:
+				opts.TestFilter = "^TestFailAssertion$"
+			default:
+				opts.TestFilter = "^TestInfiniteLoop$"
+				deadline := int64(5)
+				opts.ActiveDeadlineSeconds = &deadline
+			}
 		}
 
 		record, runErr := runner.RunOnce(ctx, cs, opts, *resultsDirFlag)
@@ -108,6 +120,9 @@ func main() {
 			} else if sc == "SC-09" {
 				fmt.Printf("PASS | Job: %s | Condition: %s | TTL Actual: %dms (target <= 70000ms)\n",
 					record.JobName, record.Condition, record.TTLActualMs)
+			} else if sc == "SC-08" {
+				fmt.Printf("PASS | Job: %s | Condition: %s (%s) | Verdict: %s | Log: %s\n",
+					record.JobName, record.Condition, record.Reason, record.PackageVerdict, record.LogFile)
 			} else {
 				fmt.Printf("PASS | Job: %s | Startup: %dms | Exec: %dms | Verdict: %s\n",
 					record.JobName, record.StartupLatencyMs, record.ExecutionLatencyMs, record.PackageVerdict)
@@ -122,6 +137,9 @@ func main() {
 			} else if sc == "SC-09" {
 				fmt.Printf("FAIL | Job: %s | Condition: %s | TTL Actual: %dms (exceeded 70000ms)\n",
 					record.JobName, record.Condition, record.TTLActualMs)
+			} else if sc == "SC-08" {
+				fmt.Printf("FAIL | Job: %s | Condition: %s (%s) | Verdict: %s | Log: %s\n",
+					record.JobName, record.Condition, record.Reason, record.PackageVerdict, record.LogFile)
 			} else {
 				fmt.Printf("FAIL | Job: %s | Condition: %s | Reason: %s | Verdict: %s\n",
 					record.JobName, record.Condition, record.Reason, record.PackageVerdict)

@@ -1,0 +1,8 @@
+{"Time":"2026-11-05T09:33:33.845219959Z","Action":"start"}
+{"Time":"2026-11-05T09:33:33.851225961Z","Action":"run","Test":"TestFailAssertion"}
+{"Time":"2026-11-05T09:33:33.85131315Z","Action":"output","Test":"TestFailAssertion","Output":"=== RUN   TestFailAssertion\n","OutputType":"frame"}
+{"Time":"2026-11-05T09:33:33.851564566Z","Action":"output","Test":"TestFailAssertion","Output":"    calc_test.go:21: intentional failure for SC-08 report retrieval validation\n","OutputType":"error"}
+{"Time":"2026-11-05T09:33:33.851621136Z","Action":"output","Test":"TestFailAssertion","Output":"--- FAIL: TestFailAssertion (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-05T09:33:33.851627909Z","Action":"fail","Test":"TestFailAssertion","Elapsed":0}
+{"Time":"2026-11-05T09:33:33.851636165Z","Action":"output","Output":"FAIL\n","OutputType":"frame"}
+{"Time":"2026-11-05T09:33:33.852658533Z","Action":"fail","Elapsed":0.007}

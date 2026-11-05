@@ -209,6 +209,20 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		overrunDuration := jobFinishedAt.Sub(expectedDeadline)
 		overrunMs = overrunDuration.Milliseconds()
 		isPass = (finalCondition == "Failed") && (conditionReason == "DeadlineExceeded") && (overrunDuration <= 5*time.Second)
+	case "SC-08":
+		// SC-08 passes if logs and reports are retrieved before cleanup across mixed outcomes
+		hasLogs := len(logContent.Bytes()) > 0
+		switch {
+		case opts.RunIndex <= 4:
+			// Success scenario
+			isPass = (finalCondition == "Complete") && (testSummary.PackageVerdict == "pass") && (testSummary.TestsRun > 0) && hasLogs
+		case opts.RunIndex <= 7:
+			// Test assertion failure scenario: container exited with failure, but logs and fail verdict were fully retrieved
+			isPass = (finalCondition == "Failed") && (testSummary.PackageVerdict == "fail") && (testSummary.TestsRun > 0) && (testSummary.TestsFailed > 0) && hasLogs
+		default:
+			// Deadline timeout scenario: job killed by deadline, but logs up to deadline were captured
+			isPass = (finalCondition == "Failed") && (conditionReason == "DeadlineExceeded") && hasLogs
+		}
 	case "SC-09":
 		// Handled below during TTL observation
 	default:

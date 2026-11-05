@@ -16,3 +16,8 @@ func TestInfiniteLoop(t *testing.T) {
 		time.Sleep(100 * time.Millisecond)
 	}
 }
+
+func TestFailAssertion(t *testing.T) {
+	t.Fatalf("intentional failure for SC-08 report retrieval validation")
+}
+
