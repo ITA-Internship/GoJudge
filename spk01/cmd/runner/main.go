@@ -77,6 +77,11 @@ func main() {
 		} else if sc == "SC-10" {
 			// For SC-10: target infinite loop, runner sends manual cancellation
 			opts.TestFilter = "^TestInfiniteLoop$"
+		} else if sc == "SC-09" {
+			// For SC-09: target normal pass test with 10s TTL controller cleanup
+			opts.TestFilter = "^TestAddSuccess$"
+			ttl := int32(10)
+			opts.TTLSecondsAfterFinish = &ttl
 		}
 
 		record, runErr := runner.RunOnce(ctx, cs, opts, *resultsDirFlag)
@@ -100,6 +105,9 @@ func main() {
 			} else if sc == "SC-10" {
 				fmt.Printf("PASS | Job: %s | Condition: %s | CancelLatency: %dms (<=30s)\n",
 					record.JobName, record.Condition, record.CancelLatencyMs)
+			} else if sc == "SC-09" {
+				fmt.Printf("PASS | Job: %s | Condition: %s | TTL Actual: %dms (target <= 70000ms)\n",
+					record.JobName, record.Condition, record.TTLActualMs)
 			} else {
 				fmt.Printf("PASS | Job: %s | Startup: %dms | Exec: %dms | Verdict: %s\n",
 					record.JobName, record.StartupLatencyMs, record.ExecutionLatencyMs, record.PackageVerdict)
@@ -111,6 +119,9 @@ func main() {
 			} else if sc == "SC-10" {
 				fmt.Printf("FAIL | Job: %s | Condition: %s | CancelLatency: %dms (exceeded 30s)\n",
 					record.JobName, record.Condition, record.CancelLatencyMs)
+			} else if sc == "SC-09" {
+				fmt.Printf("FAIL | Job: %s | Condition: %s | TTL Actual: %dms (exceeded 70000ms)\n",
+					record.JobName, record.Condition, record.TTLActualMs)
 			} else {
 				fmt.Printf("FAIL | Job: %s | Condition: %s | Reason: %s | Verdict: %s\n",
 					record.JobName, record.Condition, record.Reason, record.PackageVerdict)

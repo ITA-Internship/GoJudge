@@ -22,10 +22,12 @@ type RunRecord struct {
 	TotalDurationMs    int64     `json:"total_duration_ms"`
 	OverrunMs          int64     `json:"overrun_ms,omitempty"`
 	CancelLatencyMs    int64     `json:"cancel_latency_ms,omitempty"`
+	TTLActualMs        int64     `json:"ttl_actual_ms,omitempty"`
 	Condition          string    `json:"condition"` // "Complete" or "Failed"
 	Reason             string    `json:"reason,omitempty"`
 	TerminatedReason   string    `json:"terminated_reason,omitempty"`
 	ExitCode           int32     `json:"exit_code"`
+	TestsRun           int       `json:"tests_run"`
 	TestsPassed        int       `json:"tests_passed"`
 	TestsFailed        int       `json:"tests_failed"`
 	PackageVerdict     string    `json:"package_verdict"`

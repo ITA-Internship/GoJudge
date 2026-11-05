@@ -3,7 +3,11 @@ FROM golang:1.27.3-alpine
 WORKDIR /workspace
 COPY trusted/ .
 
-# Warm up the build cache so runtime test execution is fast
-RUN go test -run TestAddSuccess ./...
+# Precompile the test binary to eliminate runtime compilation overhead
+# and allow execution on read-only root filesystems without GOCACHE.
+RUN CGO_ENABLED=0 go test -c -o /usr/local/bin/trusted.test .
 
-CMD ["go", "test", "-json", "-run", "^TestAddSuccess$", "./..."]
+# Compile the standard test2json converter tool from Go toolchain
+RUN go build -o /usr/local/bin/test2json cmd/test2json
+
+CMD ["/usr/local/bin/test2json", "-t", "/usr/local/bin/trusted.test", "-test.v=test2json", "-test.run", "^TestAddSuccess$"]

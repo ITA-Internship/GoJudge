@@ -74,10 +74,12 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		logContent       bytes.Buffer
 		logStreamDone    = make(chan struct{})
 		streamStarted    bool
+		streamCtx, cancelStream = context.WithCancel(ctx)
 	)
+	defer cancelStream()
 
 	// 2. Poll until Job succeeds or fails, tracking Pod phase transitions and streaming logs live
-	pollErr := wait.PollUntilContextTimeout(ctx, 200*time.Millisecond, 90*time.Second, true, func(ctx context.Context) (bool, error) {
+	pollErr := wait.PollUntilContextTimeout(ctx, 100*time.Millisecond, 90*time.Second, true, func(ctx context.Context) (bool, error) {
 		// Discover Pod name
 		if podName == "" {
 			pods, err := cs.CoreV1().Pods(opts.Namespace).List(ctx, metav1.ListOptions{
@@ -88,27 +90,40 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 			}
 		}
 
-		// As soon as Pod starts running, launch live log streaming to prevent losing logs on Pod deletion
-		if podName != "" && !streamStarted {
+		// Inspect Pod status and launch live log streaming as soon as Pod is Running
+		if podName != "" {
 			pod, err := cs.CoreV1().Pods(opts.Namespace).Get(ctx, podName, metav1.GetOptions{})
-			if err == nil && (pod.Status.Phase == corev1.PodRunning || pod.Status.Phase == corev1.PodSucceeded || pod.Status.Phase == corev1.PodFailed) {
-				streamStarted = true
-				if podRunningAt.IsZero() {
+			if err == nil {
+				// Record startup transition
+				if podRunningAt.IsZero() && (pod.Status.Phase == corev1.PodRunning || pod.Status.Phase == corev1.PodSucceeded || pod.Status.Phase == corev1.PodFailed) {
 					podRunningAt = time.Now()
 				}
-				go func(targetPod string) {
-					defer close(logStreamDone)
-					req := cs.CoreV1().Pods(opts.Namespace).GetLogs(targetPod, &corev1.PodLogOptions{
-						Container: "judge",
-						Follow:    true,
-					})
-					stream, err := req.Stream(ctx)
-					if err != nil {
-						return
+
+				// Capture container exit state while Pod is still alive
+				for _, cs := range pod.Status.ContainerStatuses {
+					if cs.Name == "judge" && cs.State.Terminated != nil {
+						exitCode = cs.State.Terminated.ExitCode
+						terminatedReason = cs.State.Terminated.Reason
 					}
-					defer stream.Close()
-					_, _ = io.Copy(&logContent, stream)
-				}(podName)
+				}
+
+				// Start live stream
+				if !streamStarted && (pod.Status.Phase == corev1.PodRunning || pod.Status.Phase == corev1.PodSucceeded || pod.Status.Phase == corev1.PodFailed) {
+					streamStarted = true
+					go func(targetPod string) {
+						defer close(logStreamDone)
+						req := cs.CoreV1().Pods(opts.Namespace).GetLogs(targetPod, &corev1.PodLogOptions{
+							Container: "judge",
+							Follow:    true,
+						})
+						stream, err := req.Stream(streamCtx)
+						if err != nil {
+							return
+						}
+						defer stream.Close()
+						_, _ = io.Copy(&logContent, stream)
+					}(podName)
+				}
 			}
 		}
 
@@ -134,11 +149,13 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		return nil, fmt.Errorf("job %s did not reach completion within timeout: %w", jobName, pollErr)
 	}
 
-	// Wait briefly for live log stream to complete
+	// Wait safely for log stream to complete. Cancel stream context if lingering to avoid data race.
 	if streamStarted {
 		select {
 		case <-logStreamDone:
-		case <-time.After(2 * time.Second):
+		case <-time.After(1500 * time.Millisecond):
+			cancelStream()
+			<-logStreamDone
 		}
 	} else if podName != "" {
 		// Fallback direct read if stream did not start
@@ -152,25 +169,12 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		}
 	}
 
-	// 3. Inspect Pod termination status (exit code, termination reason)
-	if podName != "" {
-		pod, err := cs.CoreV1().Pods(opts.Namespace).Get(ctx, podName, metav1.GetOptions{})
-		if err == nil {
-			for _, cs := range pod.Status.ContainerStatuses {
-				if cs.Name == "judge" && cs.State.Terminated != nil {
-					exitCode = cs.State.Terminated.ExitCode
-					terminatedReason = cs.State.Terminated.Reason
-				}
-			}
-		}
-	}
-
 	// 5. Save raw log file
 	logFileName := fmt.Sprintf("%s-run%02d.log", opts.Criterion, opts.RunIndex)
 	logPath := filepath.Join(outputDir, logFileName)
 	_ = os.WriteFile(logPath, logContent.Bytes(), 0644)
 
-	// 6. Parse go test -json output
+	// 6. Parse test2json output
 	testSummary, err := report.Parse(bytes.NewReader(logContent.Bytes()))
 	if err != nil {
 		testSummary = &report.Summary{PackageVerdict: "parse_error"}
@@ -190,10 +194,11 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 
 	// 8. Determine Criterion pass condition
 	isPass := false
+	var ttlActualMs int64
 	switch opts.Criterion {
 	case "SC-01":
-		// SC-01 passes if Job Completed, package verdict is "pass", and tests passed > 0
-		isPass = (finalCondition == "Complete") && (testSummary.PackageVerdict == "pass") && (testSummary.TestsFailed == 0)
+		// SC-01 passes if Job Completed, package verdict is "pass", tests were executed (>0), and 0 tests failed
+		isPass = (finalCondition == "Complete") && (testSummary.PackageVerdict == "pass") && (testSummary.TestsRun > 0) && (testSummary.TestsFailed == 0)
 	case "SC-02":
 		// SC-02 passes if Job Failed with DeadlineExceeded within deadline + 5s
 		deadlineSeconds := int64(10)
@@ -204,15 +209,48 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		overrunDuration := jobFinishedAt.Sub(expectedDeadline)
 		overrunMs = overrunDuration.Milliseconds()
 		isPass = (finalCondition == "Failed") && (conditionReason == "DeadlineExceeded") && (overrunDuration <= 5*time.Second)
+	case "SC-09":
+		// Handled below during TTL observation
 	default:
 		isPass = (finalCondition == "Complete")
 	}
 
-	// 9. Clean up Job after data extraction (Foreground deletion cascades to Pod)
-	deletePolicy := metav1.DeletePropagationForeground
-	_ = cs.BatchV1().Jobs(opts.Namespace).Delete(ctx, jobName, metav1.DeleteOptions{
-		PropagationPolicy: &deletePolicy,
-	})
+	if opts.Criterion == "SC-09" {
+		// In SC-09, we DO NOT delete the Job! We wait for K8s TTL controller to remove it.
+		ttlSeconds := int64(10)
+		if opts.TTLSecondsAfterFinish != nil {
+			ttlSeconds = int64(*opts.TTLSecondsAfterFinish)
+		}
+		var ttlDeletedAt time.Time
+		ttlWaitErr := wait.PollUntilContextTimeout(ctx, 500*time.Millisecond, 80*time.Second, true, func(ctx context.Context) (bool, error) {
+			_, jErr := cs.BatchV1().Jobs(opts.Namespace).Get(ctx, jobName, metav1.GetOptions{})
+			jobGone := apierrors.IsNotFound(jErr)
+			podGone := true
+			if podName != "" {
+				_, pErr := cs.CoreV1().Pods(opts.Namespace).Get(ctx, podName, metav1.GetOptions{})
+				podGone = apierrors.IsNotFound(pErr)
+			}
+			if jobGone && podGone {
+				ttlDeletedAt = time.Now()
+				return true, nil
+			}
+			return false, nil
+		})
+		if ttlWaitErr == nil {
+			ttlDuration := ttlDeletedAt.Sub(jobFinishedAt)
+			ttlActualMs = ttlDuration.Milliseconds()
+			// Requirement: removed within TTL + 60s
+			isPass = (finalCondition == "Complete") && (ttlDuration <= time.Duration(ttlSeconds+60)*time.Second)
+		} else {
+			isPass = false
+		}
+	} else {
+		// 9. Clean up Job after data extraction for other criteria (Foreground deletion cascades to Pod)
+		deletePolicy := metav1.DeletePropagationForeground
+		_ = cs.BatchV1().Jobs(opts.Namespace).Delete(ctx, jobName, metav1.DeleteOptions{
+			PropagationPolicy: &deletePolicy,
+		})
+	}
 
 	record := &measure.RunRecord{
 		Criterion:          opts.Criterion,
@@ -226,10 +264,12 @@ func RunOnce(ctx context.Context, cs *kubernetes.Clientset, opts jobspec.Options
 		ExecutionLatencyMs: execMs,
 		TotalDurationMs:    totalMs,
 		OverrunMs:          overrunMs,
+		TTLActualMs:        ttlActualMs,
 		Condition:          finalCondition,
 		Reason:             conditionReason,
 		TerminatedReason:   terminatedReason,
 		ExitCode:           exitCode,
+		TestsRun:           testSummary.TestsRun,
 		TestsPassed:        testSummary.TestsPassed,
 		TestsFailed:        testSummary.TestsFailed,
 		PackageVerdict:     testSummary.PackageVerdict,
@@ -248,7 +288,9 @@ func runCancellationTest(ctx context.Context, cs *kubernetes.Clientset, opts job
 		podRunningAt  time.Time
 		logContent    bytes.Buffer
 		logStreamDone = make(chan struct{})
+		streamCtx, cancelStream = context.WithCancel(ctx)
 	)
+	defer cancelStream()
 
 	// 1. Wait until Pod is in Running phase
 	err := wait.PollUntilContextTimeout(ctx, 100*time.Millisecond, 30*time.Second, true, func(ctx context.Context) (bool, error) {
@@ -276,7 +318,7 @@ func runCancellationTest(ctx context.Context, cs *kubernetes.Clientset, opts job
 			Container: "judge",
 			Follow:    true,
 		})
-		stream, err := req.Stream(ctx)
+		stream, err := req.Stream(streamCtx)
 		if err != nil {
 			return
 		}
@@ -319,10 +361,12 @@ func runCancellationTest(ctx context.Context, cs *kubernetes.Clientset, opts job
 		return nil, fmt.Errorf("job %s was not deleted within timeout: %w", jobName, pollErr)
 	}
 
-	// 5. Ensure log stream flushes
+	// 5. Ensure log stream flushes cleanly without race
 	select {
 	case <-logStreamDone:
-	case <-time.After(2 * time.Second):
+	case <-time.After(1500 * time.Millisecond):
+		cancelStream()
+		<-logStreamDone
 	}
 
 	// 6. Save raw logs
