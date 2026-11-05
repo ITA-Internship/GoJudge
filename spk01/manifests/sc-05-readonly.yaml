@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: spk01-sc-05-
+  namespace: spk01
+  labels:
+    app: spk01
+    criterion: SC-05
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 120
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: spk01
+        criterion: SC-05
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 1
+      automountServiceAccountToken: false     # не монтувати токен K8s
+      securityContext: # рівень пода
+        runAsNonRoot: true                    # K8s відмовиться запускати від root
+        runAsUser: 65532                      # довільний непривілейований UID
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault                # стандартний фільтр системних викликів
+      containers:
+        - name: judge
+          image: gojudge-spk01:dev
+          imagePullPolicy: Never
+          command: [ "go", "test", "-json", "-run", "^TestFilesystemWrite$", "./..." ]
+          env:
+            - name: HOME
+              value: /tmp
+            - name: GOCACHE
+              value: /tmp/gocache             # кеш збірки туди, де можна писати
+          securityContext: # рівень контейнера
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true      # коренева ФС лише для читання
+            capabilities:
+              drop: [ "ALL" ]
+          resources:
+            requests: { memory: "512Mi", cpu: "250m" }
+            limits: { memory: "512Mi", cpu: "1" }
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi                  # тимчасова тека з обмеженим розміром
