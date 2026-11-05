@@ -1,0 +1,8 @@
+{"Time":"2026-11-04T10:28:36.150140046Z","Action":"start","Package":"trusted"}
+{"Time":"2026-11-04T10:28:36.152853952Z","Action":"run","Package":"trusted","Test":"TestAddSuccess"}
+{"Time":"2026-11-04T10:28:36.152908327Z","Action":"output","Package":"trusted","Test":"TestAddSuccess","Output":"=== RUN   TestAddSuccess\n","OutputType":"frame"}
+{"Time":"2026-11-04T10:28:36.152927014Z","Action":"output","Package":"trusted","Test":"TestAddSuccess","Output":"--- PASS: TestAddSuccess (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-04T10:28:36.15293023Z","Action":"pass","Package":"trusted","Test":"TestAddSuccess","Elapsed":0}
+{"Time":"2026-11-04T10:28:36.152942123Z","Action":"output","Package":"trusted","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-04T10:28:36.153280131Z","Action":"output","Package":"trusted","Output":"ok  \ttrusted\t0.003s\n"}
+{"Time":"2026-11-04T10:28:36.15368825Z","Action":"pass","Package":"trusted","Elapsed":0.004}
