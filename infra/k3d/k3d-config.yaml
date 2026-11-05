@@ -1,0 +1,10 @@
+# GoJudge local cluster configuration (INF-03).
+# Usage: k3d cluster create --config infra/k3d/k3d-config.yaml
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: gojudge
+servers: 1
+agents: 0
+# Pinned so every developer gets the same Kubernetes version.
+image: rancher/k3s:v1.35.5-k3s1
