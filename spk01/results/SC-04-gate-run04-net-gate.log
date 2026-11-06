@@ -1,0 +1,2 @@
+gate attempt=1 uptime=135388.96 egress=OPEN
+gate attempt=2 uptime=135390.00 egress=BLOCKED -> starting main container

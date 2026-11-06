@@ -1,0 +1,16 @@
+{"Time":"2026-11-06T19:30:27.941427601Z","Action":"start"}
+{"Time":"2026-11-06T19:30:27.943460679Z","Action":"run","Test":"TestEstablishedConnection"}
+{"Time":"2026-11-06T19:30:27.943531248Z","Action":"output","Test":"TestEstablishedConnection","Output":"=== RUN   TestEstablishedConnection\n","OutputType":"frame"}
+{"Time":"2026-11-06T19:30:27.943790408Z","Action":"output","Test":"TestEstablishedConnection","Output":"    netconn_test.go:47: t=0s: connection at start blocked: dial tcp 1.1.1.1:80: connect: connection refused\n"}
+{"Time":"2026-11-06T19:30:27.943824512Z","Action":"output","Test":"TestEstablishedConnection","Output":"--- PASS: TestEstablishedConnection (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-06T19:30:27.943828003Z","Action":"pass","Test":"TestEstablishedConnection","Elapsed":0}
+{"Time":"2026-11-06T19:30:27.94383856Z","Action":"run","Test":"TestNetworkEgress"}
+{"Time":"2026-11-06T19:30:27.94384046Z","Action":"output","Test":"TestNetworkEgress","Output":"=== RUN   TestNetworkEgress\n","OutputType":"frame"}
+{"Time":"2026-11-06T19:30:27.944034962Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to 1.1.1.1:443 blocked after 0s: dial tcp 1.1.1.1:443: connect: connection refused\n"}
+{"Time":"2026-11-06T19:30:27.944186327Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to 8.8.8.8:53 blocked after 0s: dial tcp 8.8.8.8:53: connect: connection refused\n"}
+{"Time":"2026-11-06T19:30:30.946998387Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to google.com:443 blocked after 3.003s: dial tcp: lookup google.com: i/o timeout\n"}
+{"Time":"2026-11-06T19:30:30.94745035Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to 10.43.0.1:443 blocked after 0s: dial tcp 10.43.0.1:443: connect: connection refused\n"}
+{"Time":"2026-11-06T19:30:30.947482791Z","Action":"output","Test":"TestNetworkEgress","Output":"--- PASS: TestNetworkEgress (3.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-06T19:30:30.947487279Z","Action":"pass","Test":"TestNetworkEgress","Elapsed":3}
+{"Time":"2026-11-06T19:30:30.947511661Z","Action":"output","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-06T19:30:30.947985361Z","Action":"pass","Elapsed":3.007}
