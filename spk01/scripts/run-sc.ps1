@@ -41,6 +41,13 @@ for ($i = 1; $i -le $Runs; $i++) {
     $podYaml = (kubectl get pod $pod -n $ns -o yaml) -join "`n"
     [IO.File]::WriteAllText((Join-Path $results "$Sc-run$run-pod.yaml"), $podYaml, $utf8)
 
+    # Save init container logs, if the Pod has any
+        $inits = kubectl get pod $pod -n $ns -o jsonpath='{.spec.initContainers[*].name}'
+        foreach ($ic in ($inits -split ' ' | Where-Object { $_ })) {
+            $icLines = @(kubectl logs $pod -n $ns -c $ic)
+            [IO.File]::WriteAllLines((Join-Path $results "$Sc-run$run-$ic.log"), [string[]]$icLines, $utf8)
+        }
+
     # Parse go test -json events
     $events = $lines | Where-Object { $_ -like '{*' } | ForEach-Object { $_ | ConvertFrom-Json }
     $testsRun    = @($events | Where-Object { $_.Action -eq 'run'  -and $_.Test }).Count

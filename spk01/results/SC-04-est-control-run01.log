@@ -1,0 +1,11 @@
+{"Time":"2026-11-06T19:01:44.098077702Z","Action":"start"}
+{"Time":"2026-11-06T19:01:44.113660049Z","Action":"run","Test":"TestEstablishedConnection"}
+{"Time":"2026-11-06T19:01:44.113922361Z","Action":"output","Test":"TestEstablishedConnection","Output":"=== RUN   TestEstablishedConnection\n","OutputType":"frame"}
+{"Time":"2026-11-06T19:01:44.138178285Z","Action":"output","Test":"TestEstablishedConnection","Output":"    netconn_test.go:51: t=24ms: connection at start succeeded (remote 1.1.1.1:80)\n","OutputType":"error"}
+{"Time":"2026-11-06T19:01:44.160543563Z","Action":"output","Test":"TestEstablishedConnection","Output":"    netconn_test.go:53: t=47ms: request 1 over it: HTTP/1.1 301 Moved Permanently\n"}
+{"Time":"2026-11-06T19:01:49.188226819Z","Action":"output","Test":"TestEstablishedConnection","Output":"    netconn_test.go:66: t=5.077s: new connection after wait blocked: dial tcp 1.1.1.1:80: connect: connection refused\n"}
+{"Time":"2026-11-06T19:01:49.215907679Z","Action":"output","Test":"TestEstablishedConnection","Output":"    netconn_test.go:71: t=5.105s: established connection still usable after policy applied: HTTP/1.1 301 Moved Permanently\n","OutputType":"error"}
+{"Time":"2026-11-06T19:01:49.216479043Z","Action":"output","Test":"TestEstablishedConnection","Output":"--- FAIL: TestEstablishedConnection (5.11s)\n","OutputType":"frame"}
+{"Time":"2026-11-06T19:01:49.216602127Z","Action":"fail","Test":"TestEstablishedConnection","Elapsed":5.11}
+{"Time":"2026-11-06T19:01:49.216810913Z","Action":"output","Output":"FAIL\n","OutputType":"frame"}
+{"Time":"2026-11-06T19:01:49.217634285Z","Action":"fail","Elapsed":5.122}
