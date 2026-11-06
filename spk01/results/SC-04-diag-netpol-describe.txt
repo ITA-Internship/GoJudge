@@ -1,0 +1,11 @@
+﻿Name:         spk01-deny-egress
+Namespace:    spk01
+Created on:   2026-11-06 13:52:46 +0200 EET
+Labels:       <none>
+Annotations:  <none>
+Spec:
+  PodSelector:     app=spk01
+  Not affecting ingress traffic
+  Allowing egress traffic:
+    <none> (Selected pods are isolated for egress connectivity)
+  Policy Types: Egress
