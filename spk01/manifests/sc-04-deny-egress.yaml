@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: spk01-deny-egress
+  namespace: spk01
+spec:
+  podSelector:
+    matchLabels:
+      app: spk01          # усі поди спайку
+  policyTypes:
+    - Egress              # керуємо вихідним трафіком
+  # жодного правила egress: усе вихідне заборонено, зокрема DNS
