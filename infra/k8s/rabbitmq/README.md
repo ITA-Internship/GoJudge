@@ -64,30 +64,6 @@ curl -s -u "$RABBITMQ_USER:$RABBITMQ_PASSWORD" -X DELETE http://localhost:15672/
 Expected: the second command returns `{"routed":true}` and the third returns
 the message with `"payload":"hello"`. The last command removes the test queue.
 
-### Check publish and consume over AMQP (port 5672)
-
-Applications (for example Watermill) talk to RabbitMQ over AMQP on port 5672,
-not over the management API. This Job publishes one message and consumes it
-with `github.com/rabbitmq/amqp091-go`, the AMQP client used by Watermill.
-
-```bash
-kubectl apply -f infra/k8s/rabbitmq/amqp-smoke-test.yaml
-kubectl -n gojudge wait --for=condition=complete job/amqp-smoke-test --timeout=600s
-kubectl -n gojudge logs job/amqp-smoke-test
-kubectl -n gojudge delete job amqp-smoke-test
-```
-
-Expected at the end of the logs:
-
-```
-connected to rabbitmq:5672 over AMQP, RabbitMQ 4.4.0
-published: hello-amqp
-consumed: hello-amqp
-AMQP publish and consume on port 5672: OK
-```
-
-The test queue `smoke-amqp` is durable and is deleted at the end of the test.
-
 ### Notes
 
 - The readiness probe runs `rabbitmq-diagnostics check_port_connectivity`. Unlike
