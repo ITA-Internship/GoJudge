@@ -1,0 +1,45 @@
+Trial 1:
+[watermill] 2026/11/07 20:13:44.596666 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/07 20:13:44.864890 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-B amqp_routing_key= topic=SC-B
+received: id=185ef076-68d1-4d9f-aba5-5a26842354cf payload=message #1
+
+Process finished with the exit code 1
+
+Trial 2:
+[watermill] 2026/11/07 20:14:22.946222 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/07 20:14:23.210523 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-B amqp_routing_key= topic=SC-B
+received: id=185ef076-68d1-4d9f-aba5-5a26842354cf payload=message #1
+
+Process finished with the exit code 1
+
+Trial 3:
+[watermill] 2026/11/07 20:14:34.942444 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/07 20:14:35.209238 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-B amqp_routing_key= topic=SC-B
+received: id=185ef076-68d1-4d9f-aba5-5a26842354cf payload=message #1
+
+Process finished with the exit code 1
+
+Trial 4:
+[watermill] 2026/11/07 20:14:45.332517 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/07 20:14:45.596561 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-B amqp_routing_key= topic=SC-B
+received: id=185ef076-68d1-4d9f-aba5-5a26842354cf payload=message #1
+
+Process finished with the exit code 1
+
+Trial 5:
+[watermill] 2026/11/07 20:14:57.079545 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/07 20:14:57.343072 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-B amqp_routing_key= topic=SC-B
+received: id=185ef076-68d1-4d9f-aba5-5a26842354cf payload=message #1
+
+Process finished with the exit code 1
+
+Consumer that wasn't killed:
+[watermill] 2026/11/07 20:15:33.676705 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/07 20:15:33.944229 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-B amqp_routing_key= topic=SC-B
+received: id=185ef076-68d1-4d9f-aba5-5a26842354cf payload=message #1
+[watermill] 2026/11/07 20:15:33.988421 subscriber.go:360: 	level=INFO  msg="Subscriber closed" amqp_exchange_name= amqp_queue_name=SC-B amqp_routing_key= topic=SC-B
+[watermill] 2026/11/07 20:15:34.133737 subscriber.go:147: 	level=INFO  msg="Stopped consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-B amqp_routing_key= topic=SC-B
+[watermill] 2026/11/07 20:15:34.133737 connection.go:61: 	level=INFO  msg="Closing AMQP Pub/Sub"
+[watermill] 2026/11/07 20:15:34.176539 connection.go:70: 	level=INFO  msg="Closed AMQP Pub/Sub"
+
+Process finished with the exit code 0

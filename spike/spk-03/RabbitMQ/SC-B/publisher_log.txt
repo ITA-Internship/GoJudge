@@ -1,0 +1,6 @@
+[watermill] 2026/11/07 20:13:26.780366 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+published: id=185ef076-68d1-4d9f-aba5-5a26842354cf, payload=message #1
+[watermill] 2026/11/07 20:13:26.868230 connection.go:61: 	level=INFO  msg="Closing AMQP Pub/Sub"
+[watermill] 2026/11/07 20:13:26.911581 connection.go:70: 	level=INFO  msg="Closed AMQP Pub/Sub"
+
+Process finished with the exit code 0
