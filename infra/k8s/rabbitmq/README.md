@@ -2,7 +2,8 @@
 
 RabbitMQ 4.4.0 (with the management UI) runs in the namespace `gojudge`.
 Manifests: `infra/k8s/rabbitmq/rabbitmq.yaml`. The local cluster must be
-running (see the "Local cluster" section in [`infra/README.md`](../../README.md)).
+running (see [`infra/README.md`](/infra/README.md), which also has the full
+setup of all services).
 
 ### Credentials
 
@@ -71,11 +72,21 @@ the message with `"payload":"hello"`. The last command removes the test queue.
   not accept connections, so the pod is not marked ready too early.
 
 - Queues must be durable. RabbitMQ 4.x rejects transient non-exclusive queues.
-- Data is stored in an `emptyDir`: queues survive a container restart but are
-  lost when the pod is recreated.
+- Data is stored on a 1Gi volume (`data-rabbitmq-0`), so durable queues and
+  definitions survive a pod restart.
 - If you have the earlier Deployment running, remove it before you apply the
   StatefulSet. The Service must be recreated too, because `clusterIP` cannot be
   changed: `kubectl -n gojudge delete deployment/rabbitmq service/rabbitmq`.
-- To change the password, edit `.env`, repeat the secret commands, then run
-  `kubectl -n gojudge rollout restart statefulset/rabbitmq`.
+- If you applied an earlier version that used an `emptyDir`, delete the
+  StatefulSet before you apply this one, because its volumes cannot be changed
+  in place: `kubectl -n gojudge delete statefulset/rabbitmq`.
+- RabbitMQ creates the user from the Secret only on the first start with an
+  empty volume. To change the password, or to reset RabbitMQ, delete it with
+  its data, then run the commands from "Start" again:
+
+  ```bash
+  kubectl delete -f infra/k8s/rabbitmq/rabbitmq.yaml
+  kubectl -n gojudge delete pvc data-rabbitmq-0
+  ```
+
 - Remove only RabbitMQ: `kubectl delete -f infra/k8s/rabbitmq/rabbitmq.yaml`.

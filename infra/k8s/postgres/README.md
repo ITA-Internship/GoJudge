@@ -4,7 +4,7 @@ PostgreSQL 17.11 in the namespace `gojudge`.
 
 ### Start
 
-1. Start the local cluster (see [infra/README.md](../../README.md)), if it is not running yet:
+1. Start the local cluster (see [`infra/README.md`](/infra/README.md)), if it is not running yet:
 ```bash
 k3d cluster create --config infra/k3d/k3d-config.yaml
 ```
