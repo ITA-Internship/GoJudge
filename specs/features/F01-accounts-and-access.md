@@ -1,30 +1,22 @@
 # Feature Spec: F01 – Accounts and access
 
-> **How to use this template**
-> 1. Copy this file to `specs/features/F00-short-name.md` and replace the placeholders.
-> 2. Mark sections **Required**, **Conditional** or **Optional** as shown. Delete any section marked *Conditional* or *Optional* that does not apply, or write "Not applicable" with a reason.
-> 3. Do not mark the feature **Approved** while acceptance criteria are ambiguous, a required contract is undefined, or a critical question is open. See [Definition of Ready](../../CONTRIBUTING.md#10-definition-of-ready).
-> 4. Delete this blockquote before review.
-
----
-
 ## 1. Feature Metadata *(Required)*
 
 | Field | Value |
 |-------|-------|
 | Feature ID | F01 |
 | Title | Accounts and access |
-| Status | Draft |
+| Status | In Review |
 | Responsible pair | Pair D |
 | Reviewer pair | Pair A, Pair C |
 | GitHub Issue | [issue](https://github.com/ITA-Internship/GoJudge/issues/10) |
-| Last updated | 2026-11-05 |
+| Last updated | 2026-11-09 |
 
 ---
 
 ## 2. Overview and User Story *(Required)*
 
-**Purpose:** It is important to know who is calling the API and what that person is allowed to do. F01 lets people register, sign in and out. Also it separates learners from administrators, so that every other feature can rely on a verified identity and an enforced role.
+**Purpose:** It is important to know who is calling the API and what that person is allowed to do. F01 lets people register, sign in and out. It also separates learners from administrators, so that every other feature can rely on a verified identity and an enforced role.
 
 **User story:**
 
@@ -44,7 +36,7 @@
 
 **In scope:**
 
-- Registration of a new learner accounts.
+- Registration of new learner accounts.
 - Sign in and sign out from the web application.
 - A local user record in PostgreSQL, created on first authenticated request, that gives other features a stable user ID.
 - Two roles, `learner` and `administrator`, with `learner` as the default.
@@ -63,7 +55,7 @@
 - Roles beyond learner and administrator, and per-problem permissions.
 - API rate limiting and abuse protection beyond what the identity provider offers.
 - Server-side revocation of already-issued access tokens.
-- Any behaviour of submissions, problems or the judge.
+- Any behavior of submissions, problems or the judge, including the submission lifecycle and verdicts.
 
 ---
 
@@ -77,17 +69,17 @@
 | FR-04 | The system shall not issue an access token when sign-in credentials are invalid. |
 | FR-05 | The system shall allow a signed-in user to sign out, which ends the session in the web application and at the identity provider. |
 | FR-06 | The system shall support exactly two roles: `learner` and `administrator`. |
-| FR-07 | The system shall assign the `learner` role to every newly registered user. |
+| FR-07 | The system shall assign the learner role to every newly registered user, subject to the OQ-1 decision. The default is learner unless the administrator designation procedure (FR-15) has applied. |
 | FR-08 | The system shall create a local user record, keyed by the identity provider's subject identifier, the first time an authenticated request is received for a subject, and shall not create more than one record per subject. |
-| FR-09 | The system shall validate the access token on every protected API request |
+| FR-09 | The system shall validate the access token on every protected API request: RS256 signature, issuer, audience, expiry, and presence of a subject. |
 | FR-10 | The system shall respond `401 Unauthorized` to a protected request with a missing or invalid token. |
 | FR-11 | The system shall respond `403 Forbidden` when an authenticated user calls an action that requires a role they do not hold. |
 | FR-12 | The system shall deny by default: an endpoint is accessible only to callers it explicitly allows. |
 | FR-13 | The system shall provide `GET /api/v1/me` returning the caller's own profile. |
-| FR-14 | The system shall determine a caller's role only from server-controlled data and shall ignore any role value supplied in a request body, query string or client-controlled token claim. |
+| FR-14 | The system shall determine a caller's role only from server-controlled data and shall ignore any role value supplied in a request body, query string or any token claim not designated as trusted by the OQ-1 decision. |
 | FR-15 | The system shall provide a documented way to designate at least one administrator that is not available through any public endpoint. |
 | FR-16 | The system shall not store, log or return passwords or access tokens. |
-| FR-17 | The system shall log authentication and authorisation failures with a reason code and, where known, the user ID, using structured logging. |
+| FR-17 | The system shall log authentication and authorization failures with a reason code and, where known, the user ID, using structured logging. |
 | FR-18 | The system shall expose role checks as reusable middleware so that F02–F10 apply them without re-implementing authentication. |
 
 
@@ -139,13 +131,13 @@
 
 ### AC-08 – Missing token
 
-- **Given** no `Authorization` header
+- **Given** no `Authorization` header or an `Authorization` header with a scheme other than Bearer
 - **When** a protected endpoint is called
 - **Then** the response is `401` and contains no user data
 
 ### AC-09 – Invalid token
 
-- **Given** a token that is expired, has a bad signature, has the wrong issuer or audience, or is malformed
+- **Given** an access token that is expired, has an invalid signature, has the wrong issuer or audience, has no subject, or is malformed
 - **When** a protected endpoint is called with it
 - **Then** the response is `401`, no local user record is created, and the failure is logged with a reason code but without the token
 
@@ -164,7 +156,7 @@
 ### AC-12 – Role cannot be self-assigned
 
 - **Given** a signed-in `learner`
-- **When** they send a request containing a role value in the body or query string, or present a token carrying a role claim they could have set themselves
+- **When** they send a request containing a role value in the body or query string, or present a token whose role claim is not the one designated as trusted by the OQ-1 decision
 - **Then** their role remains `learner`, and `GET /api/v1/me` still returns `"role": "learner"`
 
 ### AC-13 – Profile is own data only
@@ -175,7 +167,7 @@
 
 ### AC-14 – Sensitive data kept out of logs
 
-- **Given** any sign-in, failed authentication or denied authorisation
+- **Given** any sign-in, failed authentication or denied authorization
 - **When** the structured log output is inspected
 - **Then** no access token, password or Authorization header value appears in it
 
@@ -185,6 +177,30 @@
 - **When** a protected request arrives with a valid token and the signing keys are cached
 - **Then** the request is processed normally; and when no signing key is available, the response is `503`
 
+### AC-16 – Database unavailable during provisioning
+
+- **Given** a valid access token for a subject with no local user record
+- **When** the database cannot be reached during provisioning
+- **Then** the response is `503`, no partial user data is returned, and no user record exists afterwards
+
+### AC-17 – Deny by default
+
+- **Given** the registered API routes
+- **When** a route is registered without an explicit access policy (public, authenticated, or a named role)
+- **Then** the route is not reachable, and the automated route check fails
+
+### AC-18 – Administrator designation
+
+- **Given** a subject with a valid token and no administrator role
+- **When** the documented designation procedure is carried out
+- **Then** `GET /api/v1/me` returns `"role": "administrator"`, and no public endpoint can perform this change
+
+### AC-19 – Denied authorization is logged
+
+- **Given** a signed-in user with role `learner`
+- **When** they call an administrator-only endpoint
+- **Then** the response is `403`, and a structured log entry contains a reason code and the user ID but no token, password or Authorization header value
+
 ---
 
 ## 6. Technical Design *(Required)*
@@ -193,15 +209,26 @@
 
 | Component | Responsibility |
 |-----------|----------------|
-| *e.g. Go API* | *What it does for this feature* |
+| Identity provider | Hosts registration, sign-in and sign-out. Stores credentials. Rejects duplicate emails. Issues RS256-signed access tokens. Publishes signing keys (JWKS). |
+| Web application | Starts the hosted login, registration and logout flows. Holds the access token in memory for the session. Sends it as `Authorization: Bearer`. Never sends or sets a role. |
+| Go API – authentication middleware | Extracts the Bearer token and validates signature (RS256 only), issuer, audience and expiry with the official `github.com/auth0/go-jwt-middleware/v3` and its `validator` and `jwks` sub-packages. Signing keys are cached by `jwks.NewCachingProvider`. Maps failures to `401` or `503` and to log reason codes. |
+| Go API – provisioning step | Creates the local user record for a new subject with an insert that relies on the unique `auth_subject` constraint, then reads the record. Refreshes bounded profile fields. |
+| Go API – role resolution and role middleware | Resolves the caller's role into the request context and exposes a single accessor to handlers. Provides reusable "require role" middleware. Denies by default and rejects routes without an explicit policy. |
+| Go API – `GET /api/v1/me` | Returns the caller's own profile. |
+| PostgreSQL | Stores the `users` table. |
+| Structured logger | Records authentication and authorization failures with reason codes and user ID, never token, password or header values. |
 
 **Dependencies:**
 
-- *Internal or external component, library or service, with reason*
+- Auth0 tenant (identity provider). A development tenant was verified in SPK-02. Tenant access was confirmed with the mentor (MA-05). No secrets or tokens are stored in the repository.
+- `github.com/auth0/go-jwt-middleware/v3`. SPK-02 recommends it for production because it greatly shortens parsing code and provides JWKS caching, `RS256` algorithm pinning and standard clock-skew handling.
+- PostgreSQL, for the local `users` table.
+- DEC-03 (Authentication with Auth0): provisional. Formal approval and ADR recording remain with the mentor (OQ-2).
+- SPK-02 (Auth0 OIDC token validation and role claim mapping): Go outcome. Its code is on branch `spike/SPK-02-auth0-oidc`. F01-01 may reuse its test approach.
 
 **Architecture decisions:**
 
-- *Link to any decision record, or state "None". Do not introduce a new architectural decision without raising it as an issue first.*
+- DEC-03 (Authentication with Auth0): provisional, confirmed viable by SPK-02, not yet approved.
 
 ---
 
@@ -213,23 +240,62 @@ Complete this section if the feature exposes or consumes an API, stores data, pu
 
 | Method | Path | Purpose | Auth required |
 |--------|------|---------|---------------|
-| *GET* | */path* | *Purpose* | *Yes / No* |
+| GET | `/api/v1/me` | Return the caller's own profile and role | Yes |
 
-**Request schema:** *Link to, or describe, the request body and parameters.*
+Registration, sign-in and sign-out are performed at the identity provider and are not API endpoints. F01 adds no public API endpoint. Public routes, if any, are explicitly allow-listed (FR-12).
 
-**Response schema:** *Link to, or describe, success and error responses.*
+**Request schema:** All protected requests carry `Authorization: Bearer <access token>`. `GET /api/v1/me` takes no body, no query parameters and no role input.
 
-### 7.2 Data Models *(if applicable)*
+**Response schema:**
+Success, `200`:
 
-*Describe each entity, its fields, types and constraints.*
+```json
+{
+  "id": "6f1c0a52-3c8e-4d7b-9a51-1f2d3e4a5b6c",
+  "email": "learner@example.com",
+  "display_name": "Learner",
+  "role": "learner"
+}
+```
 
-### 7.3 Messaging Contracts *(if applicable)*
+- `id` is the local user ID (UUID). `email` and `display_name` may be `null`. The identity provider's `auth_subject` is internal and is not returned. Tokens and credential material are never returned.
 
-*Describe the queue or topic name, message fields, and expected consumer behaviour.*
+Errors (same envelope for all F01 failures; the generic message never contains parser or claim details):
 
-### 7.4 State Transitions *(if applicable)*
+| Status | `code` | When |
+|--------|--------|------|
+| `401` | `unauthorized` | Missing or invalid token (AC-08, AC-09) |
+| `403` | `forbidden` | Authenticated, but the required role is not held (AC-10) |
+| `503` | `service_unavailable` | No signing key available, or database unavailable during provisioning (AC-15, AC-16) |
 
-*Describe the allowed states and transitions, for example a submission moving from queued to running to completed.*
+```json
+{ "error": { "code": "unauthorized", "message": "Authentication required." } }
+```
+
+### 7.2 Data Models
+
+All models are provisional and to be confirmed.
+
+Table `users`:
+
+| Field | Type | Constraints |
+|-------|------|-------------|
+| `id` | UUID | Primary key, generated by the API or database. Stable ID used by F06, F08, F09 and F10. |
+| `auth_subject` | text | Not null, unique. Identity provider subject (`sub`), at most 255 characters. Never changes. |
+| `email` | text | Nullable, at most 320 characters. Returned only to its owner. Kept out of logs. |
+| `display_name` | text | Nullable, at most 100 characters. Truncated to the limit. |
+| `role` | text | Not null, default `learner`, check constraint: `learner` or `administrator`. |
+| `created_at` | timestamptz | Not null, default now. |
+| `updated_at` | timestamptz | Not null, default now. |
+
+
+### 7.3 Messaging Contracts
+
+Not applicable. F01 neither publishes nor consumes queue or topic messages.
+
+### 7.4 State Transitions
+
+Not applicable. A user record has no lifecycle states.
 
 ---
 
@@ -241,7 +307,7 @@ Complete this section if the feature exposes or consumes an API, stores data, pu
 - [x] Duplicate processing
 - [x] Unavailable dependencies
 
-| Scenario | Expected behaviour |
+| Scenario | Expected behavior |
 |----------|--------------------|
 | No `Authorization` header, or a scheme other than Bearer | `401`, no user data (AC-08). |
 | Token malformed, expired, wrong issuer or audience, bad signature | `401`, no user record created, reason code logged (AC-09). |
@@ -262,11 +328,22 @@ Complete this section if the feature exposes or consumes an API, stores data, pu
 
 ## 9. Security Considerations *(Required)*
 
-- [x] **Authentication:** *How is the caller identified?*
-- [x] **Authorisation:** Roles are `learner` and `administrator`. The role is read from server-controlled data and never from client input (FR-14, AC-12). Administrator-only actions, including everything that exposes hidden tests (F09), return `403` to learners (AC-10). The API is the single authority. Denied attempts are logged with the user ID.
+- [x] **Authentication:** The caller is identified by an RS256-signed OIDC access token issued by the identity provider (Auth0, DEC-03 provisional). The API validates signature, issuer, audience and expiry on every protected request and requires a subject (FR-09). The algorithm is pinned to RS256. Issuer and audience come from configuration. Signing keys come from the provider's JWKS endpoint and are cached with a bounded TTL. This was verified by SPK-02 with the official middleware. The production sign-in flow for the web application is hosted login with Authorization Code and PKCE (provisional, OQ-6). The validation error text is logged as a reason code only and is never returned.
+- [x] **Authorization:** Roles are `learner` and `administrator`. The role is read from server-controlled data and never from client input (FR-14, AC-12). Administrator-only actions, including everything that exposes hidden tests (F09), return `403` to learners (AC-10). The API is the single authority. Denied attempts are logged with the user ID.
 - [x] **Input validation:** The Authorization header is parsed strictly. Token claims used for the local profile are length-bounded and treated as untrusted text. No role is accepted from any request field. Registration input (email format, password strength) is validated by the identity provider. `GET /api/v1/me` takes no input.
-- [x] **Sensitive data:** Application never receives or stores passwords. Access tokens are not stored server-side and are never logged or echoed in responses (AC-14). The only personal data stored is email and display name. The email is returned only to its owner and kept out of logs.
-- [] **Execution isolation:** Not applicable. F01 does not run learner-submitted code.
+- [x] **Sensitive data:** The application never receives or stores passwords. Access tokens are not stored server-side and are never logged or echoed in responses (AC-14). The only personal data stored is email and display name. The email is returned only to its owner and kept out of logs.
+- [ ] **Execution isolation:** Not applicable. F01 does not run learner-submitted code.
+
+**Open questions from SPK-02:**
+
+| Gap identified in SPK-02 | Security impact | Recorded as |
+|----------------|-----------------|-------------|
+| The spike read the role from the claim `https://gojudge-api/roles` in the token. It did not decide whether that claim or the local database is the source of truth. | Decides who can grant `administrator`. | OQ-1 |
+| DEC-03 is confirmed viable but not formally approved. | The identity provider choice could change. | OQ-2 |
+| Stale-cache behavior after the 5-minute TTL, and refresh on an unknown key ID, were not exercised. | AC-15 and the unknown-key edge case depend on it. | OQ-3 |
+| The administrator test user's claim contained a misspelling ("Adminisrator") and the learner's was capitalized ("Learner"). The spike mapper lower-cases and trims, and the evidence notes tenant typo handling. | Approximate matching must never grant `administrator`. | OQ-4 |
+| Which claims (`email`, name) appear in the access token was inspected but not recorded. | Affects profile fields only. | OQ-5 |
+| Sign-in in the spike used the Resource Owner Password flow. The hosted Authorization Code flow with PKCE was not exercised. | The product flow is unverified. | OQ-6 |
 
 ---
 
@@ -282,13 +359,17 @@ Complete this section if the feature exposes or consumes an API, stores data, pu
 | AC-06 | End-to-end | Wrong password at the hosted login: no token, protected pages stay inaccessible. | No |
 | AC-07 | End-to-end | Sign out, confirm provider session ended and protected page demands sign-in. | No |
 | AC-08 | Integration | Request with no header and with a non-Bearer scheme returns `401`. | Yes |
-| AC-09 | Unit and integration | Table test of expired, wrong issuer, wrong audience, bad signature, malformed tokens: all `401`, no row created, no token in the log. | Yes |
+| AC-09 | Integration | Table test of expired, wrong issuer, wrong audience, bad signature, malformed tokens: all `401`, no row created, no token in the log. | Yes |
 | AC-10 | Integration | Learner token against a role-protected test route returns `403`. | Yes |
 | AC-11 | Integration | Administrator token against the same route passes the check. | Yes |
 | AC-12 | Integration | Learner sends a role in body and query, and a token with a forged role claim: stored role and `/me` stay `learner`. | Yes |
 | AC-13 | Integration | Two users each call `/me` and receive only their own fields. | Yes |
 | AC-14 | Integration | Run AC-03, AC-09 and AC-10 with log capture and assert no token, password or header value appears. | Yes |
 | AC-15 | Integration | Fake provider stopped: cached keys still validate. With an empty cache, `503`. | Yes |
+| AC-16 | Integration | Fake DB down on first request: `503`, no row, no partial body. | Yes |
+| AC-17 | Unit | Register a route without a policy: it is unreachable and the route-check test fails. | Yes |
+| AC-18 | Integration | Apply the documented designation procedure to a test subject, then `/me` returns `administrator`. Confirm no public route can do it. | Yes |
+| AC-19 | Integration | Learner calls an admin route, which returns `403`. Assert the log has a reason code and user ID and no token. | Yes |
 
 ---
 
@@ -296,17 +377,30 @@ Complete this section if the feature exposes or consumes an API, stores data, pu
 
 **Related features:**
 
-- *F00 – Title, and the nature of the dependency*
+- **F02–F10 – Consumers of identity and roles.** They apply the role middleware and do not re-implement authentication.
+- **F06, F08 – Submissions.** Submission records reference `users.id` as owner. Visibility of other users' submissions is decided by those features, using the identity F01 provides.
+- **F09 – Problem and test administration.** Requires the `administrator` role (FR-11, AC-10). Hidden test definitions are administrator-only. Detailed test feedback to learners follows each problem's visibility rules.
+- **F10 – Progress.** Keyed by `users.id`.
+- **CON-01 (S1-08) – Submission lifecycle and verdict model.** F01 defines no submission states or verdicts and supplies only `users.id` as owner.
+- **DEC-03 – Authentication with Auth0.** Provisional.
 
 **Open questions:**
 
-| # | Question | Owner | Status |
-|---|----------|-------|--------|
-| 1 | *Question* | *Pair or person* | Open / Resolved |
+| # | Question | Owner | Status | Critical |
+|---|----------|-------|--------|----------|
+| OQ-1 | What is the source of truth for the role: the local `users.role` column or the validated Auth0 claim, which SPK-02 showed can be mapped? Or a defined combination of both? | Pair C, Pair D | Open | Yes |
+| OQ-2 | Formal approval and ADR for DEC-03 (Auth0). The spec is written against it as provisional. | Mentor | Open | Yes |
+| OQ-3 | How does the JWKS caching provider behave after the 5-minute TTL when the key endpoint is down, and on an unknown key ID? Not exercised in SPK-02. AC-15 and §8 depend on it. | Pair C | Open | No |
+| OQ-4 | If the claim is used (OQ-1) fix tenant role values to exact `learner` / `administrator`, and drop any approximate matching from the production mapper. | Pair C | Open | No |
+| OQ-5 | Which claims (`email`, display name) are present in the access token, and under what names? The spec allows both to be null. | Pair C | Open | No |
+| OQ-6 | Is the production web sign-in flow hosted login with Authorization Code and PKCE, and what is the logout URL and allowed redirect configuration? | Pair D | Open | No |
+| OQ-7 | Agree the error envelope, JSON field naming (`display_name`), user ID type (UUID) and log reason codes. | Pair D | Open | No |
+| OQ-8 | Access-token lifetime and clock-skew leeway. These bound how long a blocked user's token still works. | Pair C | Open | No |
+| OQ-9 | Agree the (`users`) table model. | Pair D | Open | No |
 
 **Blockers:**
 
-- *Blocker, or "None"*
+- OQ-1 and OQ-2 must be closed, with decision references, before the specification can be approved.
 
 ---
 
@@ -314,9 +408,9 @@ Complete this section if the feature exposes or consumes an API, stores data, pu
 
 | Role | Name or pair | Date | Outcome |
 |------|--------------|------|---------|
-| Author | Pair D | Date | Submitted |
-| Reviewer | Pair A | Date | Pending |
-| Reviewer | Pair C | Date | Pending |
+| Author | Pair D | 2026-11-09 | Submitted |
+| Reviewer | Pair A | - | Pending |
+| Reviewer | Pair C | - | Pending |
 
 **Approval checklist:**
 
