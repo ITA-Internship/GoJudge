@@ -447,10 +447,10 @@ Day one is a decision session (MA-13): the team confirms the provisional choices
 |------------|------|-----------|---------|----------------|
 | WS1 Platform foundations | Pair A | INF-01, INF-02, INF-03, INF-04 | None | 8 |
 | WS2 Secure execution spike | Pair B | SPK-01 (timebox 8) | Start SPK-05 reading list on day 10 | 8 |
-| WS3 Identity and messaging spikes | Pair C | SPK-02 (timebox 2), SPK-03 (timebox 4) | Review SPEC-F01 for another pair | 6 |
-| WS4 Specifications and contracts | Pair D | CON-01, CON-04 (draft), SPEC-F01 (in review), SPEC-F02 (draft) | None | 6.5 |
+| WS3 Identity and messaging spikes | Pair C | SPK-02 (timebox 2), SPK-03 (timebox 4) | Review SPEC-F01 for another pair; CON-02 (1.5, mentor-approved 9 Nov) | 6 |
+| WS4 Specifications and contracts | Pair D | CON-01, CON-04 (draft), SPEC-F01 (in review), SPEC-F02 (draft) | SPEC-F04 (1.5, mentor-approved 9 Nov) | 6.5 |
 
-Committed implementation load is **28.5 pair-days**. Realistic Sprint 1 net capacity is **24.5 pair-days** (§11.3), so the committed set is **4 pair-days over**. This needs a decision (MA-15). Two options are listed in §9.4. The gap is not hidden in a stretch item: there is no stretch item in Sprint 1.
+Committed implementation load is **28.5 pair-days**. Realistic Sprint 1 net capacity is **24.5 pair-days** (§11.3), so the earlier committed set was **4 pair-days over**. The approved Sprint 1 Plan ([sprint-01.md](../planning/sprint-01.md) §2 and §4.1, MA-15) commits 24.5 pair-days and is authoritative. The 28.5 figure is a historical backlog estimate and is not reopened here. The options in §9.4 are not needed for Sprint 1. The gap is not hidden in a stretch item. The two mentor-approved stretch items, CON-02 (Pair C) and SPEC-F04 (Pair D), total 3.0 pair-days. They are recorded in [sprint-01.md §4.2](../planning/sprint-01.md#42-stretch-mentor-approved-9-november-2026) and are not counted in the committed load above. Their rows in §10 (Sprints 2 and 3) are unchanged until Sprint 2 planning.
 
 ### 9.2 Workstream detail
 
@@ -501,7 +501,7 @@ Each sprint's planned load is the sum of the items allocated to it. Gross capaci
 
 | Sprint | Dates | Items (planned load) | Load | Realistic net | Over (+) / spare (−) | Notes |
 |--------|-------|----------------------|------|---------------|----------------------|-------|
-| **1** | 2–13 Nov | INF-01, INF-02, INF-03, INF-04; SPK-01, SPK-02, SPK-03; CON-01; CON-04 (draft, 2); SPEC-F01, SPEC-F02 (draft) | **28.5** | 24.5 | **+4** | Over-commit needs MA-15 (§9.4) |
+| **1** | 2–13 Nov | INF-01, INF-02, INF-03, INF-04; SPK-01, SPK-02, SPK-03; CON-01; CON-04 (draft, 2); SPEC-F01, SPEC-F02 (draft) | **28.5** | 24.5 | **+4** | Approved Sprint 1 Plan is 24.5 (MA-15, sprint-01.md §2); 28.5 is the earlier estimate (§9.1). Stretch CON-02 and SPEC-F04 (3.0) are outside this load (§9.1). |
 | **2** | 16–27 Nov | CON-04 (final, 2); CON-02 (1.5); CON-03 (initial, 2); CON-05 (4); INF-05 (4); INF-07 (4); INF-09 (1.5); INF-12a (1.5); F01-01 (4); F02-01 (4); SPEC-F03, SPEC-F06 (1.5 each); SPEC-F07 (4); SPK-05 (3) | **38.5** | 25 | **+13.5** | SPEC-F01 and SPEC-F02 approved at the start. SPEC-F07 approval at the start of Sprint 3. |
 | **3** | 30 Nov – 11 Dec | F01-02 (4); F03-01 (4); F06-01 (4); F06-02 (4); F07-01 (4); SPK-04 (3); CON-03 extension (2); SPEC-F04, SPEC-F05, SPEC-F08, SPEC-F09 (1.5 each); TST-01 (4); INF-08 (1.5) | **36.5** | 25 | **+11.5** | DEC-12 decided on the first day. SPEC-F07 approved on the first day, gating F07-02a. |
 | **4** | 14–29 Dec | F04-01 (4); F07-02a (4); F07-02b (4); F07-03 (4); F07-04 (4); F07-05 (3); F07-06 (4); F08-01 (3); F09-01 (4); INF-10 (4) | **38** | 27.5 | **+10.5** | DEC-07 and DEC-08 approved at the start (14 Dec), gating INF-11 and F07-02b. MA-03 and MA-04 recorded. Holiday break mid-sprint. |

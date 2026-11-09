@@ -2,6 +2,8 @@
 
 **Status:** Approved for Sprint 1 execution (2 November 2026), on the requester's instruction, after the SDD documents were made consistent for the four work item types. No GitHub Issues have been created from this plan. The mentor's Day-1 decisions are listed in §8.1 and still need recording.
 
+**Stretch added (9 November 2026):** the mentor approved two stretch items for the second week of Sprint 1, CON-02 (Pair C) and SPEC-F04 (Pair D), totalling 3.0 pair-days. They are recorded in §4.2 and are not part of the committed scope.
+
 **Sources:** [Product Backlog](../product/product-backlog.md) (revision 3, §5 spikes, §9 Sprint 1, §11.3 overhead), [MVP Proposal](../product/mvp-proposal.md), [SDD Workflow](../sdd-workflow.md), [Contributing Guide](../../CONTRIBUTING.md), [Feature Specification Template](../../specs/templates/feature-spec-template.md).
 
 **Relationship to the backlog:** this plan supersedes backlog §9 for Sprint 1 only. The backlog is not modified. Where this plan differs from backlog §9, the differences are listed in §4.
@@ -31,7 +33,7 @@ The secure execution spike is the Sprint 1 priority. It is the only item on the 
 | Measure | Pair-days |
 |---------|-----------|
 | **Committed implementation effort** | **24.5** |
-| Stretch effort | 0 |
+| Stretch effort, mentor-approved 9 November, recorded separately (§4.2) | 3.0 |
 | Headroom, from removed double-counting (§3) | 2.0 |
 
 Committed effort equals realistic net. This is intentional, and it has two safeguards:
@@ -40,6 +42,8 @@ Committed effort equals realistic net. This is intentional, and it has two safeg
 - The 2.0 pair-days of headroom in §3 are held per pair (§5.1). They are not banked as committed work.
 
 The backlog's previous Sprint 1 commitment was 28.5 pair-days. That is 4 pair-days over realistic capacity, and this plan removes that over-commitment.
+
+**Stretch adjustment (9 November).** The mentor observed that Pairs C and D completed their originally assigned work earlier than expected, and allocated 3.0 pair-days of additional work for the second week. The adjustment rests on that observed early completion. It does not change the committed scope of 24.5 pair-days, the capacity estimates in §2.1, or the per-pair budgets in §5.1. Committed and stretch effort are reported separately, and the total planned for Sprint 1 is 27.5 pair-days.
 
 ---
 
@@ -78,9 +82,24 @@ Backlog estimates and overhead estimates can count the same effort twice. The ov
 | SPEC-F01 Accounts and access specification | D | 1.5 | Gates F01-01 in Sprint 2 |
 | **Total** | | **24.5** | |
 
-### 4.2 Stretch
+### 4.2 Stretch (mentor-approved, 9 November 2026)
 
-**None.** Sprint 1 has no stretch items. Headroom is not used for scope.
+Stretch items are not committed. They are outside the 24.5 pair-day commitment in §4.1 and §2.2. They are worked in the second week of Sprint 1 (9–13 November). They are not Sprint 1 exit criteria (§11).
+
+| Item | Pair | Pair-days | Dependencies | Deliverable | Acceptance conditions |
+|------|------|-----------|--------------|-------------|-----------------------|
+| CON-02 Messaging contract (S1-10) | C | 1.5 | CON-01 and SPK-03 (§4.1). Drafting starts from their approved PRs. Final approval waits for both PRs to merge. DEC-04 is provisional. DEC-12 is not decided by this item. | Contract at `docs/contracts/CON-02.md` | Queue names, message schema, idempotency key, acknowledgement, retry and dead-letter behaviour stated. Dependent pairs named. Reviewed by Pair D. Agreement recorded by each dependent pair. Not merged before agreement. |
+| SPEC-F04 Browser code editor specification (S1-11) | D | 1.5 | None (backlog §4.1). DEC-13 (session preservation) stays Open until the mechanism is approved. It is recorded in the spec, not decided here. The CON-04 draft is an input to the template format. | Specification at `specs/features/F04-browser-code-editor.md`, status In Review | Written from the template. Acceptance criteria numbered AC-01 onward. Covers Go source editing, starter templates, active-session preservation and edge cases. Reviewed by Pair A. Status In Review (`spec:in-review`). Not approved in Sprint 1. |
+
+**Rules for stretch work:**
+
+- Stretch does not use the headroom in §5.1. It is funded by the early completion described in §2.2.
+- Stretch items are authorised to start immediately (mentor, 9 November). Drafting is not blocked by unmerged PRs.
+- CON-02 drafting uses the approved SPK-03 and CON-01 PRs. Contract approval waits for both PRs to merge and for the architecture decisions it depends on to be confirmed (§8.4). Drafting is not approval.
+- Stretch items do not change the Sprint Goal (§1) and are not exit criteria (§11).
+- An item counts as complete only when its deliverable is merged and its acceptance conditions are met. An item not finished by 13 November 15:00 is carried over and is not reported as completed.
+
+**Scheduling.** Backlog §10 places CON-02 in Sprint 2 and SPEC-F04 in Sprint 3. Those rows are unchanged. Whether the two items are removed from Sprints 2 and 3 is decided at Sprint 2 planning.
 
 ### 4.3 Deferred from backlog §9
 
@@ -98,7 +117,7 @@ Backlog §9 gave Pair A INF-01, INF-02, INF-03, INF-04 and INF-08. This plan giv
 
 ### 4.5 Work item types
 
-Each Sprint 1 issue is one of the four work item types in [CONTRIBUTING §2](../../CONTRIBUTING.md#2-sdd-rules-and-work-item-types). Estimates, owners and dependencies are unchanged from §4.1.
+Each Sprint 1 issue is one of the four work item types in [CONTRIBUTING §2](../../CONTRIBUTING.md#2-sdd-rules-and-work-item-types). Estimates, owners and dependencies are unchanged from §4.1 and §4.2.
 
 | Work item | Type | Required before work | Artefact | Branch prefix |
 |-----------|------|----------------------|----------|---------------|
@@ -107,6 +126,34 @@ Each Sprint 1 issue is one of the four work item types in [CONTRIBUTING §2](../
 | INF-04 (S1-07) | Technical task (documentation or ADR) | Acceptance criteria | `docs/architecture/adr/ADR-001.md`, `ADR-002.md` and the template | `docs/` |
 | INF-01, INF-02, INF-03 (S1-05, S1-06, S1-01) | Technical task (infrastructure) | Acceptance criteria | Repository changes and README | `infra/` |
 | SPK-01, SPK-02, SPK-03 (S1-02, S1-03, S1-04) | Technical spike | Spike Brief on the issue | Report at `docs/spikes/SPK-01.md`, `SPK-02.md`, `SPK-03.md`. Experiment code on `spike/`, not merged. | `spike/` for code. `docs/` for reports. |
+| CON-02 (S1-10, stretch) | Contract | Draft contract, cross-pair review and dependent-pair agreement | `docs/contracts/CON-02.md` | `docs/` |
+| SPEC-F04 (S1-11, stretch) | Feature | Approved Feature Specification (approval is not a Sprint 1 outcome) | `specs/features/F04-browser-code-editor.md` | `docs/` for the specification |
+
+### 4.6 Status of committed and stretch work (9 November 2026)
+
+Three states are kept separate for every item:
+
+- **Implementation or documentation completed:** the artefact is written and the owner pair has finished its work.
+- **Pull request state:** open, approved or merged. CONTRIBUTING §9 requires at least one approval from a reviewer from another pair before merge. Owner approval alone does not meet this rule.
+- **Formally done:** only after the merge, when the Definition of Done in CONTRIBUTING §11 is met. The issue is then labelled `done` and closed.
+
+Merged state is read from `main`. Completion and PR states for SPK-03, CON-01 and SPEC-F01 are as reported by the mentor on 9 November. The repository does not show those PRs, and this plan has not verified them.
+
+| Item | Category | Pair-days | Implementation or documentation | Pull request | Formally done |
+|------|----------|-----------|---------------------------------|--------------|---------------|
+| INF-01 | Committed | 1.5 | Completed | Merged (PR #12) | Merged. Issue closure not checked here. |
+| INF-02 | Committed | 1.5 | Completed | Merged (PR #14) | Merged. Issue closure and green `main` not checked here. |
+| INF-03 | Committed | 4 | Completed | Merged (PRs #15, #16, #18) | Merged. Issue closure not checked here. M1 to M3 not re-verified here. |
+| INF-04 | Committed | 0.5 | Completed. ADR-001 and ADR-002 present, both Provisional. | Merged (PR #11) | Merged. Issue closure not checked here. |
+| SPK-02 | Committed | 2 | Completed. Report at `docs/spikes/SPK-02.md`. | Merged (PR #13) | Merged. Issue closure not checked here. |
+| SPK-03 | Committed | 4 | Completed by Pair C, as reported by the mentor. Report not on `main`. | Open. Owner approval reported. Cross-pair approval outstanding. | Not done. Awaits cross-pair approval and merge. |
+| CON-01 | Committed | 1.5 | Completed by Pair D, as reported by the mentor. Contract not on `main`. | Open. Owner approval reported. Cross-pair approval and agreement from Pairs A, B and C outstanding. | Not done. Awaits approval, agreement and merge. |
+| SPEC-F01 | Committed | 1.5 | Completed by Pair D, as reported by the mentor. Specification not on `main`. | Open. Owner approval reported. Reviews from Pairs A and C outstanding. | Not done. Awaits review, approval and merge. Spec approval (`spec:approved`) is a Sprint 2 start event. |
+| SPK-01 | Committed | 8 | Not confirmed. No report in the repository, and the mentor's confirmation does not cover it. | None | Not done. |
+| CON-02 | Stretch | 1.5 | Drafting authorised 9 November. No draft in the repository. | None | Not done. |
+| SPEC-F04 | Stretch | 1.5 | Drafting authorised 9 November. No draft in the repository. | None | Not done. |
+
+**Note.** Stretch drafting may start now (§4.2). Drafting is not approval. CON-02 is not approved until the SPK-03 and CON-01 PRs are merged and the decisions in §8.4 are confirmed.
 
 ---
 
@@ -127,6 +174,8 @@ Each pair has 10 pair-days. Overhead is split by role.
 | **Total** | | **24.5** | **9.0** | **4.5** | **38.0** | **2.0** |
 
 Pair B has no review load, so its 0.25 headroom is the least. Pair B's agreement on CON-01 (§3, item 7) uses that headroom.
+
+**Stretch load is not in this table.** CON-02 (Pair C, 1.5) and SPEC-F04 (Pair D, 1.5) are stretch under §4.2. Each exceeds the baseline headroom of its pair (0.25 for Pair C, 0.75 for Pair D). They rely on the time freed by the early completion in §2.2, and this table is not changed to show them. Their review load is also not budgeted here: CON-02 review (Pair D) and SPEC-F04 review (Pair A) are not in the review overhead column.
 
 ### 5.2 WS-1 Local platform (Pair A)
 
@@ -160,6 +209,8 @@ Pair B has no review load, so its 0.25 headroom is the least. Pair B's agreement
 
 **Reviews by Pair C:** SPEC-F01 (0.5) and CON-01 (1.0). PR review (0.5).
 
+**Stretch (§4.2):** CON-02 authoring (1.5 pair-days). Drafting starts now, from the approved SPK-03 and CON-01 PRs. Final approval waits for both to merge.
+
 ### 5.5 WS-4 Foundations and specifications (Pair D)
 
 **Owns:** INF-01, INF-02, INF-04, CON-01, SPEC-F01.
@@ -173,6 +224,8 @@ Pair B has no review load, so its 0.25 headroom is the least. Pair B's agreement
 - **Day 8:** SPEC-F01 in cross-pair review, reviewed by Pairs A and C.
 
 Pair D's headroom (0.75) is held for review responses and for the mentor's decisions in §8.
+
+**Stretch (§4.2):** SPEC-F04 authoring (1.5 pair-days), drafting from 9 November, reviewed by Pair A. Pair D also reviews CON-02, Pair C's stretch item.
 
 ---
 
@@ -291,6 +344,22 @@ Success criteria: SC-A to SC-D from [backlog §5.3](../product/product-backlog.m
 | DEC-11 | Database migration tool | Sprint 2 | Engineering ADR |
 | DEC-13 | Editor session preservation | Sprint 3 | Recorded in SPEC-F04 |
 
+### 8.4 Mentor decisions on stretch work
+
+Recorded for the 9 November stretch authorisation. None of these changes the committed scope or the approved 24.5 pair-day Sprint 1 Plan (MA-15).
+
+| # | Decision | Status | Needed by | Why |
+|---|----------|--------|-----------|-----|
+| 1 | Stretch authorised: CON-02 (Pair C) and SPEC-F04 (Pair D), 3.0 pair-days, outside the committed 24.5. Drafting may start immediately. | Resolved (mentor, 9 Nov) | — | §2.2, §4.2 |
+| 2 | Reviewers: CON-02 reviewed by Pair D, with agreement from every dependent pair. SPEC-F04 reviewed by Pair A. | Resolved for the reviewers (mentor, 9 Nov). Dependent pairs open (item 6). | — | §4.2 |
+| 3 | Cross-pair approval on the SPK-03, CON-01 and SPEC-F01 PRs. The mentor confirmed owner approval only. CONTRIBUTING §9 requires an approval from another pair before merge. | Open | Before each PR is merged | CONTRIBUTING §5.2, §9 |
+| 4 | Merge of the SPK-03 and CON-01 PRs. Needed before CON-02 is approved. Drafting is not blocked. | Open | Before CON-02 approval. No calendar deadline. | CONTRIBUTING §2.4 (SDD workflow) and §11 |
+| 5 | Confirm the architecture decisions CON-02 depends on: DEC-04 (provisional, tested by SPK-03), and whether DEC-12 affects dispatch in CON-02. | Open | Before CON-02 approval | §4.2 |
+| 6 | Name the dependent pairs for CON-02. The owners of F06-02 (dispatch) and F07-01 (consumer) are not assigned in Sprint 1. Their agreement is required. | Open | Before CON-02 agreement is requested | [SDD Workflow](../sdd-workflow.md) §2.4 |
+| 7 | Stretch stays outside the Sprint Goal (§1) and the exit criteria (§11). | Resolved (mentor, 9 Nov) | — | §11 |
+| 8 | DEC-13 (editor session preservation) stays Open until the mechanism is approved. | Open | Sprint 3 (backlog §6.3) | §4.2 |
+| 9 | Whether CON-02 and SPEC-F04 are removed from the Sprint 2 and Sprint 3 rows of backlog §10. | Open | Sprint 2 planning | Avoids counting the items twice |
+
 ---
 
 ## 9. Proposed GitHub Issues
@@ -310,6 +379,8 @@ Labels: only the six agreed workflow labels are used. No new labels are introduc
 | S1-07 | [INF-04] ADR process and first records | D | None | 0.5 | ADR template merged in `docs/architecture/adr/`. ADR-001 (Go version, DEC-14) and ADR-002 (local cluster, DEC-06) recorded as Provisional. | `in-progress`, `in-review`, `done` |
 | S1-08 | [CON-01] Submission lifecycle and verdict model | D | None | 1.5 | States, transitions and verdicts agreed. Agreement from Pairs A, B and C recorded on the issue by day 8. Infrastructure vs test-failure classification stated. Contract in `docs/contracts/CON-01.md`. | `in-progress`, `in-review`, `done` |
 | S1-09 | [SPEC-F01] Accounts and access specification | D | S1-08 (draft) | 1.5 | Spec written from `specs/templates/feature-spec-template.md`. Acceptance criteria numbered AC-01 onward. Security section complete. Status set to In Review (`spec:in-review`) by day 8. Reviewed by Pairs A and C. | `spec:draft`, then `spec:in-review`, then `spec:approved` at the start of Sprint 2 |
+| S1-10 (stretch) | [CON-02] Messaging contract | C | S1-08 (CON-01) and S1-04 (SPK-03) PRs, approved, merge pending. Drafting starts now. | 1.5 | Contract in `docs/contracts/CON-02.md` covering queue names, message schema, idempotency key, acknowledgement, retry and dead-letter behaviour. Dependent pairs named. Reviewed by Pair D. Agreement recorded by each dependent pair. Not merged before agreement. | `in-progress`, `in-review`, `done` |
+| S1-11 (stretch) | [SPEC-F04] Browser code editor specification | D | None (backlog §4.1); DEC-13 recorded in the spec | 1.5 | Spec at `specs/features/F04-browser-code-editor.md`, from the template. Acceptance criteria numbered AC-01 onward. Covers Go source editing, starter templates, active-session preservation and edge cases. Status In Review (`spec:in-review`). Not approved in Sprint 1. | `spec:draft`, then `spec:in-review`; `spec:approved` is not a Sprint 1 outcome |
 
 **Not proposed as Sprint 1 issues:** SPEC-F02, CON-04 (Sprint 2), INF-08 (Sprint 3), and all other backlog items.
 
@@ -326,6 +397,7 @@ Labels: only the six agreed workflow labels are used. No new labels are introduc
 | R5 | Cross-pair review of SPEC-F01 and CON-01 takes longer than the review overhead | Review is allocated to Pairs A and C from day 5. Pair D does not chase reviews outside its headroom. |
 | R6 | Spike reports are merged late, so the Sprint 2 decisions (DEC-01 to DEC-04) slip | Reports are merged on the day their timebox ends. |
 | R7 | SPEC-F02 and CON-04 move to Sprint 2, raising its load | Sprint 2 load to be re-checked at the Sprint 2 planning. |
+| R8 | Stretch work relies on PRs not yet merged (SPK-03, CON-01, SPEC-F01). Stretch could displace committed review work in week 2, when Pair D's CON-01 agreement and SPEC-F01 review are due. | Drafting only before merge. Approval waits for merge, cross-pair approval and confirmed decisions (§8.4, items 3–5). Committed items come first. Any stretch item not finished by 13 November is carried over. |
 | Q1 | Spike label | Resolved. Spikes use `in-progress`, `in-review` and `done`, within the six agreed labels. |
 | Q2 | No additional engineering support is assumed | Confirmed by MA-11. If support is added, it is recorded as a backlog change, not absorbed here. |
 
@@ -346,5 +418,7 @@ Labels: only the six agreed workflow labels are used. No new labels are introduc
 
 - **Friday 6 November:** interim SPK-01 results (SC-01 to SC-05).
 - **Friday 13 November:** Sprint 1 demo. Spike outcomes, CI baseline and local platform.
+
+Stretch items (§4.2) are not exit criteria. If complete by the same deadline, they are shown at the 13 November demo. If not, they are carried over.
 
 Sprint 1 ends at 15:00 on 13 November. Sprint 2 planning follows.
