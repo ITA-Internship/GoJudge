@@ -1,0 +1,5 @@
+# Mandatory mentor / repository owner review
+* @mehalyna @ivanholoburda-wpe
+
+# Protect repository governance and CI configuration
+/.github/ @mehalyna
