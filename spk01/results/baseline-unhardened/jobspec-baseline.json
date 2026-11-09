@@ -1,0 +1,42 @@
+﻿{
+  "metadata": {
+    "generateName": "spk01-sc-05-",
+    "namespace": "spk01",
+    "labels": {
+      "app": "spk01",
+      "criterion": "SC-05"
+    }
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "spk01",
+          "criterion": "SC-05"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "judge",
+            "image": "gojudge-spk01:dev",
+            "command": [
+              "/usr/local/bin/test2json",
+              "-t",
+              "/usr/local/bin/trusted.test",
+              "-test.v=test2json",
+              "-test.run",
+              "^TestAddSuccess$"
+            ],
+            "resources": {},
+            "imagePullPolicy": "Never"
+          }
+        ],
+        "restartPolicy": "Never",
+        "terminationGracePeriodSeconds": 1
+      }
+    }
+  },
+  "status": {}
+}

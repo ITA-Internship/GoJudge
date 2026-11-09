@@ -1,0 +1,89 @@
+﻿{
+  "metadata": {
+    "generateName": "spk01-sc-05-",
+    "namespace": "spk01",
+    "labels": {
+      "app": "spk01",
+      "criterion": "SC-05"
+    }
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "spk01",
+          "criterion": "SC-05"
+        }
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {
+              "sizeLimit": "256Mi"
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "judge",
+            "image": "gojudge-spk01:dev",
+            "command": [
+              "/usr/local/bin/test2json",
+              "-t",
+              "/usr/local/bin/trusted.test",
+              "-test.v=test2json",
+              "-test.run",
+              "^TestAddSuccess$"
+            ],
+            "env": [
+              {
+                "name": "HOME",
+                "value": "/tmp"
+              }
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "1",
+                "memory": "512Mi"
+              },
+              "requests": {
+                "cpu": "250m",
+                "memory": "512Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp"
+              }
+            ],
+            "imagePullPolicy": "Never",
+            "securityContext": {
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              },
+              "readOnlyRootFilesystem": true,
+              "allowPrivilegeEscalation": false
+            }
+          }
+        ],
+        "restartPolicy": "Never",
+        "terminationGracePeriodSeconds": 1,
+        "automountServiceAccountToken": false,
+        "securityContext": {
+          "runAsUser": 65532,
+          "runAsGroup": 65532,
+          "runAsNonRoot": true,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        }
+      }
+    }
+  },
+  "status": {}
+}

@@ -1,0 +1,14 @@
+{"Time":"2026-11-09T16:28:57.022608519Z","Action":"start"}
+{"Time":"2026-11-09T16:28:57.026545885Z","Action":"run","Test":"TestPrivilegeCheck"}
+{"Time":"2026-11-09T16:28:57.026715626Z","Action":"output","Test":"TestPrivilegeCheck","Output":"=== RUN   TestPrivilegeCheck\n","OutputType":"frame"}
+{"Time":"2026-11-09T16:28:57.02681619Z","Action":"output","Test":"TestPrivilegeCheck","Output":"    privcheck_test.go:15: uid=0 gid=0\n"}
+{"Time":"2026-11-09T16:28:57.026834323Z","Action":"output","Test":"TestPrivilegeCheck","Output":"    privcheck_test.go:17: container runs as root\n","OutputType":"error"}
+{"Time":"2026-11-09T16:28:57.027191655Z","Action":"output","Test":"TestPrivilegeCheck","Output":"    privcheck_test.go:22: setuid(0) succeeded: privilege escalation is possible\n","OutputType":"error"}
+{"Time":"2026-11-09T16:28:57.027227414Z","Action":"output","Test":"TestPrivilegeCheck","Output":"    privcheck_test.go:30: service-account token is mounted at /var/run/secrets/kubernetes.io/serviceaccount/token\n","OutputType":"error"}
+{"Time":"2026-11-09T16:28:57.027458187Z","Action":"output","Test":"TestPrivilegeCheck","Output":"    privcheck_test.go:42: CapEff:\t00000000a80425fb\n"}
+{"Time":"2026-11-09T16:28:57.027504389Z","Action":"output","Test":"TestPrivilegeCheck","Output":"    privcheck_test.go:42: NoNewPrivs:\t0\n"}
+{"Time":"2026-11-09T16:28:57.027611873Z","Action":"output","Test":"TestPrivilegeCheck","Output":"    privcheck_test.go:45: no_new_privs is not set: NoNewPrivs:\t0\n","OutputType":"error"}
+{"Time":"2026-11-09T16:28:57.027742246Z","Action":"output","Test":"TestPrivilegeCheck","Output":"--- FAIL: TestPrivilegeCheck (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-09T16:28:57.02775946Z","Action":"fail","Test":"TestPrivilegeCheck","Elapsed":0}
+{"Time":"2026-11-09T16:28:57.027797495Z","Action":"output","Output":"FAIL\n","OutputType":"frame"}
+{"Time":"2026-11-09T16:28:57.028235394Z","Action":"fail","Elapsed":0.006}
