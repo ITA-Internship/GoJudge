@@ -36,7 +36,7 @@ Raw records: [`publisher_log.txt`](https://github.com/ITA-Internship/GoJudge/blo
 - The publisher sent 100 messages (`message #1` … `message #100`), each with its own UUID. The consumer received 100 messages and acknowledged each one.
 - The two sets of UUIDs were compared one by one: 100 unique on each side, identical, none missing and none repeated. Payloads `#1` … `#100` are all present. The order is the order of publication.
 - Both logs contain no `ERROR` or `WARN` lines, and both processes closed their connections cleanly.
-- The consumer was started after the publisher had finished (consumer connected 13:25:07, publisher finished 13:24:49), so the messages waited in the durable queue until a consumer arrived.
+- The consumer was started after the publisher had finished (publisher finished 14:00:20, consumer connected 14:00:50 on 2026/11/07), so the messages waited in the durable queue until a consumer arrived.
 
 ### SC-B Evidence: Redelivery After a Consumer Is Killed (5 of 5)
 Raw records: [`publisher_log.txt`](https://github.com/ITA-Internship/GoJudge/blob/5e5509dbac8945b7ec217db6d760d38f76ad67e1/spike/spk-03/RabbitMQ/SC-B/publisher_log.txt) and [`consumer_log.txt`](https://github.com/ITA-Internship/GoJudge/blob/5e5509dbac8945b7ec217db6d760d38f76ad67e1/spike/spk-03/RabbitMQ/SC-B/consumer_log.txt) (commit `5e5509d`). Run on 7 Nov 2026.
@@ -71,9 +71,9 @@ Raw records: [`publisher_log.txt`](https://github.com/ITA-Internship/GoJudge/blo
 
 | Poison message | Handler attempts (`FAILED`) | Appeared in `SC-D.poison` | Reason |
 | :--- | :--- | :--- | :--- |
-| `eaf62665…` | 4 | once | `cannot process message` |
-| `348a40b3…` | 4 | once | `cannot process message` |
-| `094db0ee…` | 4 | once | `cannot process message` |
+| `10e4ff5f…` | 4 | once | `cannot process message` |
+| `9279764f…` | 4 | once | `cannot process message` |
+| `87d45598…` | 4 | once | `cannot process message` |
 
 - After reaching the poison queue a message was not processed again, and the following messages were handled normally, so the main queue was not blocked.
 - The 6 normal messages were each received exactly once.
