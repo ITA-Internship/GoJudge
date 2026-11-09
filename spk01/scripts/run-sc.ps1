@@ -37,7 +37,9 @@ for ($i = 1; $i -le $Runs; $i++) {
 
     # Save raw evidence immediately (UTF-8 without BOM)
     $lines = @(kubectl logs $pod -n $ns)
-    [IO.File]::WriteAllLines((Join-Path $results "$Sc-run$run.log"), [string[]]$lines, $utf8)
+    $logFile = Join-Path $results "$Sc-run$run.log"
+    [IO.File]::WriteAllLines($logFile, [string[]]$lines, $utf8)
+    $logBytes = (Get-Item $logFile).Length
     $podYaml = (kubectl get pod $pod -n $ns -o yaml) -join "`n"
     [IO.File]::WriteAllText((Join-Path $results "$Sc-run$run-pod.yaml"), $podYaml, $utf8)
 
@@ -75,8 +77,9 @@ for ($i = 1; $i -le $Runs; $i++) {
         package_verdict   = "$verdict"
         pass              = $pass
         log_file          = "results/$Sc-run$run.log"
+        log_bytes = $logBytes
     }
     [IO.File]::AppendAllText($jsonl, (($record | ConvertTo-Json -Compress) + "`n"), $utf8)
 
-    Write-Host "  condition=$condition reason=$reason exitCode=$code tests=$testsRun verdict=$verdict pass=$pass"
+    Write-Host "  condition=$condition reason=$reason exitCode=$code tests=$testsRun verdict=$verdict pass=$pass log_bytes=$logBytes"
 }

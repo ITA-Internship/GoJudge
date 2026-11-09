@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: spk01-sc-07-                 # змінено
+  namespace: spk01
+  labels:
+    app: spk01
+    criterion: SC-07                          # змінено
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 60                   # змінено: компіляції більше немає
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: spk01
+        criterion: SC-04                      # змінено
+    spec:
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 1
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: judge
+          image: gojudge-spk01:dev
+          imagePullPolicy: Never
+          command: ["/usr/local/bin/outcap", "-limit", "1048576", "--", "/usr/local/bin/test2json", "-t", "/usr/local/bin/trusted.test", "-test.v=test2json", "-test.run", "^TestOutputFlood$"]   # змінено
+          env:
+            - name: HOME
+              value: /tmp                     # GOCACHE прибрано: компіляції немає
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests: { memory: "512Mi", cpu: "250m" }
+            limits:   { memory: "512Mi", cpu: "1" }
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi
