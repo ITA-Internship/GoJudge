@@ -100,6 +100,7 @@ Contribution rules and review responsibilities are described in [CONTRIBUTING.md
 ├── cmd/                 # Main applications for this project
 │   └── gojudge/             # Placeholder entry point; replace with real code
 ├── internal/            # Private application and library code
+├── infra/               # Local infrastructure: k3d cluster, RabbitMQ, PostgreSQL
 ├── pkg/                 # Library code safe to be imported by external applications
 ├── .golangci.yml        # Go linter configuration
 ├── go.mod               # Go module definition
@@ -110,7 +111,11 @@ Contribution rules and review responsibilities are described in [CONTRIBUTING.md
 
 ## Getting Started
 
-**To be documented.** The repository does not yet contain application code, a Go module, build configuration or local infrastructure definitions. Setup instructions will be added once these exist and have been verified.
+### Local infrastructure
+
+A local Kubernetes cluster (k3d) with RabbitMQ and PostgreSQL is set up from [infra/README.md](/infra/README.md). It covers the tools you need, the full setup from a clean machine, checks and how to connect to each service.
+
+Application setup is **to be documented** once application code exists.
 
 ## Development Workflow
 
@@ -148,6 +153,7 @@ They are defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml):
 | [docs/sdd-workflow.md](docs/sdd-workflow.md) | Specification-Driven Development workflow |
 | [specs/templates/feature-spec-template.md](specs/templates/feature-spec-template.md) | Template for feature specifications |
 | [specs/features/](specs/features/) | Feature specifications |
+| [infra/README.md](/infra/README.md) | Local infrastructure: cluster, RabbitMQ and PostgreSQL |
 | [.github/ISSUE_TEMPLATE/](.github/ISSUE_TEMPLATE/) | GitHub Issue templates |
 | [.github/pull_request_template.md](.github/pull_request_template.md) | Pull request template |
 
@@ -156,4 +162,5 @@ They are defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml):
 - Repository: documentation scaffolding in place.
 - Specifications: none approved yet.
 - Application code: not yet started.
-- Setup and deployment: to be documented.
+- Local infrastructure: k3d cluster, RabbitMQ and PostgreSQL, see [infra/README.md](/infra/README.md).
+- Application setup and deployment: to be documented.
