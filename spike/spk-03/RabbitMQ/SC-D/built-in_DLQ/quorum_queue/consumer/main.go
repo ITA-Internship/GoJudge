@@ -34,7 +34,7 @@ func main() {
 	}
 	cfg.Queue.Arguments = rabbit.Table{
 		"x-queue-type":              "quorum",
-		"x-delivery-limit":          3,
+		"x-delivery-limit":          4,
 		"x-dead-letter-exchange":    "sc-d.dlx",
 		"x-dead-letter-routing-key": "sc-d.dead",
 	}
