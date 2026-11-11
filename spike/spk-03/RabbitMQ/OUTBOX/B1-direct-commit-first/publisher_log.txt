@@ -1,0 +1,7 @@
+[watermill] 2026/11/11 23:45:49.256870 connection.go:99: 	level=INFO  msg="Connected to AMQP" 
+#1 committed: submission_id=33cb91ac-8a2c-4957-a8ab-6415073730e6 message_uuid=5df2429d-01d7-4d94-b087-2fffbb394fa5
+#1 published directly to RabbitMQ: submission_id=33cb91ac-8a2c-4957-a8ab-6415073730e6
+#2 committed: submission_id=2da10532-ffee-4127-ab00-e64af4d54eb9 message_uuid=8d9a4f8b-3a6d-4737-97a4-5af37d4e74fa
+#2 published directly to RabbitMQ: submission_id=2da10532-ffee-4127-ab00-e64af4d54eb9
+#3 committed: submission_id=1aea0861-b3d5-49f6-a97e-dab6902be261 message_uuid=f7289b2f-2604-4b9b-a997-67c14af9d96a
+CRASH: #3 killed between Commit and Publish: submission_id=1aea0861-b3d5-49f6-a97e-dab6902be261

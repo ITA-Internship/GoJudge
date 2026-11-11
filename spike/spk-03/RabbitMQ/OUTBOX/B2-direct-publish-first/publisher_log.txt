@@ -1,0 +1,14 @@
+[watermill] 2026/11/11 23:45:59.867997 connection.go:99: 	level=INFO  msg="Connected to AMQP" 
+#1 published directly to RabbitMQ: submission_id=4f9d318c-ca5d-4d28-802c-027f7fc36ffe
+#1 committed: submission_id=4f9d318c-ca5d-4d28-802c-027f7fc36ffe message_uuid=36c4bc97-ae8a-4f51-a5c1-0d2b20cd8f2e
+#2 published directly to RabbitMQ: submission_id=e79a6e2e-652f-4ecb-b8d7-642bafaa52bd
+#2 committed: submission_id=e79a6e2e-652f-4ecb-b8d7-642bafaa52bd message_uuid=0f5fe315-b998-45bd-9483-27a6333bfe51
+#3 published directly to RabbitMQ: submission_id=62a669dc-d025-4ee4-b593-690383427111
+#3 DB ROLLED BACK after the message was already published: submission_id=62a669dc-d025-4ee4-b593-690383427111
+#4 published directly to RabbitMQ: submission_id=7d860e11-f265-418c-bc9e-5be341f129c6
+#4 committed: submission_id=7d860e11-f265-418c-bc9e-5be341f129c6 message_uuid=75eb4b20-4768-4c7d-93c2-f99409a5e09a
+#5 published directly to RabbitMQ: submission_id=c75b512e-0c83-4e73-bdc4-1fb0d24bd7f8
+#5 committed: submission_id=c75b512e-0c83-4e73-bdc4-1fb0d24bd7f8 message_uuid=a0d2b6a4-9dde-4978-902d-d800afbb7875
+SUMMARY mode=direct-publish-first attempted=5 committed=4 rolled_back=1 submissions_in_db=4 outbox_rows_added=0
+[watermill] 2026/11/11 23:45:59.992824 connection.go:61: 	level=INFO  msg="Closing AMQP Pub/Sub" 
+[watermill] 2026/11/11 23:45:59.994991 connection.go:70: 	level=INFO  msg="Closed AMQP Pub/Sub" 

@@ -1,0 +1,15 @@
+[watermill] 2026/11/11 23:45:59.768289 connection.go:99: 	level=INFO  msg="Connected to AMQP" 
+consumer started: queue outbox_submissions, stops on Ctrl+C or after -idle=10s without a message
+[watermill] 2026/11/11 23:45:59.794762 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=outbox_submissions amqp_routing_key= topic=outbox_submissions 
+received: submission_id=4f9d318c-ca5d-4d28-802c-027f7fc36ffe message_uuid=36c4bc97-ae8a-4f51-a5c1-0d2b20cd8f2e delivery=1
+received: submission_id=e79a6e2e-652f-4ecb-b8d7-642bafaa52bd message_uuid=0f5fe315-b998-45bd-9483-27a6333bfe51 delivery=1
+received: submission_id=62a669dc-d025-4ee4-b593-690383427111 message_uuid=e39f9202-f7a9-44aa-b1d5-5983ad3935be delivery=1
+received: submission_id=7d860e11-f265-418c-bc9e-5be341f129c6 message_uuid=75eb4b20-4768-4c7d-93c2-f99409a5e09a delivery=1
+received: submission_id=c75b512e-0c83-4e73-bdc4-1fb0d24bd7f8 message_uuid=a0d2b6a4-9dde-4978-902d-d800afbb7875 delivery=1
+no message for 10s, stopping
+MESSAGE WITHOUT DATA: submission_id=62a669dc-d025-4ee4-b593-690383427111
+SUMMARY deliveries=5 unique=5 duplicates=0 db_rows=4 data_without_message=0 message_without_data=1
+[watermill] 2026/11/11 23:46:10.072117 subscriber.go:364: 	level=INFO  msg="Closing from ctx received" amqp_exchange_name= amqp_queue_name=outbox_submissions amqp_routing_key= topic=outbox_submissions 
+[watermill] 2026/11/11 23:46:10.174417 subscriber.go:147: 	level=INFO  msg="Stopped consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=outbox_submissions amqp_routing_key= topic=outbox_submissions 
+[watermill] 2026/11/11 23:46:10.174417 connection.go:61: 	level=INFO  msg="Closing AMQP Pub/Sub" 
+[watermill] 2026/11/11 23:46:10.176279 connection.go:70: 	level=INFO  msg="Closed AMQP Pub/Sub" 

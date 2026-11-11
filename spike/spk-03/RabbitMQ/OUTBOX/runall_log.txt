@@ -1,0 +1,57 @@
+building consumer
+building forwarder
+building publisher
+
+== prepare: drain the outbox, purge the queue
+
+== E1-commit (publisher -mode=outbox, forwarder: before)
+   publisher finished: <nil> (an error is expected in the crash modes)
+   consumer SUMMARY:  deliveries=5 unique=5 duplicates=0 db_rows=5 data_without_message=0 message_without_data=0
+
+== E2-forwarder-down (publisher -mode=outbox, forwarder: after)
+   publisher finished: <nil> (an error is expected in the crash modes)
+   consumer SUMMARY:  deliveries=5 unique=5 duplicates=0 db_rows=5 data_without_message=0 message_without_data=0
+
+== E3-rollback (publisher -mode=outbox-rollback, forwarder: before)
+   publisher finished: <nil> (an error is expected in the crash modes)
+   consumer SUMMARY:  deliveries=4 unique=4 duplicates=0 db_rows=4 data_without_message=0 message_without_data=0
+
+== E4-crash-before-commit (publisher -mode=outbox-crash-before-commit, forwarder: before)
+   publisher finished: exit status 1 (an error is expected in the crash modes)
+   consumer SUMMARY:  deliveries=2 unique=2 duplicates=0 db_rows=2 data_without_message=0 message_without_data=0
+
+== E5-crash-after-commit (publisher -mode=outbox-crash-after-commit, forwarder: before)
+   publisher finished: exit status 1 (an error is expected in the crash modes)
+   consumer SUMMARY:  deliveries=3 unique=3 duplicates=0 db_rows=3 data_without_message=0 message_without_data=0
+
+== E6-forwarder-crash (publisher -mode=outbox, forwarder: crash)
+   publisher finished: <nil> (an error is expected in the crash modes)
+   forwarder finished: exit status 1 (an error is expected, it kills itself)
+   consumer SUMMARY:  deliveries=6 unique=5 duplicates=1 db_rows=5 data_without_message=0 message_without_data=0
+
+== B1-direct-commit-first (publisher -mode=direct-commit-first, forwarder: none)
+   publisher finished: exit status 1 (an error is expected in the crash modes)
+   consumer SUMMARY:  deliveries=2 unique=2 duplicates=0 db_rows=3 data_without_message=1 message_without_data=0
+
+== B2-direct-publish-first (publisher -mode=direct-publish-first, forwarder: none)
+   publisher finished: <nil> (an error is expected in the crash modes)
+   consumer SUMMARY:  deliveries=5 unique=5 duplicates=0 db_rows=4 data_without_message=0 message_without_data=1
+
+================ RESULT ================
+PASS  E1-commit                want= deliveries=5 unique=5 duplicates=0 db_rows=5 data_without_message=0 message_without_data=0
+                               got = deliveries=5 unique=5 duplicates=0 db_rows=5 data_without_message=0 message_without_data=0
+PASS  E2-forwarder-down        want= deliveries=5 unique=5 duplicates=0 db_rows=5 data_without_message=0 message_without_data=0
+                               got = deliveries=5 unique=5 duplicates=0 db_rows=5 data_without_message=0 message_without_data=0
+PASS  E3-rollback              want= deliveries=4 unique=4 duplicates=0 db_rows=4 data_without_message=0 message_without_data=0
+                               got = deliveries=4 unique=4 duplicates=0 db_rows=4 data_without_message=0 message_without_data=0
+PASS  E4-crash-before-commit   want= deliveries=2 unique=2 duplicates=0 db_rows=2 data_without_message=0 message_without_data=0
+                               got = deliveries=2 unique=2 duplicates=0 db_rows=2 data_without_message=0 message_without_data=0
+PASS  E5-crash-after-commit    want= deliveries=3 unique=3 duplicates=0 db_rows=3 data_without_message=0 message_without_data=0
+                               got = deliveries=3 unique=3 duplicates=0 db_rows=3 data_without_message=0 message_without_data=0
+PASS  E6-forwarder-crash       want= deliveries=6 unique=5 duplicates=1 db_rows=5 data_without_message=0 message_without_data=0
+                               got = deliveries=6 unique=5 duplicates=1 db_rows=5 data_without_message=0 message_without_data=0
+PASS  B1-direct-commit-first   want= deliveries=2 unique=2 duplicates=0 db_rows=3 data_without_message=1 message_without_data=0
+                               got = deliveries=2 unique=2 duplicates=0 db_rows=3 data_without_message=1 message_without_data=0
+PASS  B2-direct-publish-first  want= deliveries=5 unique=5 duplicates=0 db_rows=4 data_without_message=0 message_without_data=1
+                               got = deliveries=5 unique=5 duplicates=0 db_rows=4 data_without_message=0 message_without_data=1
+ALL SCENARIOS AS EXPECTED

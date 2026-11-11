@@ -1,0 +1,26 @@
+[watermill] 2026/11/11 23:45:04.278821 connection.go:99: 	level=INFO  msg="Connected to AMQP" 
+[watermill] 2026/11/11 23:45:04.310901 router.go:280: 	level=INFO  msg="Adding handler" handler_name=events_forwarder topic=outbox_forwarder 
+forwarder started: outbox table -> RabbitMQ (crash-after-publish=false), Ctrl+C to stop
+[watermill] 2026/11/11 23:45:04.311449 router.go:434: 	level=INFO  msg="Running router handlers" count=1 
+[watermill] 2026/11/11 23:45:04.311449 schema.go:28: 	level=INFO  msg="Initializing subscriber schema" query="[ 
+		CREATE TABLE IF NOT EXISTS "watermill_outbox_forwarder" (
+			"offset" SERIAL,
+			"uuid" VARCHAR(36) NOT NULL,
+			"created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			"payload" JSON DEFAULT NULL,
+			"metadata" JSON DEFAULT NULL,
+			"transaction_id" xid8 NOT NULL,
+			PRIMARY KEY ("transaction_id", "offset")
+		);
+	 
+		CREATE TABLE IF NOT EXISTS "watermill_offsets_outbox_forwarder" (
+		consumer_group VARCHAR(255) NOT NULL,
+		offset_acked BIGINT,
+		last_processed_transaction_id xid8 NOT NULL,
+		PRIMARY KEY(consumer_group)
+	)]" subscriber_id=01M7694MYZ2PBZ018CH6Z6JTKH 
+[watermill] 2026/11/11 23:45:04.313726 router.go:646: 	level=INFO  msg="Starting handler" subscriber_name=events_forwarder topic=outbox_forwarder 
+forwarded: submission_id=da2f5741-f953-44bb-a9ee-0446ea4ce83c message_uuid=af52c274-8236-4f30-b494-8e7d345e0a2d -> queue outbox_submissions
+forwarded: submission_id=cd888194-e886-4400-a430-029708b90076 message_uuid=dbc61713-7270-415d-bb71-8f207b632af3 -> queue outbox_submissions
+forwarded: submission_id=a0b556fa-be77-45bc-864b-0fa0afa9b18f message_uuid=d203602c-d9f3-4e54-8972-a43e49b4d7fc -> queue outbox_submissions
+forwarded: submission_id=a5cc83f1-0f3d-4673-876a-fa4b2115dff7 message_uuid=9fab87d3-2b24-42e1-a568-12dc4205c2c4 -> queue outbox_submissions
