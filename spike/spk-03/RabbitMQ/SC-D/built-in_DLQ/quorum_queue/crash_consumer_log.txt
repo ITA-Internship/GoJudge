@@ -1,0 +1,80 @@
+[watermill] 2026/11/11 12:54:24.001562 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:54:24.269200 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+received: id=16e9ed32-5790-42c4-bf89-bc80b7ec05d4 payload=message #1
+id=a0d2a137-4a44-4bb7-818c-d034bf6c918f FAILED
+
+Process finished with the exit code 1
+
+[watermill] 2026/11/11 12:55:21.537398 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:55:21.805537 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+id=a0d2a137-4a44-4bb7-818c-d034bf6c918f FAILED
+
+Process finished with the exit code 1
+
+[watermill] 2026/11/11 12:55:30.360183 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:55:30.624379 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+id=a0d2a137-4a44-4bb7-818c-d034bf6c918f FAILED
+
+Process finished with the exit code 1
+
+[watermill] 2026/11/11 12:55:40.328401 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:55:40.591833 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+id=a0d2a137-4a44-4bb7-818c-d034bf6c918f FAILED
+
+Process finished with the exit code 1
+
+[watermill] 2026/11/11 12:55:50.482978 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:55:50.746911 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+received: id=fc53e16e-7df7-4d14-9dc8-bd3608939572 payload=message #3
+received: id=f19e8e5c-1ef7-4e2f-9b8c-156bbcf97ad6 payload=message #1
+id=acfb85e6-f962-4933-9b32-f97666087e4b FAILED
+
+Process finished with the exit code 1
+
+[watermill] 2026/11/11 12:56:57.893558 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:56:58.117333 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+id=acfb85e6-f962-4933-9b32-f97666087e4b FAILED
+
+Process finished with the exit code 1
+
+[watermill] 2026/11/11 12:57:05.049622 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:57:05.316923 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+id=acfb85e6-f962-4933-9b32-f97666087e4b FAILED
+
+Process finished with the exit code 1
+
+[watermill] 2026/11/11 12:57:17.144013 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:57:17.407872 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+id=acfb85e6-f962-4933-9b32-f97666087e4b FAILED
+
+Process finished with the exit code 1
+
+[watermill] 2026/11/11 12:57:23.011588 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:57:23.279348 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+received: id=32dfb51e-4657-4edd-aeb2-6b4e98e0cce9 payload=message #3
+received: id=b67a7eeb-3d96-41e3-a91f-99ecbbf8ff33 payload=message #1
+id=d053f1eb-6980-4f1f-ad6f-bbe3022b4457 FAILED
+
+Process finished with the exit code 1
+
+[watermill] 2026/11/11 12:57:31.733193 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:57:31.999125 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+id=d053f1eb-6980-4f1f-ad6f-bbe3022b4457 FAILED
+
+Process finished with the exit code 1
+
+[watermill] 2026/11/11 12:57:39.154417 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:57:39.417022 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+id=d053f1eb-6980-4f1f-ad6f-bbe3022b4457 FAILED
+
+Process finished with the exit code 1
+
+[watermill] 2026/11/11 12:57:47.749722 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:57:48.013560 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+id=d053f1eb-6980-4f1f-ad6f-bbe3022b4457 FAILED
+
+Process finished with the exit code 1
+
+[watermill] 2026/11/11 12:57:52.764372 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 12:57:53.029587 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+received: id=1ff7811b-8ce6-433a-ab44-66bc23903214 payload=message #3

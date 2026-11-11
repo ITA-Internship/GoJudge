@@ -1,0 +1,14 @@
+[watermill] 2026/11/11 12:59:25.354613 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+published: id=55cf3ae6-b025-4e5d-ac7e-95e8d22b8f85, payload=message #1, poison=false
+published: id=a404aaee-c823-438f-8cbd-13c2ddfb8573, payload=message #2, poison=true
+published: id=8dccbae0-608a-4cce-b3b7-2a33a9de7fc9, payload=message #3, poison=false
+published: id=e3f83a27-787e-4dc0-ba67-2ca621327d07, payload=message #1, poison=false
+published: id=2c4777b4-357f-4fe4-9c45-2588e6125618, payload=message #2, poison=true
+published: id=0ae1effc-4945-44e7-9c95-6eee4c8c825d, payload=message #3, poison=false
+published: id=06b8ee12-008c-40f9-8d70-ed87cf4a8198, payload=message #1, poison=false
+published: id=1ebc8faf-f891-4c16-b22d-c68538ae8351, payload=message #2, poison=true
+published: id=db7864ce-1803-443c-b511-78f917a54c0e, payload=message #3, poison=false
+[watermill] 2026/11/11 12:59:26.152144 connection.go:61: 	level=INFO  msg="Closing AMQP Pub/Sub"
+[watermill] 2026/11/11 12:59:26.193936 connection.go:70: 	level=INFO  msg="Closed AMQP Pub/Sub"
+
+Process finished with the exit code 0

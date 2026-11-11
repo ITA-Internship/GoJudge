@@ -1,0 +1,56 @@
+[watermill] 2026/11/11 13:00:12.806615 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 13:00:13.070217 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.quorum amqp_routing_key= topic=SC-D.quorum
+received: id=55cf3ae6-b025-4e5d-ac7e-95e8d22b8f85 payload=message #1
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+id=a404aaee-c823-438f-8cbd-13c2ddfb8573 FAILED
+
+Process finished with the exit code -1073741510 (0xC000013A: interrupted by Ctrl+C)
