@@ -10,7 +10,7 @@
 | Responsible pair | Pair D |
 | Reviewer pair | Pair A, Pair C |
 | GitHub Issue | [issue](https://github.com/ITA-Internship/GoJudge/issues/10) |
-| Last updated | 2026-11-09 |
+| Last updated | 2026-11-11 |
 
 ---
 
@@ -410,8 +410,8 @@ Not applicable. A user record has no lifecycle states.
 | Role | Name or pair | Date | Outcome |
 |------|--------------|------|---------|
 | Author | Pair D | 2026-11-09 | Submitted |
-| Reviewer | Pair A | - | Pending |
-| Reviewer | Pair C | - | Pending |
+| Reviewer | Pair A | 2026-11-10 | Approved |
+| Reviewer | Pair C | 2026-11-11 | Approved |
 
 **Approval checklist:**
 
