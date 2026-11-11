@@ -1,0 +1,44 @@
+[watermill] 2026/11/11 11:11:03.556143 connection.go:99: 	level=INFO  msg="Connected to AMQP"
+[watermill] 2026/11/11 11:11:03.556646 router.go:280: 	level=INFO  msg="Adding handler" handler_name=sc-d-handler topic=SC-D.2
+[watermill] 2026/11/11 11:11:03.556646 router.go:434: 	level=INFO  msg="Running router handlers" count=1
+[watermill] 2026/11/11 11:11:03.740791 router.go:646: 	level=INFO  msg="Starting handler" subscriber_name=sc-d-handler topic=SC-D.2
+[watermill] 2026/11/11 11:11:03.826737 subscriber.go:285: 	level=INFO  msg="Starting consuming from AMQP channel" amqp_exchange_name= amqp_queue_name=SC-D.2 amqp_routing_key= topic=SC-D.2
+received: id=9f28112f-4c06-42cf-98e3-f648278fedec payload=message #1
+attempt: id=a5e03a94-5674-4d3f-b74b-f50b3380459b FAILED
+[watermill] 2026/11/11 11:11:08.532938 retry.go:98: 	level=ERROR msg="Error occurred, retrying" err="cannot process message" max_retries=3 retry_no=1 wait_time=100ms
+attempt: id=a5e03a94-5674-4d3f-b74b-f50b3380459b FAILED
+retry #1 (next in 200ms)
+[watermill] 2026/11/11 11:11:08.633285 retry.go:98: 	level=ERROR msg="Error occurred, retrying" err="cannot process message" max_retries=3 retry_no=2 wait_time=400ms
+attempt: id=a5e03a94-5674-4d3f-b74b-f50b3380459b FAILED
+retry #2 (next in 800ms)
+[watermill] 2026/11/11 11:11:09.033570 retry.go:98: 	level=ERROR msg="Error occurred, retrying" err="cannot process message" max_retries=3 retry_no=3 wait_time=1.6s
+attempt: id=a5e03a94-5674-4d3f-b74b-f50b3380459b FAILED
+retry #3 (next in 2s)
+received: id=4c2ed2ca-768a-45b7-a166-bf85d638563c payload=message #3
+[watermill] 2026/11/11 11:11:10.633790 router.go:837: 	level=ERROR msg="Handler returned error" err="cannot process message" handler_name=sc-d-handler message_uuid=a5e03a94-5674-4d3f-b74b-f50b3380459b
+received: id=1bdec39a-0aa5-4be0-8975-2ae7f33d1feb payload=message #1
+attempt: id=dcb3bb02-0601-4a68-8403-3405276d5818 FAILED
+[watermill] 2026/11/11 11:11:10.723335 retry.go:98: 	level=ERROR msg="Error occurred, retrying" err="cannot process message" max_retries=3 retry_no=1 wait_time=100ms
+attempt: id=dcb3bb02-0601-4a68-8403-3405276d5818 FAILED
+retry #1 (next in 200ms)
+[watermill] 2026/11/11 11:11:10.824080 retry.go:98: 	level=ERROR msg="Error occurred, retrying" err="cannot process message" max_retries=3 retry_no=2 wait_time=400ms
+attempt: id=dcb3bb02-0601-4a68-8403-3405276d5818 FAILED
+retry #2 (next in 800ms)
+[watermill] 2026/11/11 11:11:11.224921 retry.go:98: 	level=ERROR msg="Error occurred, retrying" err="cannot process message" max_retries=3 retry_no=3 wait_time=1.6s
+attempt: id=dcb3bb02-0601-4a68-8403-3405276d5818 FAILED
+retry #3 (next in 2s)
+[watermill] 2026/11/11 11:11:12.825267 router.go:837: 	level=ERROR msg="Handler returned error" err="cannot process message" handler_name=sc-d-handler message_uuid=dcb3bb02-0601-4a68-8403-3405276d5818
+received: id=f77af042-50f7-419a-a4d5-8c557cf2bda6 payload=message #3
+received: id=f63d0884-3b01-43e1-b433-0b13d052c971 payload=message #1
+attempt: id=145d2005-932f-45e1-831e-768b8f988c50 FAILED
+[watermill] 2026/11/11 11:11:12.956063 retry.go:98: 	level=ERROR msg="Error occurred, retrying" err="cannot process message" max_retries=3 retry_no=1 wait_time=100ms
+attempt: id=145d2005-932f-45e1-831e-768b8f988c50 FAILED
+retry #1 (next in 200ms)
+[watermill] 2026/11/11 11:11:13.057347 retry.go:98: 	level=ERROR msg="Error occurred, retrying" err="cannot process message" max_retries=3 retry_no=2 wait_time=400ms
+attempt: id=145d2005-932f-45e1-831e-768b8f988c50 FAILED
+retry #2 (next in 800ms)
+[watermill] 2026/11/11 11:11:13.458221 retry.go:98: 	level=ERROR msg="Error occurred, retrying" err="cannot process message" max_retries=3 retry_no=3 wait_time=1.6s
+[watermill] 2026/11/11 11:11:15.058389 router.go:837: 	level=ERROR msg="Handler returned error" err="cannot process message" handler_name=sc-d-handler message_uuid=145d2005-932f-45e1-831e-768b8f988c50
+attempt: id=145d2005-932f-45e1-831e-768b8f988c50 FAILED
+retry #3 (next in 2s)
+received: id=7f5ce193-1d17-48d2-9c86-44a7cb19335d payload=message #3
