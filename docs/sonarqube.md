@@ -84,7 +84,7 @@ pull request pass.
    organisation `ITA-Internship` and the repository `GoJudge`.
 2. In Administration → Analysis Method, turn off Automatic Analysis. Coverage
    needs the analysis from CI.
-3. Create a token. In GitHub, add it as the Actions secret `SONAR_TOKEN`
+3. Create a token. In GitHub, add it as the Actions secret `SONAR_TOKEN_G`
    (Settings → Secrets and variables → Actions). Never commit it.
 4. Copy the project key and organisation key from Project information into
    `sonar-project.properties`.
@@ -98,7 +98,7 @@ pull request pass.
 | Problem | Cause and fix |
 |---------|---------------|
 | Coverage is 0% | `coverage.out` was not found. Check `sonar.go.coverage.reportPaths` |
-| `Project not found` or 401 | Wrong project key or organisation, or `SONAR_TOKEN` is missing or expired |
+| `Project not found` or 401 | Wrong project key or organisation, or `SONAR_TOKEN_G` is missing or expired |
 | Analysis runs twice or CI analysis is rejected | Automatic Analysis is still on. Turn it off |
 | All code counts as new | The checkout is shallow. The job needs `fetch-depth: 0` |
 | Quality Gate timeout | SonarQube Cloud is slow or down. Re-run the check later |
