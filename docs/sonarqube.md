@@ -1,29 +1,105 @@
 # SonarQube Cloud
-SonarQube Cloud checks every pull request into `main`. It does not replace tests, the linter or code review
+
+SonarQube Cloud checks every pull request into `main`. It does not replace
+tests, the linter or code review.
 
 ## How it works
-`CI` workflow runs the tests, saves the coverage to `coverage.out` and sends the code to SonarQube Cloud.
-SonarQube Cloud checks the new code of the pull request and reports the result to GitHub.
-If the Quality Gate fails, or the analysis does not finish, the pull request cannot be merged.
 
-The scan settings are in [`sonar-project.properties`](../sonar-project.properties)
+1. The `Unit tests` job in the `CI` workflow runs the tests and saves the
+   coverage to `coverage.out`.
+2. The same job runs the SonarQube scan, which sends the code and the coverage
+   report to SonarQube Cloud. The scan settings are in
+   [`sonar-project.properties`](/sonar-project.properties).
+3. SonarQube Cloud checks the new code of the pull request and reports the
+   result to GitHub.
+4. With `sonar.qualitygate.wait=true` the scan waits for the Quality Gate. The
+   job fails when the gate fails, when the analysis fails, or when no result
+   arrives within 300 seconds.
+5. The ruleset for `main` requires this check, so the pull request cannot be
+   merged until it passes.
+
+### What is analysed
+
+- Go source code, Kubernetes manifests in `infra/` and the workflows in
+  `.github/`.
+- Test files (`*_test.go`) count as tests, not as source code.
+- Excluded: `vendor/`, `testdata/`, generated code (`*.pb.go`, `*_gen.go`,
+  `zz_generated*.go`), `.idea/`, and documentation in `docs/` and `specs/`.
 
 ## Quality Gate
-Only new code is checked:
 
-- no new issues
-- all security hotspots reviewed
-- coverage of new code at least 80%
-- duplication of new code at most 3%
+Only new code is checked (Clean as You Code). Existing code does not block a
+pull request.
 
-TODO: plan limitations (can the conditions be changed?).
+| Condition on new code | Requirement |
+|-----------------------|-------------|
+| Issues | No new issues |
+| Security Hotspots | 100% reviewed |
+| Coverage | At least 80% |
+| Duplicated lines | At most 3% |
+
+**Small changes.** When a pull request changes fewer than 20 lines, SonarQube
+does not apply the coverage and duplication conditions.
+
+**Plan limitations.** TODO after setup: which SonarQube Cloud plan is used,
+which Quality Gate is set (built-in "Sonar way" or a custom gate), and any
+condition that could not be set exactly as above.
+
+## Reading the results
+
+- Open the SonarQube check on the pull request and follow the link to the
+  analysis.
+- **Issues** are grouped by software quality (Security, Reliability,
+  Maintainability) and severity. Each issue links to its rule, which explains
+  why it matters and how to fix it.
+- **Security Hotspots** need a human review. They are not always bugs. Each one
+  must be marked Safe or Fixed in SonarQube Cloud.
+- **Coverage** shows which new lines no test runs.
 
 ## If the check fails
-1. Open the SonarQube check in the pull request and read which condition failed
-2. Fix code, add tests, or review the hotspots in SonarQube Cloud, then push again
-3. If the analysis itself failed, re-run the check. Merging stays blocked until it passes
+
+| Failed condition | What to do |
+|------------------|------------|
+| New issues | Fix the code as the rule describes, then push again |
+| Security Hotspots not reviewed | Review each hotspot in SonarQube Cloud and mark it Safe or Fixed with a short reason |
+| Coverage below 80% | Add tests for the new lines that are not covered |
+| Duplication above 3% | Move the repeated code into a shared function |
+| Analysis failed or timed out | Open the job log. Re-run the check if SonarQube Cloud was unavailable. Merging stays blocked until it passes |
+
+Do not turn off the check, change the Quality Gate or add exclusions to make a
+pull request pass.
 
 ## False positive
-Do not turn off the check or the rule.
-Write in the pull request why you think the finding is wrong and ask the reviewer.
-Any suppression needs a written reason
+
+1. Write in the pull request which rule, file and line, and why you think the
+   finding is wrong.
+2. Ask a reviewer from another pair to confirm.
+3. A project administrator marks the issue as False positive or Accepted in
+   SonarQube Cloud, with the reason. No suppression in code (`//NOSONAR`)
+   without this review.
+
+## Setup (administrators)
+
+1. Sign in to [SonarQube Cloud](https://sonarcloud.io) with GitHub. Import the
+   organisation `ITA-Internship` and the repository `GoJudge`.
+2. In Administration → Analysis Method, turn off Automatic Analysis. Coverage
+   needs the analysis from CI.
+3. Create a token. In GitHub, add it as the Actions secret `SONAR_TOKEN`
+   (Settings → Secrets and variables → Actions). Never commit it.
+4. Copy the project key and organisation key from Project information into
+   `sonar-project.properties`.
+5. Set the Quality Gate and the new-code definition.
+6. In the ruleset for `main`, keep the required checks `Build`, `Lint` and
+   `Unit tests` (which now includes the SonarQube scan) and the review from
+   another pair.
+
+## Troubleshooting
+
+| Problem | Cause and fix |
+|---------|---------------|
+| Coverage is 0% | `coverage.out` was not found. Check `sonar.go.coverage.reportPaths` |
+| `Project not found` or 401 | Wrong project key or organisation, or `SONAR_TOKEN` is missing or expired |
+| Analysis runs twice or CI analysis is rejected | Automatic Analysis is still on. Turn it off |
+| All code counts as new | The checkout is shallow. The job needs `fetch-depth: 0` |
+| Quality Gate timeout | SonarQube Cloud is slow or down. Re-run the check later |
+| Pull request from a fork has no result | Secrets are not available to forks. Work from branches in this repository |
