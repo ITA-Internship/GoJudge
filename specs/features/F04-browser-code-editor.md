@@ -236,73 +236,89 @@
 
 | Component | Responsibility |
 |-----------|----------------|
-| *e.g. Go API* | *What it does for this feature* |
+| **Editor UI Component** | Renders the text area with Go syntax highlighting (FR-01). Handles all user input interactions (typing, paste, undo/redo) (FR-02). Enforces max source size constraints without freezing (FR-08, FR-09) and sanitises pasted content (FR-05, FR-07). |
+| **Session Preservation Handler** | Manages the conceptual saving and loading of the learner's ongoing work tied strictly to their user identity and the current problem (FR-15, FR-17). Detects page unloads to trigger best-effort saves (FR-23) and handles clearing data upon sign-out (FR-18). |
+| **Template Loader** | Retrieves problem data on first open (FR-10), extracts the starter template safely (FR-14), and triggers the correct fallback or error states if the template is missing, unusable, or if the network request fails (FR-12, FR-13). |
 
 **Dependencies:**
 
-- *Internal or external component, library or service, with reason*
+- **Auth / Session Context (F01):** Internal dependency required to bind preserved work to the signed-in user, detect sign-out events (FR-18), and detect session expiry (FR-19).
+- **Problem Details Context (F03):** Internal dependency required to fetch the problem data containing the CON-04 starter template.
+- **Go Syntax Highlighting Library:** An external frontend library required to provide Go syntax highlighting locally in the browser, specifically without executing code or relying on a backend Language Server (FR-03).
+- **Preservation Storage / API:** The actual storage mechanism (e.g., LocalStorage, IndexedDB, or a backend API) is a dependency that will be strictly defined by the outcome of DEC-13.
 
 **Architecture decisions:**
 
-- *Link to any decision record, or state "None". Do not introduce a new architectural decision without raising it as an issue first.*
-
----
+- **DEC-13 (Editor session-preservation mechanism):** Currently **Open**. This specification relies on DEC-13 for the exact mechanism of how the active session data is stored and retrieved. No local architectural decisions are introduced here without DEC-13 being resolved.
 
 ## 7. Contracts *(Conditional)*
 
-Complete this section if the feature exposes or consumes an API, stores data, publishes or consumes messages, or changes state. Contracts must be agreed with dependent pairs before dependent development begins.
+This feature describes a frontend UI component. It does not expose backend APIs or message queues. It acts as a consumer of problem data and a provider of state to dependent frontend features (F05, F06).
 
 ### 7.1 API Endpoints *(if applicable)*
 
-| Method | Path | Purpose | Auth required |
-|--------|------|---------|---------------|
-| *GET* | */path* | *Purpose* | *Yes / No* |
-
-**Request schema:** *Link to, or describe, the request body and parameters.*
-
-**Response schema:** *Link to, or describe, success and error responses.*
+*Not applicable.* The editor exposes no endpoints. 
+* **Consumption:** It consumes the Problem Details API (F03) to fetch the starter template (FR-10). Error handling for timeouts is managed locally in the UI (FR-13).
 
 ### 7.2 Data Models *(if applicable)*
 
-*Describe each entity, its fields, types and constraints.*
+**1. Preserved Work (Conceptual Model)**
+Although the physical storage mechanism is deferred to DEC-13 (OQ-01), the conceptual data entity preserved by the editor must strictly adhere to FR-21 and FR-17.
+*   `user_id`: Identifier of the signed-in learner.
+*   `problem_id`: Identifier of the current problem.
+*   `source_text`: The plain text Go source code.
+*   `last_modified`: Timestamp of the last preservation.
+*   *Constraint:* Must absolutely contain no credentials, tokens, or test data (FR-21).
+
+**2. Starter Template (Input)**
+*   The exact schema of the template provided by problem data is an open input dependent on CON-04 (OQ-06). The editor strictly expects text (FR-14).
 
 ### 7.3 Messaging Contracts *(if applicable)*
 
-*Describe the queue or topic name, message fields, and expected consumer behaviour.*
+*Not applicable.* The editor does not publish or consume asynchronous events or message queues.
 
 ### 7.4 State Transitions *(if applicable)*
 
-*Describe the allowed states and transitions, for example a submission moving from queued to running to completed.*
+The editor UI strictly transitions through the following states regarding content loading and preservation:
 
----
+*   **INITIALISING:** The editor is evaluating the presence of preserved work and fetching problem data.
+    *   -> **PRESERVED_WORK_LOADED:** If valid preserved work exists for the user and problem (FR-16).
+    *   -> **TEMPLATE_LOADED:** If no preserved work exists and a valid starter template is available (FR-10).
+    *   -> **NO_TEMPLATE_WARNING:** If no preserved work exists and the template is missing, oversized, or unusable (FR-12). Opens empty.
+    *   -> **ERROR_STATE:** If problem data retrieval fails and no preserved work exists (FR-13). Requires manual retry.
+*   **BLANK_STATE:** A specific sub-state reported to F05 and F06 when the content evaluates to blank according to the definition in OQ-11 (FR-04).
 
 ## 8. Edge Cases and Failure Handling *(Conditional)*
 
-Complete this section where relevant. Consider the following.
+This section covers the 7 edge cases mandated by the MVP specification scope, plus API and storage failures.
 
-- [ ] Invalid or missing input
-- [ ] Timeouts
-- [ ] Retries and their limits
-- [ ] Duplicate processing
-- [ ] Unavailable dependencies
+- [X] Invalid or missing input (Blank content, oversized pastes, NUL characters, missing templates)
+- [X] Timeouts (Problem data retrieval timeout)
+- [X] Retries and their limits (Manual retry only for missing problem data)
+- [X] Duplicate processing (Concurrent editing in multiple browser tabs)
+- [X] Unavailable dependencies (Session preservation storage unavailable)
 
 | Scenario | Expected behaviour |
 |----------|--------------------|
-| *Scenario* | *Behaviour* |
-
----
+| **Empty file or whitespace-only content** | The editor accepts the input without error. It sets a internal "blank" flag for dependent features (F05, F06) to handle according to OQ-10 and OQ-11 (FR-04). |
+| **Starter template missing, empty, or unusable** | If the template is missing, empty, whitespace-only, contains NUL, or exceeds the max size, the editor opens empty with a visible notice. The user can still edit. No error page is shown (FR-12). |
+| **Page reload or navigation away with unsaved work** | The editor seamlessly restores the exact content the learner left upon reload or returning to the page, provided the active session is still valid (FR-15, FR-23). |
+| **Session expiry or sign-out while work is open** | **Expiry:** Content stays on screen, but a prompt requires the user to sign in again. The editor stops claiming work is saved (FR-19). **Sign-out:** Preserved work is permanently removed (FR-18). |
+| **Two browser tabs open on the same problem** | The editor behaves deterministically to ensure no tab's work is discarded silently without notice to the learner (FR-22). Exact synchronisation policy is deferred to OQ-03. |
+| **Input exceeds max source size (Very large text)** | Any input (typing or pasting) that breaches the max source size is rejected as a whole. Existing content is left unchanged, no silent truncation occurs, and a warning is displayed (FR-08). |
+| **Content that is not Go source (HTML, Files, NUL)** | HTML formatting is stripped (inserted as plain text). Dropped files/images are ignored (FR-05). Any paste containing the NUL character (U+0000) is entirely rejected with a warning (FR-07). |
+| **Problem data API fails or times out (OQ-13)** | If no preserved work exists: shows an error state with a manual retry (no automatic retry, does not open empty). If preserved work exists: loads the preserved work ignoring the API failure (FR-13). |
+| **Preservation storage fails or is full** | Editing continues uninterrupted. The learner receives an immediate warning that their work is not being preserved (FR-20). |
 
 ## 9. Security Considerations *(Required)*
 
 Confirm each point, or state "Not applicable" with a reason.
 
-- [ ] **Authentication:** *How is the caller identified?*
-- [ ] **Authorisation:** *Which roles may perform each action?*
-- [ ] **Input validation:** *What input is validated, and where?*
-- [ ] **Sensitive data:** *What sensitive data is handled, and how is it protected?*
-- [ ] **Execution isolation:** *Required if the feature runs learner-submitted code. Describe the isolation approach and how it is validated.*
-
----
+- [X] **Authentication:** The caller is identified via the platform's active session (F01). Preserved work is strictly tied to the signed-in user (FR-17) and is removed from the local context when the user signs out (FR-18).
+- [X] **Authorisation:** Any authenticated learner role may use the editor to write solutions for published problems. No special authorisation is required to edit text.
+- [X] **Input validation:** Input is validated strictly as plain text in the browser. NUL characters (U+0000) are explicitly rejected (FR-07). A max source size is enforced to prevent resource exhaustion from massive text blobs (FR-08).
+- [X] **Sensitive data:** The editor handles learner-submitted code, which is untrusted. **What it stores:** Preserved data contains only the source text, user ID, problem ID, and last-modified timestamp (FR-21). It strictly contains no credentials, tokens, test data, or other secrets. **Where it is kept:** The exact storage location (e.g., browser LocalStorage or backend API) is pending DEC-13 (OQ-01), but the data remains logically bound to the active session.
+- [X] **Execution isolation:** **Not applicable.** The editor does not execute code. Learner-submitted code is untrusted (CONTRIBUTING §6). Any later feature that executes it (e.g., F05, F07) must follow the isolation requirements defined in their respective specifications.
 
 ## 10. Verification Plan *(Required)*
 
@@ -310,10 +326,26 @@ Map every acceptance criterion to at least one test or verification scenario.
 
 | AC | Verification type | Test or scenario | Automated? |
 |----|-------------------|------------------|------------|
-| AC-01 | *Unit / integration / end-to-end / manual* | *Description* | *Yes / No* |
-| AC-02 | *Unit / integration / end-to-end / manual* | *Description* | *Yes / No* |
-
----
+| AC-01 | Integration | Edit text (type, delete, paste, undo). Verify Go syntax highlighting is applied and no language selector exists. | Yes |
+| AC-02, AC-18 | End-to-end | Open multiple problems with valid starter templates (no preserved work). Verify exact template text loads for each. | Yes |
+| AC-03 | End-to-end | Open a problem with a missing, oversized, or NUL-containing template. Verify the editor opens empty with a visible notice. | Yes |
+| AC-04 | End-to-end | Mock problem data API timeout. Verify error state with manual retry appears, and no automatic retry fires. | Yes |
+| AC-05 | Integration | Clear editor (blank content), navigate away, and return. Verify the editor remains blank and does not reload the template. | Yes |
+| AC-06, AC-07 | End-to-end | Change content, navigate to another page or reload the current page. Verify the exact left content is restored. | Yes |
+| AC-08 | Integration | Create preserved work, mock a backend update to the problem's starter template, reopen. Verify preserved work is shown. | Yes |
+| AC-09, AC-10 | End-to-end | Sign out and sign in as the same/different user. Verify preserved work is removed/inaccessible and the template loads. | Yes |
+| AC-11 | Integration | Mock session token expiry during editing. Verify content stays on screen and a re-authentication prompt appears. | Yes |
+| AC-12 | Manual | Open the same problem in two browser tabs. Edit in both and reload. Verify deterministic policy (OQ-03) without silent loss. | No |
+| AC-13 | Integration | Paste text exceeding max source size. Verify the paste is entirely rejected, warning is shown, and UI remains responsive. | Yes |
+| AC-14, AC-19 | Integration | Paste HTML-formatted text and text with NUL. Verify HTML is stripped to plain text, NUL is rejected, and no code runs. | Yes |
+| AC-15 | Manual | Mock a full/unavailable storage mechanism (e.g., fill LocalStorage). Edit and verify a non-blocking warning is displayed. | No |
+| AC-16 | Integration | Type valid/invalid Go code. Monitor network requests to verify no compile/run/evaluate payloads are sent by the editor. | Yes |
+| AC-17 | Integration | Clear all content. Verify the editor correctly reports a blank state flag to dependent components (F05, F06). | Yes |
+| AC-20 | End-to-end | Create preserved work, mock a problem data API failure on reload. Verify preserved work loads directly with no error state. | Yes |
+| AC-21 | Manual | Edit content, navigate to an external website, and return using the browser's back button. Verify content is restored. | No |
+| AC-22 | Integration | Type content and immediately trigger a `beforeunload` event. Verify best-effort preservation catches the latest state. | Yes |
+| AC-23 | End-to-end | Edit problem A, open problem B. Verify problem B loads its own template, not the preserved work from problem A. | Yes |
+| AC-24 | Integration | Inspect the saved preservation payload. Verify it contains only source text, user, problem, and timestamp, with no secrets. | Yes |
 
 ## 11. Dependencies and Open Questions *(Required)*
 
