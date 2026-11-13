@@ -31,16 +31,16 @@ Each GitHub Issue is one of four types. The type is chosen before the issue is c
 
 | # | Stage | Owner | Output | Gate to next stage |
 |---|-------|-------|--------|--------------------|
-| 1 | Requirement | Interns clarify; mentor sets priority | Requirement described in an issue (`spec:draft`), linked to an MVP feature ID (F01–F12) | Issue exists, feature ID is assigned, priority set by the mentor |
+| 1 | Requirement | Interns clarify; mentor sets priority | Requirement described in an issue (`type:feature`), linked to an MVP feature ID (F01–F12) | Issue exists, feature ID is assigned, priority set by the mentor |
 | 2 | Feature Specification | Responsible pair | Spec in `specs/features/` based on the template | Spec is complete enough for review |
 | 3 | Technical Design and Contracts | Responsible pair, with dependent pairs | Design, contracts and open questions recorded in the spec | Contracts agreed with dependent pairs (CONTRIBUTING §5.2) |
-| 4 | Cross-Pair Specification Review | Reviewer pair | Review outcome in the spec's review table (`spec:in-review`) | No open blocking comments |
-| 5 | Specification Approval | Reviewer pair | Spec status set to **Approved** (`spec:approved`) | Definition of Ready met (CONTRIBUTING §10) |
-| 6 | Implementation | Responsible pair | Code on a `feature/` branch (`in-progress`), following the approved spec | Tests written and passing locally |
+| 4 | Cross-Pair Specification Review | Reviewer pair | Review outcome in the spec's review table (spec status In Review) | No open blocking comments |
+| 5 | Specification Approval | Reviewer pair | Spec status set to **Approved** | Definition of Ready met (CONTRIBUTING §10) |
+| 6 | Implementation | Responsible pair | Code on a `feature/` branch, following the approved spec | Tests written and passing locally |
 | 7 | Automated Verification | Responsible pair | Tests and CI checks passing; acceptance criteria verified | All configured CI checks pass |
-| 8 | Pull Request | Responsible pair | Pull request referencing the issue and spec (`in-review`) | Pull request ready for review |
+| 8 | Pull Request | Responsible pair | Pull request referencing the issue and spec, open for review | Pull request ready for review |
 | 9 | Implementation PR Approval | At least one reviewer from another pair | Approval on the pull request; comments resolved | At least one approval given |
-| 10 | Merge and Done | Responsible pair | Changes integrated into `main`; issue labelled `done` and closed | Definition of Done met (CONTRIBUTING §11) |
+| 10 | Merge and Done | Responsible pair | Changes integrated into `main`; issue closed | Definition of Done met (CONTRIBUTING §11) |
 | 11 | Weekly Demo | Responsible pair | Feature shown at the weekly Friday demo | Not a gate. Does not block merge or `done`. |
 
 ### 2.2 Technical task lifecycle
@@ -49,7 +49,7 @@ Each GitHub Issue is one of four types. The type is chosen before the issue is c
 2. The owner pair works on an `infra/` or `docs/` branch.
 3. Each acceptance criterion is evidenced in the pull request.
 4. At least one reviewer from another pair approves the pull request.
-5. The change is merged, the issue is labelled `done`, and the issue is closed.
+5. The change is merged, and the issue is closed.
 
 ### 2.3 Technical spike lifecycle
 
@@ -80,7 +80,7 @@ The team of eight interns works in four development pairs. Pairs rotate every tw
 
 A pair is never the reviewer of its own work. Reviewer assignment should rotate so that every pair reviews across the cycle.
 
-**Work that spans a rotation:** a work item may not finish within one two-week sprint. Before the rotation, the outgoing responsible pair updates the issue with the current label, artefact status and open questions. The incoming responsible pair confirms ownership on the issue.
+**Work that spans a rotation:** a work item may not finish within one two-week sprint. Before the rotation, the outgoing responsible pair updates the issue with the current status, artefact status and open questions. The incoming responsible pair confirms ownership on the issue.
 
 ## 4. Approvals
 
@@ -88,7 +88,7 @@ Each type has its own approval. The approvals are not interchangeable.
 
 | Approval | Type | Given by | Gates |
 |----------|------|----------|-------|
-| **Specification approval** | Feature | Reviewer pair | Start of implementation. Status **Approved** and label `spec:approved`. |
+| **Specification approval** | Feature | Reviewer pair | Start of implementation. Status **Approved** in the specification. |
 | **Contract agreement** | Contract | Every dependent pair, after cross-pair review | Start of dependent implementation |
 | **Implementation PR approval** | All types | At least one reviewer from another pair | Merge |
 
@@ -126,18 +126,21 @@ A work item reaches `done` once its Definition of Done is satisfied. The weekly 
 
 ## 6. GitHub Issue States
 
-GitHub Issues have only *open* and *closed* by default. The team tracks workflow states with the six agreed labels. No other labels are used for state. Exactly one state label is on an issue at a time.
+GitHub Issues have only *open* and *closed* states. GitHub labels classify the type of work item only, never its workflow status. Each new Issue has exactly one `type:*` label. Workflow status (Draft, In Review, Approved, Provisional) is recorded inside the specification, contract or ADR. The Issue's open or closed state shows whether its defined deliverable is complete.
 
-| Label | Feature | Technical task | Technical spike | Contract | Meaning |
-|-------|:-------:|:--------------:|:---------------:|:--------:|---------|
-| `spec:draft` | Yes | No | No | No | Requirement captured; specification being written (Draft). Applied by the feature form. |
-| `spec:in-review` | Yes | No | No | No | Specification submitted for cross-pair review (In Review) |
-| `spec:approved` | Yes | No | No | No | Specification approved and Definition of Ready met |
-| `in-progress` | Yes | Yes | Yes | Yes | Work has started on its branch |
-| `in-review` | Yes | Yes | Yes | Yes | Pull request is open for review |
-| `done` | Yes | Yes | Yes | Yes | Definition of Done met. The issue is closed. |
+| Label | Work item type | Applied by |
+|-------|----------------|------------|
+| `type:feature` | Feature specification | Feature form (automatic) |
+| `type:contract` | Contract | Author, from the technical task form (work type "Contract") |
+| `type:technical-task` | Technical implementation or infrastructure task | Author, from the technical task form |
+| `type:spike` | Technical spike | Spike form (automatic) |
+| `type:adr` | ADR preparation | Author, from the technical task form |
 
-The issue forms for technical tasks and spikes apply no label. The team applies `in-progress` when work starts.
+Historical status labels (`spec:draft`, `spec:in-review`, `spec:approved`, `in-progress`, `in-review`, `done`) may remain on older Issues. They are not prescribed for new work.
+
+The feature form applies `type:feature` and the spike form applies `type:spike`. The technical task form covers technical tasks, contracts and ADR preparation, so it applies no fixed label. The author selects the matching `type:*` label.
+
+**Draft-only Issues.** An Issue whose scope is a draft specification, draft contract or preliminary contract may close once that explicitly scoped draft deliverable has passed review and been merged. Its closing comment must state that the draft is complete and that the document is not formally approved. Closing the Issue does not change the document's status. Approval follows the gates in §4. CON-02 (#23) is a full contract Issue, not a draft-only Issue, and must meet its complete Definition of Done before closure.
 
 ## 7. Handling Requirement Changes
 
@@ -155,14 +158,14 @@ Requirements change. The rules below keep each artefact in step with the code.
 
 1. Update the specification.
 2. If the change is significant, obtain mentor approval.
-3. Set its status to **In Review** and set the issue label to `spec:in-review`.
+3. Set its status to **In Review** in the specification.
 4. Obtain review from the reviewer pair again, before development continues.
 
 **Feature, after approval, before merge:**
 
 1. Stop work on the affected part of the implementation.
 2. If the change is significant, obtain mentor approval.
-3. Update the specification and return it to **In Review**. The issue label moves to `spec:in-review`.
+3. Update the specification and return it to **In Review**.
 4. Obtain re-review. Affected contracts must be agreed again with dependent pairs.
 5. Resume implementation only after approval.
 
@@ -177,26 +180,26 @@ Do not change code to match a new requirement without first updating and approvi
 
 ```text
 Feature
-  Requirement (spec:draft; priority set by mentor)
-    → Spec Draft → In Review (spec:in-review) → Approved (spec:approved)   [specification approval]
-    → Implement on feature/ branch (in-progress)
-    → Tests and CI pass → Pull request (in-review)
-    → Implementation PR approval (another pair) → Merge → Issue closed (done)
+  Requirement (type:feature; priority set by mentor)
+    → Spec Draft → In Review → Approved   [specification approval, recorded in the spec]
+    → Implement on feature/ branch
+    → Tests and CI pass → Pull request (open)
+    → Implementation PR approval (another pair) → Merge → Issue closed
     → Weekly Friday demo (not a gate)
 
 Technical task
-  Acceptance criteria on issue (in-progress) → infra/ or docs/ branch
-    → Pull request (in-review) → PR approval (another pair) → Merge → Issue closed (done)
+  Acceptance criteria on issue (type:technical-task) → infra/ or docs/ branch
+    → Pull request (open) → PR approval (another pair) → Merge → Issue closed
 
 Technical spike
-  Spike Brief on issue (in-progress) → spike/ branch (experiment, not merged)
-    → Report at docs/spikes/SPK-XX.md on docs/ branch (in-review) → Review (another pair)
-    → Merge → Issue closed (done)
+  Spike Brief on issue (type:spike) → spike/ branch (experiment, not merged)
+    → Report at docs/spikes/SPK-XX.md on docs/ branch (open) → Review (another pair)
+    → Merge → Issue closed
 
 Contract
-  Draft docs/contracts/CON-XX.md (in-progress) → docs/ branch
-    → Pull request (in-review) → Cross-pair review → Dependent pairs agree
-    → Merge → Issue closed (done)
+  Draft docs/contracts/CON-XX.md (type:contract) → docs/ branch
+    → Pull request (open) → Cross-pair review → Dependent pairs agree
+    → Merge → Issue closed
 ```
 
 Material changes to an approved specification or agreed contract return it to review.

@@ -18,10 +18,10 @@ Every GitHub Issue is one of the following types. The type is chosen before the 
 
 | Type | Use for | Required before work starts | Artefact and location | Branch prefix | Issue form |
 |------|---------|-----------------------------|-----------------------|---------------|------------|
-| **Feature** | MVP behaviour (F01–F09) | Approved Feature Specification | Specification in [`specs/features/`](specs/features/), based on the [template](specs/templates/feature-spec-template.md) | `feature/` | Feature request (applies `spec:draft`) |
-| **Technical task** | Infrastructure, tooling, documentation and ADRs | Numbered acceptance criteria in the issue. No Feature Specification. | Pull request. ADRs in [`docs/architecture/adr/`](docs/architecture/adr/) as `ADR-XXX.md`. | `infra/` for infrastructure and tooling. `docs/` for documentation and ADRs. | Technical task (no label applied) |
-| **Technical spike** | Time-boxed investigation that answers one question | Spike Brief in the issue. No Feature Specification. | Report in [`docs/spikes/`](docs/spikes/) as `SPK-XX.md` | `spike/` for experiment code (not merged). `docs/` for the report. | Technical spike (no label applied) |
-| **Contract** | Agreed API, message, data or state contract | Draft contract naming the dependent pairs | Contract in [`docs/contracts/`](docs/contracts/) as `CON-XX.md` | `docs/` | Technical task, with work type "Contract" |
+| **Feature** | MVP behaviour (F01–F09) | Approved Feature Specification | Specification in [`specs/features/`](specs/features/), based on the [template](specs/templates/feature-spec-template.md) | `feature/` | Feature request (applies `type:feature`) |
+| **Technical task** | Infrastructure, tooling, documentation and ADRs | Numbered acceptance criteria in the issue. No Feature Specification. | Pull request. ADRs in [`docs/architecture/adr/`](docs/architecture/adr/) as `ADR-XXX.md`. | `infra/` for infrastructure and tooling. `docs/` for documentation and ADRs. | Technical task (no fixed label; the author selects `type:technical-task`, `type:contract` or `type:adr`) |
+| **Technical spike** | Time-boxed investigation that answers one question | Spike Brief in the issue. No Feature Specification. | Report in [`docs/spikes/`](docs/spikes/) as `SPK-XX.md` | `spike/` for experiment code (not merged). `docs/` for the report. | Technical spike (applies `type:spike`) |
+| **Contract** | Agreed API, message, data or state contract | Draft contract naming the dependent pairs | Contract in [`docs/contracts/`](docs/contracts/) as `CON-XX.md` | `docs/` | Technical task, with work type "Contract" (the author selects `type:contract`) |
 
 Rules:
 
@@ -51,19 +51,19 @@ Rules:
 
 ## 4. GitHub Issue Workflow
 
-1. Choose the work item type (§2). Open the matching issue form from [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/). Only the feature form applies `spec:draft`. The technical task and spike forms apply no label.
+1. Choose the work item type (§2). Open the matching issue form from [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/). Apply exactly one `type:*` label that matches the work item type. The feature form applies `type:feature` and the spike form applies `type:spike`. The technical task form covers technical tasks, contracts and ADR preparation, so it applies no fixed label. The author selects `type:technical-task`, `type:contract` or `type:adr`.
 2. Link the issue to its identifier: the feature ID (for example, F06), or the task, spike or contract ID (for example, INF-03, SPK-01, CON-01). The mentor sets the priority of features.
 3. Prepare the artefact for the type:
    - **Feature:** write the specification in `specs/features/` and link it from the issue.
    - **Technical spike:** publish the Spike Brief on the issue before the timebox starts.
    - **Technical task:** write the acceptance criteria on the issue.
    - **Contract:** draft the contract in `docs/contracts/` and name the dependent pairs.
-4. Keep exactly one state label on an issue at a time. The states for each type are in [docs/sdd-workflow.md §6](docs/sdd-workflow.md#6-github-issue-states):
-   - **Feature:** `spec:draft` → `spec:in-review` → `spec:approved` → `in-progress` → `in-review` → `done`.
-   - **Technical task, spike or contract:** `in-progress` → `in-review` (while the pull request is open) → `done`.
-5. Set `done` and close the issue once the Definition of Done (§11) for its type is met.
+4. Workflow status is recorded in the artefact (Draft, In Review, Approved, Provisional), not in GitHub labels. The lifecycle for each type is in [docs/sdd-workflow.md §6](docs/sdd-workflow.md#6-github-issue-states):
+   - **Feature:** specification Draft → In Review → Approved (recorded in the specification), then implementation and pull request. The Issue is open until the Definition of Done (§11) is met.
+   - **Technical task, spike or contract:** the Issue is open while the pull request is in review, and closed when the Definition of Done (§11) is met.
+5. Close the issue once the Definition of Done (§11) for its scope is met. A closed draft-only Issue does not mean that the specification, contract or ADR is formally approved. Its closing comment must say that the draft is complete and the document is not formally approved.
 
-Labels are the six existing workflow labels only: `spec:draft`, `spec:in-review`, `spec:approved`, `in-progress`, `in-review`, `done`.
+Labels classify the work item type only: `type:feature`, `type:contract`, `type:technical-task`, `type:spike` and `type:adr`. Each new Issue has exactly one. Status labels are not used. Historical status labels may remain on older issues, but are not prescribed for new work.
 
 ## 5. Review Processes
 
@@ -133,7 +133,7 @@ A work item is ready to start when the checks for its type are met.
 
 ## 11. Definition of Done
 
-A work item is done when the checks for its type are met. Then it is labelled `done` and its issue is closed.
+A work item is done when the checks for its type are met. Then its issue is closed. No status label is applied.
 
 | Type | Done when |
 |------|-----------|
