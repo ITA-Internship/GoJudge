@@ -18,6 +18,10 @@ tests, the linter or code review.
 5. The ruleset for `main` requires this check, so the pull request cannot be
    merged until it passes.
 
+`main` itself is not analysed separately: the workflow runs only on pull
+requests. Coverage and issues are reported for the new code of each pull
+request.
+
 ### What is analysed
 
 - Go source code, Kubernetes manifests in `infra/` and the workflows in
@@ -41,9 +45,25 @@ pull request.
 **Small changes.** When a pull request changes fewer than 20 lines, SonarQube
 does not apply the coverage and duplication conditions.
 
-**Plan limitations.** TODO after setup: which SonarQube Cloud plan is used,
-which Quality Gate is set (built-in "Sonar way" or a custom gate), and any
-condition that could not be set exactly as above.
+**Plan and gate in use.** The organisation `ita-internship` is on the SonarQube
+Cloud **Free plan**. The project uses the built-in **Sonar way** gate, which is
+the organisation default. Its conditions on new code:
+
+| Condition | Requirement |
+|-----------|-------------|
+| Reliability and security | Rated A (no new bugs or vulnerabilities) |
+| Technical debt | Maintainability rating is A |
+| Security Hotspots Reviewed | 100% |
+| Coverage | At least 80.0% |
+| Duplicated Lines (%) | At most 3.0% |
+
+The ratings are how Sonar way expresses "no new actionable issues": a new bug
+or vulnerability drops the rating below A and fails the gate.
+
+**Free plan limits.** Custom quality gates and quality profiles are not
+available, so the built-in Sonar way is used and cannot be edited. The
+organisation can have up to 5 members, and only pull requests that target
+`main` are analysed (pull requests into other branches get no SonarQube result).
 
 ## Reading the results
 
