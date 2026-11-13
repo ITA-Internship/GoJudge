@@ -1,4 +1,4 @@
-# Sprint 1 GitHub Issues (S1-01 to S1-09)
+# Sprint 1 GitHub Issues (S1-01 to S1-09 committed, S1-10 and S1-11 stretch)
 
 **Status:** Copy-ready drafts. No GitHub Issues have been created from this file.
 
@@ -14,15 +14,16 @@ Every issue is one of four work item types. Each type has its own issue form, ar
 
 | Type | Issues in Sprint 1 | Required before work | Artefact | Branch | Issue form |
 |------|--------------------|----------------------|----------|--------|------------|
-| Feature | S1-09 | Approved Feature Specification | `specs/features/` | `docs/` for the specification | Feature request (`spec:draft`) |
+| Feature | S1-09 (committed), S1-11 (stretch) | Approved Feature Specification | `specs/features/` | `docs/` for the specification | Feature request (`spec:draft`) |
 | Technical task | S1-01, S1-05, S1-06, S1-07 | Acceptance criteria | Repository changes, README, ADRs in `docs/architecture/adr/` | `infra/` or `docs/` | Technical task (no label) |
 | Technical spike | S1-02, S1-03, S1-04 | Spike Brief | Report in `docs/spikes/SPK-XX.md`. Experiment code on `spike/`, not merged. | `spike/` for code, `docs/` for the report | Technical spike (no label) |
-| Contract | S1-08 | Draft contract and dependent pairs named | `docs/contracts/CON-01.md` | `docs/` | Technical task, work type "Contract" |
+| Contract | S1-08 (committed), S1-10 (stretch) | Draft contract and dependent pairs named | `docs/contracts/CON-01.md`, `docs/contracts/CON-02.md` | `docs/` | Technical task, work type "Contract" |
 
 **Labels.** Only the six existing workflow labels are used. No new labels are introduced.
 
 - Technical tasks, spikes and contracts: `in-progress` when started, `in-review` while the pull request is open, `done` when closed.
-- S1-09 (feature): `spec:draft`, then `spec:in-review`, then `spec:approved`, then the implementation states.
+- S1-09 and S1-11 (feature): `spec:draft`, then `spec:in-review`, then `spec:approved`, then the implementation states. S1-11 stops at `spec:in-review` in Sprint 1.
+- S1-10 (contract): `in-progress`, `in-review`, `done`, as for S1-08.
 - Exactly one state label on an issue at a time ([docs/sdd-workflow.md §6](../sdd-workflow.md#6-github-issue-states)).
 
 **Pairs.** Pair labels A–D are placeholders. The mentor assigns named interns to pairs. No named interns appear here.
@@ -609,6 +610,161 @@ Per [CONTRIBUTING §10 and §11](../../CONTRIBUTING.md#10-definition-of-ready), 
 
 ---
 
+## S1-10: [CON-02] Messaging contract (stretch)
+
+**Form:** Technical task (work type "Contract") · **Labels:** `in-progress`, `in-review`, `done` · **Branch:** `docs/con-02-messaging`
+
+```markdown
+### Objective
+
+Agree one messaging contract for submission dispatch and processing: queue names, message schema, idempotency key, acknowledgement, retry and dead-letter behaviour. F06-02 and F07-01 are written against it in Sprints 2 and 3.
+
+### Type and ownership
+
+- Type: Contract (work type "Contract")
+- Owner: Pair C (author). Reviewer: Pair D. Agreement from every dependent pair (names pending, sprint-01.md §8.4).
+- Estimate: 1.5 pair-days (stretch, mentor-authorised 9 November 2026)
+- Sprint: 1, second week (9–13 November 2026). Drafting starts immediately.
+
+### Dependencies
+
+- CON-01 (S1-08): states, transitions and verdicts. CON-02 refers to them and does not redefine them. The CON-01 PR is approved by its owner and not yet merged. Drafting may use it.
+- SPK-03 (S1-04): the SPK-03 PR is approved by its owner and not yet merged. Its SC-A to SC-D results set the named risks for this contract. Final approval waits for the merge.
+- DEC-04 (messaging with RabbitMQ and Watermill), provisional. Tested by SPK-03. This contract does not approve it.
+- DEC-12 (dispatch consistency between database write and publish). Not decided by this contract. Decided by the start of Sprint 3.
+- S1-01 (INF-03), M2: RabbitMQ reachable from the cluster and from a developer machine.
+
+### Deliverables
+
+- Contract at `docs/contracts/CON-02.md`, covering:
+  - Queue names and the routing of submission messages.
+  - Message schema: fields, required identifiers and versioning.
+  - Idempotency key: how a duplicate delivery is recognised (SPK-03 SC-C).
+  - Acknowledgement: when a message is acknowledged.
+  - Retry behaviour: which failures are retried, and how many times. Infrastructure failures are separated from compilation errors and failed tests. Failed learner solutions do not trigger automatic execution retries (MVP Proposal, Kubernetes Execution Security).
+  - Dead-letter handling: where poison messages go after the configured attempts (SPK-03 SC-D).
+  - Dependent pairs named, and the agreement of each recorded.
+  - Open questions, listed.
+- Pull request on a `docs/` branch.
+
+### Acceptance criteria
+
+1. The contract states its queue names, message schema, idempotency key, acknowledgement, retry behaviour and dead-letter handling. None is left to the implementation.
+2. Each value the contract depends on, such as an attempt count, is stated as a number or listed as an open question. None is assumed.
+3. Named risks from SPK-03 are listed. A criterion that SPK-03 did not verify is shown as a risk, not as a guarantee.
+4. The contract does not treat DEC-04 or DEC-12 as approved. Provisional decisions are marked provisional.
+5. Dependent pairs are named. Each records its agreement on the issue or the pull request before merge.
+6. Infrastructure failures and test failures are distinguished, consistent with CON-01.
+7. Pair D approves the pull request (CONTRIBUTING §9: approval from a reviewer from another pair).
+
+### Cross-pair agreement
+
+- Dependent pairs are named in the draft. The owners of F06-02 (dispatch) and F07-01 (orchestrator consumer) are not assigned in Sprint 1. The mentor names them (sprint-01.md §8.4).
+- Every dependent pair records its agreement. A disagreement is recorded as an open question, not resolved by silence.
+- Drafting may start from the approved SPK-03 and CON-01 PRs. Contract approval waits for both PRs to merge and for the architecture decisions in criterion 4 to be confirmed.
+- Dependent implementation starts only after agreement and merge ([SDD Workflow §2.4](../sdd-workflow.md#24-contract-lifecycle)).
+
+### Definition of Done
+
+Per [CONTRIBUTING §11](../../CONTRIBUTING.md#11-definition-of-done), contract:
+
+- Acceptance criteria 1–7 met.
+- Every dependent pair has recorded its agreement.
+- Pair D has approved the pull request.
+- Contract merged to `docs/contracts/CON-02.md`.
+- F06-02 and F07-01 link to it when they are written.
+- Issue labelled `done` and closed.
+- If not complete by 13 November, 15:00, the item is carried over and is not reported as done.
+
+### Documentation
+
+- [Sprint 1 Plan](sprint-01.md), §4.2 and §8.4
+- [Product Backlog](../product/product-backlog.md), §4.1 (CON-02)
+- [SDD Workflow](../sdd-workflow.md), §2.4 (contract lifecycle)
+- [Contributing Guide](../../CONTRIBUTING.md), §5.2 (contract review)
+- [MVP Proposal](../product/mvp-proposal.md), "Submissions follow an asynchronous lifecycle" and "Kubernetes Execution Security"
+```
+
+---
+
+## S1-11: [SPEC-F04] Browser code editor specification (stretch)
+
+**Form:** Feature request · **Labels:** `spec:draft`, then `spec:in-review` · **Branch:** `docs/spec-f04`
+
+```markdown
+### Objective
+
+Write the specification for F04 (browser code editor), so that F04-01 and F04-02 can be planned and started after approval. This item writes the specification only. It does not implement the editor.
+
+### Type and ownership
+
+- Type: Feature (specification)
+- Owner: Pair D (author). Reviewer: Pair A (mentor assignment, 9 November 2026).
+- Estimate: 1.5 pair-days (stretch, mentor-authorised 9 November 2026)
+- Sprint: 1, second week. Drafting starts immediately. Approval is not a Sprint 1 outcome.
+
+### Dependencies
+
+- None for SPEC-F04 (backlog §4.1).
+- DEC-13 (editor session-preservation mechanism). Recorded in the spec, not decided by this item. Stays Open until the mechanism is approved.
+- CON-04 (problem packaging and test visibility; draft in Sprint 1). The starter template is loaded from problem data (F04-01), so the spec records the CON-04 template format as an open input.
+- Gated items: F04-01 (editor integration with Go mode and starter template) and F04-02 (active-session preservation).
+
+### Deliverables
+
+- Specification at `specs/features/F04-browser-code-editor.md`, from the feature specification template.
+- Covers:
+  - Go source editing in the browser: what the learner can edit, and the scope limit to Go source.
+  - Starter templates: how a template is loaded from problem data, and what happens when it is missing or empty.
+  - Active-session preservation: what work is kept, for which session, and when it is lost. The mechanism is recorded under DEC-13.
+  - Edge cases, listed below.
+  - Acceptance criteria numbered AC-01 onward, written as Given / When / Then.
+  - Security section. The editor does not execute code. Learner-submitted code is untrusted (CONTRIBUTING §6).
+- Status In Review, with the reviewing pair recorded.
+
+### Edge cases to cover
+
+Each edge case is covered by a requirement or an open question in the spec.
+
+- Empty file, or a file that contains only whitespace.
+- Starter template missing, empty, or not in the expected format.
+- Page reload, or navigation away, with unsaved work in the active session.
+- Session expiry or sign-out while work is open.
+- Two browser tabs open on the same problem.
+- Very large source text.
+- Content that is not Go source, pasted into the editor.
+
+### Acceptance criteria
+
+1. Every template section is present. Sections that do not apply say "Not applicable" with a reason.
+2. Acceptance criteria are numbered AC-01 onward, written as Given / When / Then.
+3. Functional requirements cover Go source editing, starter templates and active-session preservation, as the MVP Proposal's F04 entry states.
+4. The session-preservation decision is recorded under DEC-13. If it is not decided, the spec says so and does not claim it.
+5. Each edge case above is covered by a requirement or an open question.
+6. Open questions are listed. None is marked resolved without a decision reference.
+7. Status In Review (`spec:in-review`), with the reviewing pair recorded. Approval is not claimed.
+
+### Definition of Done
+
+Per [CONTRIBUTING §10 and §11](../../CONTRIBUTING.md#10-definition-of-ready), feature specification:
+
+- Acceptance criteria 1–7 met.
+- Status In Review, with Pair A recorded as reviewer.
+- Approval is not claimed in Sprint 1.
+- Specification merged to `main` through a `docs/` branch.
+- No implementation code is written under this item.
+
+### Documentation
+
+- [Feature Specification Template](../../specs/templates/feature-spec-template.md)
+- [SDD Workflow](../sdd-workflow.md), §2.1, §4 (approvals) and §6 (labels)
+- [Contributing Guide](../../CONTRIBUTING.md), §5.1 (specification review)
+- [Product Backlog](../product/product-backlog.md), §4.1 (SPEC-F04), §4.4 (F04-01, F04-02) and §6.3 (DEC-13)
+- [Sprint 1 Plan](sprint-01.md), §4.2 and §8.4
+```
+
+---
+
 ## Resolved open points
 
 These were open in the previous version and are now resolved by the approved work item rules.
@@ -642,5 +798,7 @@ These were open in the previous version and are now resolved by the approved wor
 | S1-07 | [INF-04] ADR process and first records | Technical task | Pair D | 0.5 | `in-progress`, `in-review`, `done` | Technical task |
 | S1-08 | [CON-01] Submission lifecycle and verdict model | Contract | Pair D | 1.5 | `in-progress`, `in-review`, `done` | Technical task (Contract) |
 | S1-09 | [SPEC-F01] Accounts and access specification | Feature | Pair D | 1.5 | `spec:draft` → `spec:in-review` → `spec:approved` | Feature request |
+| S1-10 (stretch) | [CON-02] Messaging contract | Contract | Pair C | 1.5 | `in-progress`, `in-review`, `done` | Technical task (Contract) |
+| S1-11 (stretch) | [SPEC-F04] Browser code editor specification | Feature | Pair D | 1.5 | `spec:draft` → `spec:in-review` | Feature request |
 
-Total estimate: 24.5 pair-days, matching the Sprint 1 plan.
+Total committed estimate: 24.5 pair-days, matching the Sprint 1 plan. Stretch estimate: 3.0 pair-days (S1-10 and S1-11), recorded separately in sprint-01.md §4.2.
