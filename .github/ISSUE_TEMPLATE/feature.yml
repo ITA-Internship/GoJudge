@@ -1,7 +1,7 @@
 name: Feature request
 description: Request a GoJudge feature. Implementation starts only after the specification is approved.
 title: "[F00] "
-labels: ["spec:draft"]
+labels: ["type:feature"]
 body:
   - type: markdown
     attributes:

@@ -4,6 +4,8 @@
 
 **Stretch added (9 November 2026):** the mentor approved two stretch items for the second week of Sprint 1, CON-02 (Pair C) and SPEC-F04 (Pair D), totalling 3.0 pair-days. They are recorded in §4.2 and are not part of the committed scope.
 
+**Status synchronised (13 November 2026):** completion, pull request state and review status in §4.6, §8 and §11 were verified against merged pull requests, their GitHub reviews, GitHub issues and `main`. The SPK-01 No-go outcome stands. No specification is recorded as formally approved. The Sprint 2 baseline is [sprint-02.md](sprint-02.md).
+
 **Sources:** [Product Backlog](../product/product-backlog.md) (revision 3, §5 spikes, §9 Sprint 1, §11.3 overhead), [MVP Proposal](../product/mvp-proposal.md), [SDD Workflow](../sdd-workflow.md), [Contributing Guide](../../CONTRIBUTING.md), [Feature Specification Template](../../specs/templates/feature-spec-template.md).
 
 **Relationship to the backlog:** this plan supersedes backlog §9 for Sprint 1 only. The backlog is not modified. Where this plan differs from backlog §9, the differences are listed in §4.
@@ -129,31 +131,32 @@ Each Sprint 1 issue is one of the four work item types in [CONTRIBUTING §2](../
 | CON-02 (S1-10, stretch) | Contract | Draft contract, cross-pair review and dependent-pair agreement | `docs/contracts/CON-02.md` | `docs/` |
 | SPEC-F04 (S1-11, stretch) | Feature | Approved Feature Specification (approval is not a Sprint 1 outcome) | `specs/features/F04-browser-code-editor.md` | `docs/` for the specification |
 
-### 4.6 Status of committed and stretch work (9 November 2026)
+### 4.6 Status of committed and stretch work (verified 13 November 2026)
 
-Three states are kept separate for every item:
+Four states are kept separate for every item:
 
 - **Implementation or documentation completed:** the artefact is written and the owner pair has finished its work.
-- **Pull request state:** open, approved or merged. CONTRIBUTING §9 requires at least one approval from a reviewer from another pair before merge. Owner approval alone does not meet this rule.
-- **Formally done:** only after the merge, when the Definition of Done in CONTRIBUTING §11 is met. The issue is then labelled `done` and closed.
+- **Pull request state and reviews:** open or merged. CONTRIBUTING §9 requires at least one approval from a reviewer from another pair before merge. The repository records reviewer identities but not their pair, so "approvals recorded" is reported here, and the pair mapping is left to the mentor.
+- **Document review and approval:** for a specification, the status line and the §12 review table in the file, set by the reviewer pair only (SDD Workflow §4). A pull request approval, or a closed issue, is not a specification approval. For a contract, every dependent pair's agreement must be recorded (CONTRIBUTING §11).
+- **Formally done:** after the merge, when the Definition of Done in CONTRIBUTING §11 is met. The issue is then labelled `done` and closed.
 
-Merged state is read from `main`. Completion and PR states for SPK-03, CON-01 and SPEC-F01 are as reported by the mentor on 9 November. The repository does not show those PRs, and this plan has not verified them.
+Verification on 13 November 2026 read pull request states and reviews, issue states, and the files on `main`. The repository holds no pair membership, so pair labels are not checked against reviewer identities.
 
-| Item | Category | Pair-days | Implementation or documentation | Pull request | Formally done |
-|------|----------|-----------|---------------------------------|--------------|---------------|
-| INF-01 | Committed | 1.5 | Completed | Merged (PR #12) | Merged. Issue closure not checked here. |
-| INF-02 | Committed | 1.5 | Completed | Merged (PR #14) | Merged. Issue closure and green `main` not checked here. |
-| INF-03 | Committed | 4 | Completed | Merged (PRs #15, #16, #18) | Merged. Issue closure not checked here. M1 to M3 not re-verified here. |
-| INF-04 | Committed | 0.5 | Completed. ADR-001 and ADR-002 present, both Provisional. | Merged (PR #11) | Merged. Issue closure not checked here. |
-| SPK-02 | Committed | 2 | Completed. Report at `docs/spikes/SPK-02.md`. | Merged (PR #13) | Merged. Issue closure not checked here. |
-| SPK-03 | Committed | 4 | Completed by Pair C, as reported by the mentor. Report not on `main`. | Open. Owner approval reported. Cross-pair approval outstanding. | Not done. Awaits cross-pair approval and merge. |
-| CON-01 | Committed | 1.5 | Completed by Pair D, as reported by the mentor. Contract not on `main`. | Open. Owner approval reported. Cross-pair approval and agreement from Pairs A, B and C outstanding. | Not done. Awaits approval, agreement and merge. |
-| SPEC-F01 | Committed | 1.5 | Completed by Pair D, as reported by the mentor. Specification not on `main`. | Open. Owner approval reported. Reviews from Pairs A and C outstanding. | Not done. Awaits review, approval and merge. Spec approval (`spec:approved`) is a Sprint 2 start event. |
-| SPK-01 | Committed | 8 | Not confirmed. No report in the repository, and the mentor's confirmation does not cover it. | None | Not done. |
-| CON-02 | Stretch | 1.5 | Drafting authorised 9 November. No draft in the repository. | None | Not done. |
-| SPEC-F04 | Stretch | 1.5 | Drafting authorised 9 November. No draft in the repository. | None | Not done. |
+| Item | Category | Pair-days | Implementation or documentation | Pull request and reviews | Document review and approval | Formal status |
+|------|----------|-----------|---------------------------------|--------------------------|------------------------------|---------------|
+| INF-01 | Committed | 1.5 | Completed | Merged (PR #12) | Not applicable (technical task) | Merged. Issue #6 closed. |
+| INF-02 | Committed | 1.5 | Completed | Merged (PR #14) | Not applicable | Merged. Issue #7 closed. Green `main` not checked in this update. |
+| INF-03 | Committed | 4 | Completed | Merged (PRs #15, #16, #18) | Not applicable | Merged. Issue #2 closed. M1 to M3 not re-verified in this update. |
+| INF-04 | Committed | 0.5 | Completed. ADR-001 and ADR-002 present, both Provisional. | Merged (PR #11) | Not applicable | Merged. Issue #8 closed. |
+| SPK-01 | Committed | 8 | Completed within timebox. Report at `docs/spikes/SPK-01.md`. **Outcome: No-go** (F-03 met: egress succeeded before the per-Pod rules were installed). | Merged 13 November (PR #25). Three approvals recorded. | Spike report reviewed and approved on the PR. The spike is not a specification. | Merged. Issue #3 closed. **No-go stands.** DEC-02 is not approved, and no judge production implementation proceeds (SPK-01 §5). |
+| SPK-02 | Committed | 2 | Completed. Report at `docs/spikes/SPK-02.md`. Outcome Go. | Merged (PR #13) | Not applicable | Merged. Issue #4 closed. |
+| SPK-03 | Committed | 4 | Completed by Pair C. Report at `docs/spikes/SPK-03.md`. Outcome Go, with SC-E added after review. | Merged 13 November (PR #19). Three approvals recorded (12 and 13 November). | Spike report reviewed on the PR. | Merged. Issue #5 closed. Cross-pair review is recorded as approvals, and the reviewers' pairs are not labelled in the repository. |
+| CON-01 | Committed | 1.5 | Completed by Pair D. Contract at `docs/contracts/CON-01.md`. The two Pair B suggestions (a CANCELLED state and an OUTPUT_LIMIT_EXCEEDED verdict) appear in the file. The duplicate-submission question remains open in the file (§5.4 of sprint-02.md). | Merged 10 November (PR #17). Three approvals recorded (9 and 10 November). One Pair B review that states approval was dismissed and is not counted. | Contract. Dependent-pair agreement from Pairs A, B and C is **not recorded** as a pair-labelled agreement in the repository. | Merged. Issue #9 closed. The contract definition of done (CONTRIBUTING §11) requires dependent-pair agreement, which is **not verified**. Mentor to confirm (see §8.4, item 3). |
+| SPEC-F01 | Committed | 1.5 | Completed by Pair D. Specification at `specs/features/F01-accounts-and-access.md`. | Merged 12 November (PR #20). Four approvals recorded on the PR. | Status line: **In Review**. §12 records Pair A (10 November) and Pair C (11 November) reviewer outcomes as "Approved". The approval checklist is not ticked. Critical OQ-1 and OQ-2 are open. | **Not formally approved.** Issue #10 is closed, but the specification is not Approved. Approval is a Sprint 2 start event and needs OQ-1 and OQ-2 closed and the checklist complete. |
+| CON-02 | Stretch | 1.5 | Not started on `main`. No `docs/contracts/CON-02.md`. | No pull request. Issue #23 open. | Not applicable | Not done. Carried to Sprint 2 (sprint-02.md §4.2). |
+| SPEC-F04 | Stretch | 1.5 | Drafted. Specification at `specs/features/F04-browser-code-editor.md`. | Merged 13 November (PR #27). Four approvals recorded on the PR. | Status line: **In Review**. §12 records the Pair A reviewer as "Pending". Approval is not claimed. DEC-13 is Open. | **Not approved.** Issue #24 is closed while the specification is In Review. Approval was never a Sprint 1 outcome (§4.2). Not in Sprint 2 scope. |
 
-**Note.** Stretch drafting may start now (§4.2). Drafting is not approval. CON-02 is not approved until the SPK-03 and CON-01 PRs are merged and the decisions in §8.4 are confirmed.
+**Note.** Merged pull request approvals and closed issues are not specification approvals. The formal approval of SPEC-F01 and SPEC-F04 is not recorded in the repository, so both remain In Review, and the approval requirement is listed in §8.4 and §11. CON-02 is not approved, and it is carried to Sprint 2.
 
 ---
 
@@ -336,6 +339,8 @@ Success criteria: SC-A to SC-D from [backlog §5.3](../product/product-backlog.m
 | DEC-12 | Dispatch consistency between database write and publish | SPK-03 report | Start of Sprint 3 (30 Nov) |
 | DEC-08 | Isolation mechanism | SPK-01 and SPK-05 | Start of Sprint 4. Not a Sprint 1 decision. |
 
+**Status on 13 November 2026.** The SPK-01, SPK-02 and SPK-03 reports are merged and are inputs to DEC-01 to DEC-04. No decision in §8.1 to §8.3 is recorded as approved in the repository. DEC-01 to DEC-04 remain Provisional. The SPK-01 outcome is No-go, so the evidence does not support approving DEC-02, and DEC-08 stays open for SPK-05 and the start of Sprint 4.
+
 ### 8.3 Decisions that are not spike-dependent
 
 | ID | Decision | Needed by | Input |
@@ -352,13 +357,15 @@ Recorded for the 9 November stretch authorisation. None of these changes the com
 |---|----------|--------|-----------|-----|
 | 1 | Stretch authorised: CON-02 (Pair C) and SPEC-F04 (Pair D), 3.0 pair-days, outside the committed 24.5. Drafting may start immediately. | Resolved (mentor, 9 Nov) | — | §2.2, §4.2 |
 | 2 | Reviewers: CON-02 reviewed by Pair D, with agreement from every dependent pair. SPEC-F04 reviewed by Pair A. | Resolved for the reviewers (mentor, 9 Nov). Dependent pairs open (item 6). | — | §4.2 |
-| 3 | Cross-pair approval on the SPK-03, CON-01 and SPEC-F01 PRs. The mentor confirmed owner approval only. CONTRIBUTING §9 requires an approval from another pair before merge. | Open | Before each PR is merged | CONTRIBUTING §5.2, §9 |
-| 4 | Merge of the SPK-03 and CON-01 PRs. Needed before CON-02 is approved. Drafting is not blocked. | Open | Before CON-02 approval. No calendar deadline. | CONTRIBUTING §2.4 (SDD workflow) and §11 |
+| 3 | Cross-pair approval on the SPK-03, CON-01 and SPEC-F01 PRs. CONTRIBUTING §9 requires an approval from another pair before merge. | **Partly resolved.** All three PRs are merged with approvals recorded (13 November verification, §4.6). The repository does not label reviewers' pairs, so the pair mapping is open for the mentor to confirm. | CONTRIBUTING §5.2, §9 |
+| 4 | Merge of the SPK-03 and CON-01 PRs. Needed before CON-02 is approved. Drafting is not blocked. | **Resolved.** PR #19 (SPK-03) merged 13 November. PR #17 (CON-01) merged 10 November. CON-02 approval still waits for items 5 and 6. | CONTRIBUTING §2.4 (SDD workflow) and §11 |
 | 5 | Confirm the architecture decisions CON-02 depends on: DEC-04 (provisional, tested by SPK-03), and whether DEC-12 affects dispatch in CON-02. | Open | Before CON-02 approval | §4.2 |
 | 6 | Name the dependent pairs for CON-02. The owners of F06-02 (dispatch) and F07-01 (consumer) are not assigned in Sprint 1. Their agreement is required. | Open | Before CON-02 agreement is requested | [SDD Workflow](../sdd-workflow.md) §2.4 |
 | 7 | Stretch stays outside the Sprint Goal (§1) and the exit criteria (§11). | Resolved (mentor, 9 Nov) | — | §11 |
 | 8 | DEC-13 (editor session preservation) stays Open until the mechanism is approved. | Open | Sprint 3 (backlog §6.3) | §4.2 |
-| 9 | Whether CON-02 and SPEC-F04 are removed from the Sprint 2 and Sprint 3 rows of backlog §10. | Open | Sprint 2 planning | Avoids counting the items twice |
+| 9 | Whether CON-02 and SPEC-F04 are removed from the Sprint 2 and Sprint 3 rows of backlog §10. | **Partly resolved** at Sprint 2 planning. CON-02 is carried into Sprint 2 (sprint-02.md §4.2). SPEC-F04 is not in the Sprint 2 scope, and the backlog Sprint 3 row is unchanged. | Sprint 2 planning | Avoids counting the items twice |
+| 10 | Formal approval of SPEC-F01 (`spec:approved`). Not claimed. | **Open.** Requires OQ-1 and OQ-2 closed (critical, open in the specification), the approval checklist complete, and reviewer-pair approval recorded in the specification. Sprint 2 start event. | Sprint 2 day 1 to 8 | F01-01 gate; SDD Workflow §4 |
+| 11 | Formal approval of SPEC-F04 (`spec:approved`). Not claimed. | **Open.** The Pair A reviewer outcome is "Pending" and DEC-13 is Open. Not in the Sprint 2 scope. | Sprint 3 (backlog §10) | F04-01 gate; SDD Workflow §4 |
 
 ---
 
@@ -413,6 +420,15 @@ Labels: only the six agreed workflow labels are used. No new labels are introduc
 - CON-01 agreed by Pairs A, B and C, with agreement on the issue.
 - SPEC-F01 in review, with reviews from Pairs A and C.
 - ADR-001 and ADR-002 recorded as Provisional in `docs/architecture/adr/`.
+
+**Status of exit criteria, verified 13 November 2026:**
+
+- SPK-01, SPK-02 and SPK-03 reports merged: **met**. SPK-01 outcome is **No-go**.
+- INF-02 green on `main`: **not verified** in this update.
+- INF-03 M1, M2 and M3: **not re-verified** in this update. The merged PRs are recorded in §4.6.
+- CON-01 agreed by Pairs A, B and C, with agreement on the issue: **not verified**. The contract is merged, with approvals recorded on PR #17. Dependent-pair agreement is not recorded as pair-labelled agreement (§4.6, §8.4 item 3).
+- SPEC-F01 in review, with reviews from Pairs A and C: **reviews recorded** in the specification's §12 (10 and 11 November). Formal approval is **not set** because OQ-1 and OQ-2 are critical and open.
+- ADR-001 and ADR-002 Provisional: **met**, as the files show.
 
 **Demos:**
 

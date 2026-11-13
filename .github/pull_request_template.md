@@ -1,7 +1,7 @@
 <!--
 Before opening this pull request:
 - Tick one work item type below, and complete the section for that type. Delete the others.
-- The GitHub Issue is labelled `in-progress` while work continues, and `in-review` once this pull request is open.
+- The GitHub Issue stays open until the Definition of Done for its scope is met. Its label is its work item type (`type:*`), not its status.
 - Reference one issue per pull request. Keep the change focused and reasonably small.
 - At least one reviewer from a different pair must approve. Additional reviewers are optional.
 - The weekly Friday demo is not a prerequisite for merging.
