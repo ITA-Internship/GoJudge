@@ -63,7 +63,7 @@
 | FR-05 | Pasted content shall be inserted as plain text only. Formatting is dropped. Files or images dropped onto the editor shall not be inserted. |
 | FR-06 | The editor shall not reject, change or flag text only because it is not valid Go. Compilation problems are reported through the judge path, not by the editor. |
 | FR-07 | The editor shall not accept the NUL character (U+0000). A paste containing it shall be rejected as a whole, with a message, and the existing content left unchanged. |
-| FR-08 | The editor shall enforce a max source size. Input that would take the content over it, by typing or by paste, shall be rejected as a whole. The existing content shall stay unchanged and the learner shall be told the limit. The editor shall never truncate content silently. |
+| FR-08 | The editor shall enforce a max source size in bytes. Input that would take the content over it, by typing or by paste, shall be rejected as a whole. The existing content shall stay unchanged and the learner shall be told the limit. The editor shall never truncate content silently. |
 | FR-09 | For content up to the max source size, the editor shall keep accepting input and shall not freeze. A measurable responsiveness target shall be set together with max source size (OQ-09). |
 | FR-10 | When a learner opens a problem and has no preserved work for it in the active session, the editor shall load its initial content from the starter template in the problem data. |
 | FR-11 | The editor shall not contain template text of its own. The template comes only from problem data. The data format is an input from CON-04 (OQ-06). |
@@ -74,7 +74,7 @@
 | FR-16 | Preserved work shall take precedence over the starter template, including preserved blank content. "No preserved work" and "preserved empty content" are different states. Later changes to a problem's template shall not alter preserved work. |
 | FR-17 | Preserved work shall be tied to the signed-in user and the problem. It shall never be shown to a different user or on a different problem. |
 | FR-18 | When the learner signs out, their preserved work shall be removed, because the active session has ended. It shall not reappear at the next sign-in (OQ-02). |
-| FR-19 | If the session expires while work is open, the content on screen shall not be cleared. The learner shall be told that the session expired and that they must sign in again. The editor shall not claim the work is saved if it is not. Whether the work is recoverable after signing in again is OQ-04. |
+| FR-19 | If the session expires while work is open (detected via an event from the F01 session context or a 401 Unauthorized API response), the content on screen shall not be cleared. The learner shall be told that the session expired and that they must sign in again. The editor shall not claim the work is saved if it is not. Whether the work is recoverable after signing in again is OQ-04. |
 | FR-20 | If preservation fails (for example, storage is unavailable or full), editing shall continue. The learner shall be told, at the time of failure, that their work is not being preserved. |
 | FR-21 | Preserved data shall contain only the source text and the minimum metadata needed to restore it (user, problem, last-modified time). It shall contain no credentials, tokens, test data or other secrets. |
 | FR-22 | When two browser tabs are open on the same problem, behaviour shall be deterministic and documented, and no tab's work shall be discarded without notice to the learner. The exact policy is OQ-03. |
@@ -279,14 +279,19 @@ Although the physical storage mechanism is deferred to DEC-13 (OQ-01), the conce
 
 ### 7.4 State Transitions *(if applicable)*
 
-The editor UI strictly transitions through the following states regarding content loading and preservation:
+The editor UI strictly transitions through the following primary states regarding content loading and preservation:
 
 *   **INITIALISING:** The editor is evaluating the presence of preserved work and fetching problem data.
     *   -> **PRESERVED_WORK_LOADED:** If valid preserved work exists for the user and problem (FR-16).
     *   -> **TEMPLATE_LOADED:** If no preserved work exists and a valid starter template is available (FR-10).
     *   -> **NO_TEMPLATE_WARNING:** If no preserved work exists and the template is missing, oversized, or unusable (FR-12). Opens empty.
     *   -> **ERROR_STATE:** If problem data retrieval fails and no preserved work exists (FR-13). Requires manual retry.
-*   **BLANK_STATE:** A specific sub-state reported to F05 and F06 when the content evaluates to blank according to the definition in OQ-11 (FR-04).
+    *   -> **RETRY_IN_PROGRESS:** When the user manually triggers a retry from the ERROR_STATE (FR-13).
+*   **SESSION_EXPIRED:** Triggered when the F01 session context emits an expiry event or a 401 API response is received. The editor stops saving but keeps content visible (FR-19).
+*   **PRESERVATION_FAILED:** Triggered when the storage mechanism (DEC-13) becomes unavailable or full (FR-20). Editing continues with a warning.
+
+**Orthogonal Flags:**
+*   `is_blank`: A separate boolean flag, independent of the primary state, reported to F05 and F06 when the current content evaluates to blank according to the definition in OQ-11 (FR-04).
 
 ## 8. Edge Cases and Failure Handling *(Conditional)*
 
