@@ -17,8 +17,10 @@ runs the evaluation and writes the state and verdict to PostgreSQL. There is no 
 ## 2. Queues
 * **`submissions.dispatch`**: durable queue with new submissions
 * **`submissions.dead`**: dead-letter queue, reached through the exchange `submissions.dlx`
-* Queues and the dead-letter exchange are declared by code at start up.
-Without them the broker silently drops messages (SPK-03 §5 items 5 and 12)
+* Both API (F06-02) and Orchestrator (F07-01) declare `submissions.dispatch`, `submissions.dlx`,
+`submissions.dead` and their binding at start up, whichever starts first. Declaring them twice is safe
+* The publisher enables `ConfirmDelivery`, so a lost message is reported, not dropped silently.
+Without these the broker silently drops messages (SPK-03 §5 items 5 and 12)
 
 ## 3. Message
 The message carries IDs only. Source code and tests are loaded from PostgreSQL, never sent through the broker
@@ -27,10 +29,12 @@ The message carries IDs only. Source code and tests are loaded from PostgreSQL, 
 {
   "submission_id": "uuid",
   "problem_id": "uuid",
-  "user_id": "string",
+  "user_id": "uuid",
   "submitted_at": "2026-11-17T10:10:10Z"
 }
 ```
+
+`user_id` is `users.id` from F01, not the Auth0 `auth_subject`.
 
 Metadata: `idempotency_key = submission_id`
 
