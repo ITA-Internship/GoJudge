@@ -8,8 +8,8 @@
 |-------|-------|
 | Feature ID | F08 |
 | Title | Submission History |
-| Status | Draft |
-| Responsible pair | Pair A (yanferens, xhanjo) |
+| Status | In Review |
+| Responsible pair | Pair A (yanferens, xhanjo) | 2026-11-19 | Submitted |
 | Reviewer pair | Pair C (provisional, to be confirmed by the mentor) |
 | GitHub Issue | [#30](https://github.com/ITA-Internship/GoJudge/issues/30) |
 | Last updated | 2026-11-19 |
