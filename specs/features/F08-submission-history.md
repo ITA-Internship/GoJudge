@@ -9,7 +9,7 @@
 | Feature ID | F08 |
 | Title | Submission History |
 | Status | In Review |
-| Responsible pair | Pair A (yanferens, xhanjo) | 2026-11-19 | Submitted |
+| Responsible pair | Pair A (yanferens, xhanjo) |
 | Reviewer pair | Pair C (provisional, to be confirmed by the mentor) |
 | GitHub Issue | [#30](https://github.com/ITA-Internship/GoJudge/issues/30) |
 | Last updated | 2026-11-19 |
@@ -437,7 +437,7 @@ The full journey (submit, then see the submission in the history) is covered by 
 
 | Role | Name or pair | Date | Outcome |
 |------|--------------|------|---------|
-| Author | Pair A | *YYYY-MM-DD* | *Submitted* |
+| Author | Pair A | 2026-11-19 | Submitted |
 | Reviewer | Pair C | *YYYY-MM-DD* | *Approved / Changes requested* |
 
 **Approval checklist:**
