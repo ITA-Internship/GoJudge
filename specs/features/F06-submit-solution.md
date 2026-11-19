@@ -12,7 +12,7 @@
 | Responsible pair | Pair A                                                           |
 | Reviewer pair    | Pair B, Pair D                                                   |
 | GitHub Issue     | [issue #29](https://github.com/ITA-Internship/GoJudge/issues/29) |
-| Last updated     | 2026-11-18                                                       |
+| Last updated     | 2026-11-19                                                       |
 
 ---
 
@@ -63,7 +63,7 @@ Each requirement must be numbered and observable, so that a tester can confirm i
 | FR-05 | Upon valid input, the system shall persist a submission record in the `QUEUED` state with `verdict` set to `null`, using the exact state and verdict names from `CON-01`.                                                                                                               |
 | FR-06 | The system shall dispatch an asynchronous evaluation message for each created submission according to `CON-02` and the dispatch consistency mechanism chosen under `DEC-12` (OQ-03).                                                                                                    |
 | FR-07 | The submission creation endpoint shall return immediately after intake without waiting for judge execution, returning HTTP `202 Accepted` with the `id`, `problem_id`, initial state `QUEUED`, `verdict: null`, `created_at`, and `updated_at` timestamps.                              |
-| FR-08 | The system shall expose an authenticated endpoint to retrieve the current state and verdict (when terminal) of a single submission by `id` (`F06-03`).                                                                                                                                  |
+| FR-08 | The system shall expose an authenticated endpoint to retrieve the current state and verdict of a single submission by `id` (`F06-03`), returning a `CON-01` verdict when `COMPLETED` or `FAILED`, and `verdict: null` when `QUEUED`, `RUNNING`, or `CANCELLED`. |
 | FR-09 | The system shall restrict submission state retrieval to the owning user (`submission.user_id == caller.user_id`) and shall respond `404 Not Found` when a submission is owned by another user.                                                                                          |
 | FR-10 | Handling of a new submission while the same user already has an active (`QUEUED` or `RUNNING`) submission for the same problem shall follow the `CON-01` duplicate-submission policy (currently open; recorded as OQ-01).                                                               |
 | FR-11 | In the web editor (`F06-04`), triggering Submit shall send the current editor `source_code`, prevent duplicate accidental clicks while the creation request is in flight, and poll the state endpoint until a terminal state (`COMPLETED`, `FAILED`, or `CANCELLED`) is reached.        |
@@ -84,7 +84,7 @@ Write each criterion as Given / When / Then. Number them AC-01, AC-02, and so on
 
 - **Given** an authenticated learner owns a submission in state `QUEUED`, `RUNNING`, `COMPLETED`, `FAILED`, or `CANCELLED`
 - **When** the learner requests the status of that submission by `id`
-- **Then** the system responds `200 OK` with the current `CON-01` state, `verdict: null` when `QUEUED` or `RUNNING`, or the `CON-01` verdict when `COMPLETED` or `FAILED`, and returns no hidden test details.
+- **Then** the system responds `200 OK` with the current `CON-01` state, the `CON-01` test or system verdict when `COMPLETED` or `FAILED` respectively, or `verdict: null` when `QUEUED`, `RUNNING`, or `CANCELLED`, and returns no hidden test details.
 
 ### AC-03 – Unauthenticated request rejected
 
@@ -218,16 +218,16 @@ Conceptual `Submission` fields used by `F06` (final table types and constraints 
 - `problem_id` (UUID, FK): Target published problem identifier.
 - `source_code` (text): Untrusted Go source text submitted by the learner (size-bounded per OQ-04).
 - `state` (text): Lifecycle state from `CON-01` (`QUEUED`, `RUNNING`, `COMPLETED`, `FAILED`, `CANCELLED`).
-- `verdict` (text, nullable): Verdict from `CON-01`; must be `null` while `state` is `QUEUED` or `RUNNING`.
+- `verdict` (text, nullable): Verdict from `CON-01`; must be `null` when `state` is `QUEUED`, `RUNNING`, or `CANCELLED`, and populated only when `state` is `COMPLETED` or `FAILED`.
 - `created_at` / `updated_at` (timestamptz): Creation and last state-update timestamps.
 
 ### 7.3 Messaging Contracts *(if applicable)*
 
 `F06` (`F06-02`) acts exclusively as a publisher under `CON-02` (`#23`, PR `#38`):
 
-- **Publish flow & target:** Publishes one message per submission to the durable queue `submissions.dispatch`, with no reply message (`CON-02 §1–§2`).
-- **Payload & metadata (IDs only):** Sends `{ "submission_id", "problem_id", "user_id", "submitted_at" }` (where `submission_id` maps to `Submission.id` and `submitted_at` maps to `created_at`) with metadata `idempotency_key = submission_id`; `source_code` and tests remain in PostgreSQL and are never sent through the broker (`CON-02 §3`).
-- **Publisher reliability:** Requires startup topology declaration (`submissions.dispatch`, `submissions.dlx`, `submissions.dead`) and `ConfirmDelivery` so messages are not silently dropped (`CON-02 §2, §9`), with DB-to-broker dispatch consistency governed by `DEC-12` (`CON-02 §8`, OQ-03).
+- **Publish flow & target:** Publishes one message per submission to the default exchange with routing key `submissions.dispatch`, with no reply message (`CON-02 §1–§2`).
+- **Payload & metadata (IDs only):** Sends `{ "schema_version": 1, "submission_id", "problem_id", "user_id", "submitted_at" }` (where `submission_id` maps to `Submission.id`, `user_id` is `F01` `users.id` UUID, and `submitted_at` maps to `created_at`) with metadata `idempotency_key = submission_id`; `source_code` and tests remain in PostgreSQL and are never sent through the broker (`CON-02 §3`).
+- **Publisher reliability:** Declares `submissions.dispatch` (with `x-dead-letter-exchange = submissions.dlx`), `submissions.dlx` (fanout exchange), `submissions.dead`, and their binding at startup before the first publish, and enables `ConfirmDelivery` (noting `ConfirmDelivery` confirms broker acceptance only, not queue presence; `CON-02 §2, §9`). DB-to-broker dispatch consistency is governed by `DEC-12` (`CON-02 §8`, OQ-03).
 
 Consumer-side (`F07-01`) idempotency, acknowledgement after PostgreSQL writes, infrastructure retry rules, and dead-letter routing are defined in `CON-02 §4–§7` (with `SPK-03` risks in `CON-02 §9`) and remain subject to `DEC-04` and `DEC-12` approval (OQ-02, OQ-03).
 
@@ -238,6 +238,7 @@ All states and verdicts match [CON-01](../../docs/contracts/CON-01.md) verbatim:
 - **Lifecycle states:** `QUEUED`, `RUNNING`, `COMPLETED`, `FAILED`, `CANCELLED`.
 - **Test verdicts (only when `state == COMPLETED`):** `ACCEPTED`, `WRONG_ANSWER`, `COMPILATION_ERROR`, `RUNTIME_ERROR`, `TIME_LIMIT_EXCEEDED`, `MEMORY_LIMIT_EXCEEDED`, `OUTPUT_LIMIT_EXCEEDED`.
 - **System verdict (only when `state == FAILED`):** `INTERNAL_ERROR`.
+- **Cancelled state (`state == CANCELLED`):** Terminal state with no verdict (`verdict` is always `null`).
 - **F06 boundaries & invariants:**
   - `F06` only creates submissions in `QUEUED` with `verdict: null`.
   - Subsequent transitions (`QUEUED -> RUNNING -> COMPLETED | FAILED`, `QUEUED | RUNNING -> CANCELLED`, and infrastructure retry `RUNNING -> QUEUED`) are driven outside `F06` by the orchestrator (`F07`) and follow `CON-01`'s "first terminal write wins" rule.
@@ -263,7 +264,7 @@ All states and verdicts match [CON-01](../../docs/contracts/CON-01.md) verbatim:
 | **Duplicate active submission (`QUEUED` or `RUNNING`) for same user and problem** | Behaviour follows the `CON-01` duplicate-submission policy (default: return `409 Conflict` / `submission_in_progress`; tracked as OQ-01 until Pair D confirms).                                              |
 | **Rapid double-click on Submit in UI (`F06-04`)**                                 | The editor disables Submit while the `POST` request is in flight (`FR-11`, `AC-08`) to avoid accidental duplicate submissions.                                                                               |
 | **PostgreSQL unavailable during submission creation**                             | Returns `503 Service Unavailable` (`service_unavailable`). No partial submission is created and no message is published to RabbitMQ.                                                                         |
-| **Message broker unavailable after DB write (or publish timeout)**                | Handled according to `DEC-12` (`CON-02 §8`, OQ-03): e.g., transactional outbox (`SPK-03` SC-E) persists the outbox event in the same DB transaction for asynchronous relay; publisher uses `ConfirmDelivery` and requires declared topology (`submissions.dispatch`) per `CON-02 §2, §9` so messages are not dropped. |
+| **Message broker unavailable after DB write (or publish timeout)**                | Handled according to `DEC-12` (`CON-02 §8`, OQ-03): e.g., transactional outbox (`SPK-03` SC-E) persists the outbox event in the same DB transaction for asynchronous relay; publisher declares topology at startup and enables `ConfirmDelivery` per `CON-02 §2, §9` (which confirms broker acceptance only). |
 | **Broker redelivery / duplicate queue delivery (`F06-02` / `F07`)**               | Governed by `CON-02 §3–§4` (at-least-once delivery, `idempotency_key = submission_id`, skipping terminal states) and `CON-01` ("first terminal write wins") so duplicate deliveries do not corrupt final state or verdict.                                                                                |
 | **State polling timeout or transient network error (`F06-04`)**                   | Client stops/backs off polling per bounded retry rules and surfaces a recoverable error without clearing editor content.                                                                                     |
 
@@ -284,7 +285,7 @@ All states and verdicts match [CON-01](../../docs/contracts/CON-01.md) verbatim:
 | AC    | Verification type  | Test or scenario                                                                                                                                                                                                        | Automated? |
 |-------|--------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
 | AC-01 | Integration        | Authenticated learner submits valid Go code for a published problem; assert `202 Accepted`, DB row in `QUEUED` with `verdict: null`, and message queued per `CON-02`.                                                   | Yes        |
-| AC-02 | Integration        | Owner queries `GET /api/v1/submissions/{submissionId}` across `CON-01` states (`QUEUED`, `RUNNING`, `COMPLETED`, `FAILED`, `CANCELLED`); assert `200 OK`, matching state/verdict invariant, and no hidden test leakage. | Yes        |
+| AC-02 | Integration        | Owner queries `GET /api/v1/submissions/{submissionId}` across `CON-01` states (`QUEUED`, `RUNNING`, `COMPLETED`, `FAILED`, `CANCELLED`); assert `200 OK`, matching state/verdict invariant (`verdict: null` for `QUEUED`, `RUNNING`, `CANCELLED`), and no hidden test leakage. | Yes        |
 | AC-03 | Integration        | Send `POST` and `GET` requests without a token or with an invalid token; assert `401 Unauthorized` and zero DB/queue side effects.                                                                                      | Yes        |
 | AC-04 | Unit / Integration | Submit empty, whitespace-only, NUL-containing (`U+0000`), and oversized `source_code`; assert `400`/`413` rejection and zero DB/queue side effects.                                                                     | Yes        |
 | AC-05 | Integration        | Submit to a non-existent UUID and to an unpublished (`draft`) problem; assert `404 Not Found` and zero DB/queue side effects.                                                                                           | Yes        |
@@ -309,7 +310,7 @@ All states and verdicts match [CON-01](../../docs/contracts/CON-01.md) verbatim:
 | #     | Question                                                                                                                                                                                                   | Owner                         | Status |
 |-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|--------|
 | OQ-01 | **Duplicate active submissions (`CON-01`):** Should submitting while an earlier submission is `QUEUED` or `RUNNING` return `409 Conflict` (CON-01 default) or be queued?                                   | Pair D                        | Open   |
-| OQ-02 | **CON-02 finalisation and publisher details (`#23`):** Final agreement and approval of `CON-02` (`DEC-04` / `MA-26`), confirmation of full topology declaration (`submissions.dispatch`, `submissions.dlx`, `submissions.dead`) by the publisher at startup (`CON-02 §2, §9`), and alignment of `user_id` type (`UUID` in `F01`/`F06` vs `string` in `CON-02 §3`). | Pair B / Pair A / Mentor      | Open   |
+| OQ-02 | **CON-02 finalisation (`#23`):** Final agreement from dependent pairs and formal approval of `CON-02` (`DEC-04` / `MA-26`). | Pair B / Mentor               | Open   |
 | OQ-03 | **Dispatch consistency (`DEC-12`):** Confirm whether `F06-02` uses a transactional outbox (`SPK-03` SC-E) or another mechanism to keep PostgreSQL writes and RabbitMQ publishes consistent.                | Engineering / Mentor          | Open   |
 | OQ-04 | **Max `source_code` byte size (`FR-04`):** Confirm the exact maximum byte limit (aligned with `F04` OQ-09) and HTTP status (`413` vs `400`).                                                               | Pair A / Pair D               | Open   |
 
@@ -325,7 +326,7 @@ All states and verdicts match [CON-01](../../docs/contracts/CON-01.md) verbatim:
 
 | Role     | Name or pair   | Date         | Outcome   |
 |----------|----------------|--------------|-----------|
-| Author   | Pair A         | 2026-11-18   | Submitted |
+| Author   | Pair A         | 2026-11-19   | Submitted |
 | Reviewer | Pair B, Pair D | *YYYY-MM-DD* | *Pending* |
 
 **Approval checklist:**
