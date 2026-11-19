@@ -15,18 +15,23 @@ runs the evaluation and writes the state and verdict to PostgreSQL. There is no 
 `API (F06-02) -> submissions.dispatch -> Orchestrator (F07-01) -> PostgreSQL`
 
 ## 2. Queues
-* **`submissions.dispatch`**: durable queue with new submissions
-* **`submissions.dead`**: dead-letter queue, reached through the exchange `submissions.dlx`
-* Both API (F06-02) and Orchestrator (F07-01) declare `submissions.dispatch`, `submissions.dlx`,
-`submissions.dead` and their binding at start up, whichever starts first. Declaring them twice is safe
-* The publisher enables `ConfirmDelivery`, so a lost message is reported, not dropped silently.
-Without these the broker silently drops messages (SPK-03 §5 items 5 and 12)
+* **`submissions.dispatch`**: durable queue with new submissions.
+The API publishes to the default exchange with routing key `submissions.dispatch`
+* **`submissions.dlx`**: `fanout` exchange, bound to `submissions.dead`.
+`submissions.dispatch` has the argument `x-dead-letter-exchange = submissions.dlx`
+* **`submissions.dead`**: durable dead-letter queue
+* Both API (F06-02) and Orchestrator (F07-01) declare all of these at start up,
+before the first publish or consume. Declaring them twice is safe
+* `ConfirmDelivery` only confirms that the broker accepted the message. It does not detect
+a message with no queue to go to: the broker drops it.
+If the queue is still missing, the message is lost (SPK-03 §5 items 5 and 12)
 
 ## 3. Message
 The message carries IDs only. Source code and tests are loaded from PostgreSQL, never sent through the broker
 
 ```json
 {
+  "schema_version": 1,
   "submission_id": "uuid",
   "problem_id": "uuid",
   "user_id": "uuid",
@@ -36,25 +41,34 @@ The message carries IDs only. Source code and tests are loaded from PostgreSQL, 
 
 `user_id` is `users.id` from F01, not the Auth0 `auth_subject`.
 
+`schema_version` is 1. Adding an optional field keeps for versioning. Removing, renaming or changing
+a field raises it, and the dependent pairs agree again. A message with an unknown version goes to `submissions.dead`
+
 Metadata: `idempotency_key = submission_id`
 
 ## 4. Idempotency
 * Delivery is at least once, so the same submission can arrive twice (SPK-03 SC-C, SC-E)
 * Idempotency key is **`submission_id`**, not the message UUID: a producer retry creates a new UUID (SPK-03 SC-C)
-* Orchestrator processes a submission only if it has no final state yet (`QUEUED` or `RUNNING`).
-If it is already `COMPLETED`, `FAILED` or `CANCELLED`, the message is skipped and acknowledged
+* Orchestrator takes a submission with one atomic statement that also counts the attempt (CON-05, #40):
+`UPDATE submissions SET state = 'RUNNING', attempt = attempt + 1 WHERE id = $1 AND state IN ('QUEUED', 'RUNNING') RETURNING attempt`
+* 0 rows means the submission is already `COMPLETED`, `FAILED` or `CANCELLED`: the message is skipped and acknowledged
+* `RUNNING` is included so a message redelivered after a crash can be taken again
+* The attempt count is kept in PostgreSQL, so a crash does not reset it (§9 item 1)
+If `attempt` is above 3, the submission becomes `FAILED` / `INTERNAL_ERROR` (§6)
 
 ## 5. Acknowledgement
 Orchestrator acknowledges a message only after the result is written to PostgreSQL.
 If it crashes before that, broker redelivers the message (SPK-03 SC-B)
 
 ## 6. Retry
-* **Test failures** (`WRONG_ANSWER`, `COMPILATION_ERROR`, CON-01 §3): written as `COMPLETED`, acknowledged, never retried
-* **Infrastructure failures** (DB, Kubernetes, ...): retried 3 times with waits of 1s, 2s and 4s
-(Watermill `Retry`: initial interval 1s, multiplier 2, max interval 4s)
+* **Test failures** (all CON-01 §3 verdicts: `WRONG_ANSWER`, `COMPILATION_ERROR`, `RUNTIME_ERROR`, `TIME_LIMIT_EXCEEDED`,
+`MEMORY_LIMIT_EXCEEDED`, `OUTPUT_LIMIT_EXCEEDED`): written as `COMPLETED`, acknowledged, never retried
+A container `OOMKilled` is `MEMORY_LIMIT_EXCEEDED` (test failure). A node memory eviction is an infrastructure failure (CON-01 §3)
+* **Infrastructure failures** (DB, Kubernetes, ...): at most 3 attempts in total (CON-01): the first try and 2 retries,
+waiting 1s and 2s (Watermill `Retry`: MaxRetries 2, initial interval 1s, multiplier 2). No second retry level
 After that the submission becomes `FAILED` / `INTERNAL_ERROR`
 
-Why: about 7s covers short failures (a dropped DB connection, a Kubernetes API restart),
+Why: 3 attempts is the CON-01 limit. About 3s covers short failures (a dropped DB connection, a Kubernetes API restart),
 and longer waits would block the queue for other submissions. Longer outages go to the dead-letter queue (§7)
 
 ## 7. Dead-Letter
@@ -86,3 +100,5 @@ These were not verified by SPK-03. They are risks, not guarantees.
 (Owner: F07-01)
 * **Cancellation:** how does `CANCELLED` reach a running evaluation?
 (Owner: F07-01)
+* **CON-01 update:** CON-01 does not describe taking a `RUNNING` submission again after a crash (§4)
+(Owner: Pair D, CON-01)
