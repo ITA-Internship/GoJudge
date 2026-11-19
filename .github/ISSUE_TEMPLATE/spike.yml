@@ -1,6 +1,7 @@
 name: Technical spike
 description: Time-boxed investigation that answers one question. Needs a Spike Brief, not a Feature Specification.
 title: "[SPIKE] "
+labels: ["type:spike"]
 body:
   - type: markdown
     attributes:
