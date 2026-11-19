@@ -35,8 +35,9 @@
   - **`updated_at` policy:** Updated explicitly by the application on `UPDATE` queries (no DB triggers).
   - **Exception (`results`):** `results` is immutable (*first terminal write wins*) and has `created_at` only (no `updated_at`).
 - **Enums:** `TEXT NOT NULL` with explicit `CHECK (...)` constraints instead of native PostgreSQL `ENUM` types.
+  - **Exception (`submissions.verdict`):** nullable `TEXT`, because `CON-01` requires the verdict to be `null` while the state is `QUEUED` or `RUNNING`. Allowed values are checked together with `state` by `submissions_state_verdict_chk` (section 3.3).
 - **Unresolved Constraints:** Any field type, length, or `ON DELETE` policy dependent on unfinalized specs is explicitly recorded in Section 4 (`Open Questions`).
-- **Open Question IDs:** `C05-OQ-1`..`C05-OQ-19` are reserved for `users`/`roles`/shared conventions; `C05-OQ-20`+ are reserved for `submissions`/`results`.
+- **Open Question IDs:** two-digit format. `C05-OQ-01`..`C05-OQ-19` are reserved for `users`/`roles`/shared conventions; `C05-OQ-20`+ are reserved for `submissions`/`results`.
 
 ---
 
