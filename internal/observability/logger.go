@@ -1,8 +1,7 @@
 // Package observability provides structured logging and request correlation
 // for HTTP handlers.
 //
-// It depends only on the standard library. The middleware are plain
-// http.Handler wrappers, so they work with any router.
+// The middleware are plain http.Handler wrappers, so they work with any router.
 package observability
 
 import (

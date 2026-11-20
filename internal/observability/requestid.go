@@ -5,6 +5,8 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"net/http"
+
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 // RequestIDHeader is the header used to receive and return the request ID.
@@ -15,8 +17,6 @@ const (
 	generatedIDLen  = 16 // random bytes; 32 hex characters
 )
 
-type ctxKey struct{}
-
 // randRead is replaced in tests to simulate an entropy failure.
 var randRead = rand.Read
 
@@ -25,11 +25,14 @@ var randRead = rand.Read
 // A valid inbound X-Request-ID (1-64 characters from [A-Za-z0-9_-]) is kept
 // unchanged. A missing, empty, over-long or invalid one is replaced by a new
 // 32-character lowercase hex ID from crypto/rand. The ID is set on the
-// response header and stored in the request context.
+// response header and stored in the request context via chi's RequestID
+// middleware.
 //
 // If random bytes cannot be read, the request fails with a bare 500 and no
 // body, so no internal detail reaches the client.
 func RequestID(next http.Handler) http.Handler {
+	chiReqID := middleware.RequestID(next)
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := r.Header.Get(RequestIDHeader)
 		if !validRequestID(id) {
@@ -42,16 +45,17 @@ func RequestID(next http.Handler) http.Handler {
 		}
 
 		w.Header().Set(RequestIDHeader, id)
-		ctx := context.WithValue(r.Context(), ctxKey{}, id)
-		next.ServeHTTP(w, r.WithContext(ctx))
+
+		r2 := r.Clone(r.Context())
+		r2.Header.Set(middleware.RequestIDHeader, id)
+		chiReqID.ServeHTTP(w, r2)
 	})
 }
 
 // RequestIDFromContext returns the request ID stored by RequestID, or ""
 // when the context carries none.
 func RequestIDFromContext(ctx context.Context) string {
-	id, _ := ctx.Value(ctxKey{}).(string)
-	return id
+	return middleware.GetReqID(ctx)
 }
 
 func validRequestID(id string) bool {

@@ -276,3 +276,89 @@ func TestMiddleware_BodyPassthroughAndBare500(t *testing.T) {
 		}
 	})
 }
+
+func TestAccessLog_PanickingHandler(t *testing.T) {
+	t.Run("panic_before_write_logs_500", func(t *testing.T) {
+		var buf bytes.Buffer
+		logger := NewLogger(&buf, slog.LevelInfo)
+
+		handler := RequestID(AccessLog(logger)(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+			panic("boom")
+		})))
+
+		req := httptest.NewRequest(http.MethodGet, "/panic?token=SENTINEL-1", nil)
+		req.Header.Set(RequestIDHeader, "panic-req-1")
+		rec := httptest.NewRecorder()
+
+		var recovered any
+		func() {
+			defer func() {
+				recovered = recover()
+			}()
+			handler.ServeHTTP(rec, req)
+		}()
+
+		if recovered != "boom" {
+			t.Fatalf("panic = %v, want %q", recovered, "boom")
+		}
+		if rec.Body.Len() != 0 {
+			t.Errorf("expected empty body on panic, got %q", rec.Body.String())
+		}
+		if strings.Contains(buf.String(), "SENTINEL-1") {
+			t.Fatalf("access log leaked query parameter: %s", buf.String())
+		}
+
+		var entry map[string]any
+		if err := json.Unmarshal(bytes.TrimSpace(buf.Bytes()), &entry); err != nil {
+			t.Fatalf("unmarshal access log: %v", err)
+		}
+		if entry["method"] != http.MethodGet {
+			t.Errorf("method = %v, want %q", entry["method"], http.MethodGet)
+		}
+		if entry["path"] != "/panic" {
+			t.Errorf("path = %v, want %q", entry["path"], "/panic")
+		}
+		if entry["status"] != float64(http.StatusInternalServerError) {
+			t.Errorf("status = %v, want %d", entry["status"], http.StatusInternalServerError)
+		}
+		if entry["request_id"] != "panic-req-1" {
+			t.Errorf("request_id = %v, want %q", entry["request_id"], "panic-req-1")
+		}
+		if _, ok := entry["duration_ms"]; !ok {
+			t.Errorf("missing duration_ms in log: %v", entry)
+		}
+	})
+
+	t.Run("panic_after_write_keeps_written_status", func(t *testing.T) {
+		var buf bytes.Buffer
+		logger := NewLogger(&buf, slog.LevelInfo)
+
+		handler := RequestID(AccessLog(logger)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusAccepted)
+			panic("late-boom")
+		})))
+
+		req := httptest.NewRequest(http.MethodPost, "/partial", nil)
+		rec := httptest.NewRecorder()
+
+		var recovered any
+		func() {
+			defer func() {
+				recovered = recover()
+			}()
+			handler.ServeHTTP(rec, req)
+		}()
+
+		if recovered != "late-boom" {
+			t.Fatalf("panic = %v, want %q", recovered, "late-boom")
+		}
+
+		var entry map[string]any
+		if err := json.Unmarshal(bytes.TrimSpace(buf.Bytes()), &entry); err != nil {
+			t.Fatalf("unmarshal access log: %v", err)
+		}
+		if entry["status"] != float64(http.StatusAccepted) {
+			t.Errorf("status = %v, want %d", entry["status"], http.StatusAccepted)
+		}
+	})
+}
