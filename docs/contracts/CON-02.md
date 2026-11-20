@@ -53,6 +53,8 @@ Metadata: `idempotency_key = submission_id`
 `UPDATE submissions SET state = 'RUNNING', attempt = attempt + 1 WHERE id = $1 AND state IN ('QUEUED', 'RUNNING') RETURNING attempt`
 * 0 rows means the submission is already `COMPLETED`, `FAILED` or `CANCELLED`: the message is skipped and acknowledged
 * `RUNNING` is included so a message redelivered after a crash can be taken again
+* Kubernetes Job is named from `submission_id`. Kubernetes refuses a second Job
+with the same name, so a redelivered message does not start a second run
 * The attempt count is kept in PostgreSQL, so a crash does not reset it (§9 item 1)
 If `attempt` is above 3, the submission becomes `FAILED` / `INTERNAL_ERROR` (§6)
 
@@ -80,24 +82,19 @@ How the API keeps the database write and the publish consistent is DEC-12 (open,
 SPK-03 recommends the transactional outbox (SC-E)
 
 ## 9. Risks (from SPK-03)
-These were not verified by SPK-03. They are risks, not guarantees.
-1. The retry counter is in process memory: a crash resets it to zero.
-2. Watermill cannot Nack single messages differently, so a broker-side retry counter is not possible through Watermill.
-3. `x-delivery-limit` (quorum queues) does not count Nack with requeue, so it is not a retry limit.
-4. A consumer is blocked while it retries one message (§6).
-5. Without the dead-letter exchange and queue the broker silently drops dead-lettered messages (§2).
-6. The idempotency check was tested in memory only, not in PostgreSQL.
-7. The "check, then apply" step is not atomic: several consumers need an atomic check (§4).
-8. All failures were simulated (`os.Exit(1)`, `Nack`), not real crashes or network failures.
-9. The outbox is at-least-once: a forwarder crash can send a message twice (§4).
-10. Outbox latency (about 1 s polling) and outbox table clean-up were not measured.
-11. An outbox row the forwarder cannot unwrap blocks all rows behind it.
-12. The publisher needs `ConfirmDelivery`, and a message to a missing queue is dropped (§2).
-13. Broker outage during publish, several forwarders, and message order were not tested. Message order is not guaranteed.
+Risks 1, 5, 7, 9, 12 from SPK-03 are covered by this contract (§2, §4)
+Risk 10 (outbox latency) and message order (13) are accepted
+
+Open risks, not verified by SPK-03:
+2. Watermill cannot Nack single messages differently, so a broker-side retry counter is not possible through Watermill
+3. `x-delivery-limit` (quorum queues) does not count Nack with requeue, so it is not a retry limit
+4. A consumer is blocked while it retries one message (§6)
+6. The idempotency check was tested in memory only, not in PostgreSQL
+8. All failures were simulated (`os.Exit(1)`, `Nack`), not real crashes or network failures
+11. An outbox row the forwarder cannot unwrap blocks all rows behind it
+13. Broker outage during publish and several forwarders were not tested
 
 *Open Questions:*
-* **Duplicate run:** a message is redelivered while a Job for the same submission still runs. How is a second Job avoided?
-(Owner: F07-01)
 * **Cancellation:** how does `CANCELLED` reach a running evaluation?
 (Owner: F07-01)
 * **CON-01 update:** CON-01 does not describe taking a `RUNNING` submission again after a crash (§4)
