@@ -1,0 +1,6 @@
+=== RUN   TestNetworkEgress
+    netdial_test.go:32: outbound TCP to 1.1.1.1:443 blocked after 0s: dial tcp 1.1.1.1:443: connect: network is unreachable
+    netdial_test.go:32: outbound TCP to 8.8.8.8:53 blocked after 0s: dial tcp 8.8.8.8:53: connect: network is unreachable
+    netdial_test.go:32: outbound TCP to google.com:443 blocked after 2ms: dial tcp: lookup google.com on 10.255.255.254:53: dial udp 10.255.255.254:53: connect: network is unreachable
+--- PASS: TestNetworkEgress (0.00s)
+PASS

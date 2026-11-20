@@ -1,0 +1,6 @@
+=== RUN   TestNetworkEgress
+    netdial_test.go:28: outbound TCP to 1.1.1.1:443 succeeded in 11ms (remote 1.1.1.1:443)
+    netdial_test.go:28: outbound TCP to 8.8.8.8:53 succeeded in 26ms (remote 8.8.8.8:53)
+    netdial_test.go:28: outbound TCP to google.com:443 succeeded in 46ms (remote 142.250.130.139:443)
+--- FAIL: TestNetworkEgress (0.08s)
+FAIL
