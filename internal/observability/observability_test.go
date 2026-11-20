@@ -216,7 +216,13 @@ func TestAccessLog_NeverLogsSecretsOrBody(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader("payload=SENTINEL-3"))
 	req.Header.Set("Authorization", "Bearer SENTINEL-2")
-	req.AddCookie(&http.Cookie{Name: "session", Value: "COOKIE-SECRET"})
+	req.AddCookie(&http.Cookie{
+		Name:     "session",
+		Value:    "COOKIE-SECRET",
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	})
 	rec := httptest.NewRecorder()
 
 	handler.ServeHTTP(rec, req)
