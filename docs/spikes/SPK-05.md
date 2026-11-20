@@ -26,7 +26,7 @@ Each cell: `class` + short result + source key (see Sources). Documentation was 
 | # | Requirement (proposal §7) | A. Baseline | B. Init gate | C. Cilium | D. gVisor |
 |---|---|---|---|---|---|
 | R1 | Unprivileged execution (non-root, no privilege escalation) | **E**: uid 65532, `setuid(0)` EPERM, NoNewPrivs=1 (SPK-01 SC-06) | **E**: same Pod spec (SPK-01 gate manifest) | **D**: not a CNI feature, `securityContext` is set on the Pod [K1]. No Cilium page says it changes it | **H**: docs do not state that Pod `securityContext` is honored under `runsc`; compatibility page warns of "known feature gaps" in Kubernetes [G8]. Inside the sandbox a user can only manipulate virtualized resources [G1] |
-| R2 | No network access (egress blocked) | **E**: **Not verified**, F-03 met (SPK-01 SC-04). **D**: NetworkPolicy needs a plugin that enforces it [K2] | **E**: blocked at t=1 ms in 5/5 runs, limitations SPK-01 §5.3 (`sc-04-gate.jsonl`) | **D**: in default mode endpoints "have unrestricted network access until selected by policy" [C1]; `always` mode enforces "on all endpoints even if no rules select" them [C1], resulting verdict not spelled out. Policy is programmed in eBPF when the endpoint is regenerated [C2]. **H**: timing relative to container start is not documented [C2] | **D**: `--network=none` cuts external networking, only loopback remains [G4]. **H**: whether NetworkPolicy applies to the sandbox, and timing, are not covered [G3, G5]. **H**: per-handler `network=none` in containerd is not confirmed [G6] |
+| R2 | No network access (egress blocked) | **E**: **Not verified**, F-03 met (SPK-01 SC-04). **D**: NetworkPolicy needs a plugin that enforces it [K2] | **E**: blocked at t=1 ms in 5/5 runs, limitations SPK-01 §5.3 (`sc-04-gate.jsonl`) | **D**: in default mode endpoints "have unrestricted network access until selected by policy" [C1]; `always` mode enforces "on all endpoints even if no rules select" them [C1], resulting verdict not spelled out. Policy is programmed in eBPF when the endpoint is regenerated [C2]. **H**: timing relative to container start is not documented [C2] | **E**: standalone `runsc --network=none do`, 6/6 runs: all 3 targets `network is unreachable` within 0-3 ms, DNS lookup fails too (E2). Control with default network: all 3 targets connected, test FAIL (E3). **D**: `--network=none` cuts external networking, only loopback remains [G4]. **H**: in Kubernetes, per-handler `network=none` in containerd [G6], interplay with NetworkPolicy and log retrieval are not tested [G3, G5] |
 | R3 | Read-only / minimal filesystem | **E**: `/` is `ro`, writes fail EROFS/EACCES, `/tmp` emptyDir 256Mi (SC-05) | **E**: same spec | **D**: not a CNI concern, same as A (no Cilium page covers it) | **D**: without overlay "you will have a read-only rootfs"; overlay is a writable tmpfs layer, memory-backed overlay "can bloat container memory usage" [G7]. **H**: emptyDir and `readOnlyRootFilesystem` interplay is not described [G7] |
 | R4 | CPU, memory and time limits | **E**: time (SC-02), memory OOMKilled (SC-03). CPU limit: **H** | **E**: same as A | **D**: limits are enforced by kubelet [K3], not by the CNI | **D**: "All Sentry threads and Sentry memory are subject to a container cgroup" [G9]; gVisor "relies on the host resource mechanisms (cgroups)" [G1]. **H**: how Kubernetes limits and `activeDeadlineSeconds` map to the sandbox is not covered [G9] |
 | R5 | Bounded output | **E**: `outcap` truncates 20 MiB to ~1 MiB (SC-07). `/proc/1/fd/1` bypass: **H** | **E**: same as A | **D**: output handling is not a network concern, same as A | **H**: no gVisor page covers container stdout/log size limits |
@@ -45,9 +45,21 @@ Reference finding: SPK-01 F-03. With a deny-egress NetworkPolicy, the first conn
 | A. Baseline | No | E (Not verified) | Under ~1 s; established connections survive (SPK-01 §5.1-2) | Egress in the start-up window |
 | B. Init gate | Yes for the judge container, from t=1 ms | E (5/5) | SPK-01 §5.3 (a-f): single probe target, ~1 s resolution, +1 s start-up, `busybox` in the supply chain | Residual limits listed in SPK-01 §5.3 |
 | C. Cilium | Not documented | D for default semantics, **H** for timing | In default mode the endpoint is unrestricted until selected by policy [C1]; start-up ordering is not described [C2]. `always` mode might remove the gap but its start-up effect is not documented | Same shape as F-03 unless `always` mode or equivalent is verified. Not verified (H) |
-| D. gVisor | `network=none`: no external network at all (Documented only). With NetworkPolicy: not documented | D for `network=none`, **H** for NetworkPolicy and timing | `network=none` per runtime handler is not confirmed [G6]. CNI sets up the namespace before the sandbox starts [G10], rules inside it are not described | Not verified (H). `network=none` is Documented only, no E evidence |
+| D. gVisor | `network=none` in standalone `runsc do`: yes, no network is configured, so there is no start-up window by construction (6/6 runs). In Kubernetes: not verified. With NetworkPolicy: not documented | E for standalone `runsc do` (E2, E3), D for the mode itself [G4], **H** for Kubernetes, NetworkPolicy and timing | Not run through containerd/Kubernetes. `network=none` per runtime handler is not confirmed [G6]. API server target not probed (variable exists only inside a Pod). 3 targets, 1 host (WSL2) | Not verified in Kubernetes (H). Unknown whether Job lifecycle and log retrieval work with no Pod network |
 
 A "blocked from the first instruction" claim counts as verified only with E evidence. D-only is recorded as "Documented only".
+
+## Experiments run (E evidence)
+
+Environment: Windows host, WSL2 (kernel `6.6.87.2-microsoft-standard-WSL2`), Ubuntu 24.04.5 LTS, `runsc release-20261116.0` (spec 1.2.1). Workload: precompiled `trusted.test` from the SPK-01 image (`spk01/image`), trusted tests only. Raw logs: `spk05/gvisor/wsl_results/` on branch `spike/SPK-05-isolation`, evidence commit `248148568618091270b65a33c4b45f5fdbeec398`. Commands are listed in `spk05/gvisor/README.md`.
+
+| ID | Experiment | Result |
+|---|---|---|
+| E1 | Compatibility: `TestAddSuccess` natively, and under `runsc do` (default network and `--network=none`) | PASS in all three: the Go test binary runs under gVisor |
+| E2 | `TestNetworkEgress` under `runsc --network=none do`, 1 initial run + 5 loop runs | 6/6 PASS: 1.1.1.1:443, 8.8.8.8:53 and google.com:443 all `network is unreachable` (0-3 ms), DNS lookup also unreachable |
+| E3 | Control: `TestNetworkEgress` under `runsc do` with default network | FAIL (expected): all 3 targets connected in 11, 26 and 46 ms, so the test detects an open network |
+
+Limitations: `runsc do` is a quick test command, not the Kubernetes path (no `runtimeClassName`, containerd, Job, NetworkPolicy). One host. The Kubernetes API server target is not probed because the variable it comes from exists only inside a Pod. No `runc` network control was run on the same host.
 
 ## SC-B: DEC-08 recommendation
 
@@ -72,5 +84,6 @@ TODO: recommended option, rejected options with reasons. Nothing is adopted with
 - **G9** gVisor, Resource Model: https://gvisor.dev/docs/architecture_guide/resources/
 - **G10** gVisor, Using CNI: https://gvisor.dev/docs/tutorials/cni/
 - **G11** gVisor, Kubernetes Quick Start: https://gvisor.dev/docs/user_guide/quick_start/kubernetes/
+- gVisor experiment logs: `spk05/gvisor/wsl_results/` (branch `spike/SPK-05-isolation`)
 - SPK-01 report: `docs/spikes/SPK-01.md`, evidence commit `17939ad95e6fddb064bca8b90057124f6d8daab1`
 - MVP Proposal §7: `docs/product/mvp-proposal.md`
