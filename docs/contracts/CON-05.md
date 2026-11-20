@@ -69,7 +69,7 @@ One row per submission. Holds the lifecycle **state** (CON-01 §1) and the final
 | `source_code` | `TEXT` | NO | — | Submitted Go code. Loaded by the Orchestrator from PostgreSQL, never sent through the broker (`CON-02` §3). Maximum size: `C05-OQ-23`. |
 | `state` | `TEXT` | NO | `'QUEUED'` | Names match `CON-01` §1. See `submissions_state_verdict_chk` below. |
 | `verdict` | `TEXT` | **YES** | `NULL` | Names match `CON-01` §2. `NULL` until a terminal state with a verdict is written. See `submissions_state_verdict_chk` below. **Exception to section 2** (enums are `NOT NULL`): `CON-01` requires the verdict to be `null` while `QUEUED`/`RUNNING`. |
-| `attempt` | `INTEGER` | NO | `0` | Number of times an evaluation was started: incremented on each `QUEUED` → `RUNNING`, and when a `RUNNING` submission is taken again after a redelivered message (crash recovery, `C05-OQ-27`). `CHECK (attempt >= 0)`. Upper bound: `C05-OQ-24`. Use as a fencing value: `C05-OQ-25`. |
+| `attempt` | `INTEGER` | NO | `0` | Number of times an evaluation was started: incremented on each `QUEUED` → `RUNNING`, and when a `RUNNING` submission is taken again after a redelivered message (crash recovery, `C05-OQ-27`). `CHECK (attempt >= 0)`. Upper bound: `C05-OQ-24`. Fencing value for terminal writes (see *Attempt fencing* below). |
 | `created_at` | `TIMESTAMPTZ` | NO | `now()` | Time the submission was received. Maps to `submitted_at` in the `CON-02` message. |
 | `updated_at` | `TIMESTAMPTZ` | NO | `now()` | Set by the application on every `UPDATE` (section 2). |
 
@@ -106,15 +106,24 @@ A user can have at most one active (`QUEUED` or `RUNNING`) submission across all
 
 **Rules for state changes (CON-01 §1):**
 - Allowed transitions: `QUEUED → RUNNING`, `RUNNING → COMPLETED | FAILED`, `QUEUED | RUNNING → CANCELLED`, `RUNNING → QUEUED` (infrastructure retry). Taking a `RUNNING` submission again after an Orchestrator crash is not defined in `CON-01`: `C05-OQ-27`. The DB checks valid (`state`, `verdict`) pairs but not transitions; the application enforces transitions with a conditional update.
-- *First terminal write wins* — the terminal state and its verdict are written in one atomic, conditional statement. `COMPLETED` and `FAILED` are written only from `RUNNING`:
+- **Taking a submission (claim).** The Orchestrator takes a submission with one atomic statement that also counts the attempt (`CON-02` §4):
+  ```sql
+  UPDATE submissions
+  SET state = 'RUNNING', attempt = attempt + 1, updated_at = now()
+  WHERE id = $id AND state IN ('QUEUED', 'RUNNING')
+  RETURNING attempt;
+  ```
+  The returned `attempt` is this run's **fencing value**. 0 rows = the submission is already terminal: skip and acknowledge.
+- **Attempt fencing.** Every later write of this run (terminal state, `RUNNING → QUEUED`) must match both `state = 'RUNNING'` and the fencing value. A new claim increments `attempt`, so a result from an older, stale attempt affects 0 rows and is ignored:
   ```sql
   UPDATE submissions
   SET state = 'COMPLETED', verdict = $verdict, updated_at = now()
-  WHERE id = $id AND state = 'RUNNING';
+  WHERE id = $id AND state = 'RUNNING' AND attempt = $attempt;
   ```
-  `CANCELLED` is written with `WHERE id = $id AND state IN ('QUEUED', 'RUNNING')`.
-  0 rows affected = the submission is already terminal (or not in the expected state), the update is ignored.
-- If a `results` row is written (3.4), it is inserted in the same transaction as the terminal update.
+  `FAILED` / `INTERNAL_ERROR` uses the same condition.
+- *First terminal write wins* follows from the same condition: once the state is terminal, `state = 'RUNNING'` is false and every later write affects 0 rows.
+- `CANCELLED` is a user action, not part of a run, so it is not fenced: `WHERE id = $id AND state IN ('QUEUED', 'RUNNING')`. A run that finishes after the cancellation affects 0 rows.
+- If a `results` row is written (3.4), it is inserted in the same transaction as the terminal update, only when that update affected 1 row, with `results.attempt` = the fencing value.
 
 ### 3.4 `results` *(Owner: Yulia)*
 
@@ -140,11 +149,11 @@ A row exists only for `COMPLETED` and `FAILED` submissions. Whether it is requir
 | C05-OQ-02 | User profile / auth fields scope (`SPEC-F01` OQ-2) | `users` | `SPEC-F01` / Yevhen | Yes |
 | C05-OQ-03 | User model details (`SPEC-F01` OQ-9) | `users` | `SPEC-F01` / Yevhen | Yes |
 | C05-OQ-04 | UUID generation strategy: DB-side (`gen_random_uuid()`, v4) vs. Go-side (`UUIDv7`) | All entities (`id`) | `INF-05` / Yevhen | No |
-| C05-OQ-20 | Duplicate submission while a previous one is `QUEUED`/`RUNNING` (`F-5`). **Proposed default:** one active submission per user across all problems, enforced by the partial unique index `submissions_one_active_per_user`; the API returns `409 Conflict` (`CON-01` default). To confirm with `SPEC-F06` (Pair A) and the mentor. | `submissions` | `CON-01` / Yulia | Yes |
+| C05-OQ-20 | Duplicate submission while a previous one is `QUEUED`/`RUNNING` (`F-5`). **Proposed default:** one active submission per user across all problems, enforced by the partial unique index `submissions_one_active_per_user`; the API returns `409 Conflict` / `submission_in_progress` (`CON-01` default). `SPEC-F06` (FR-10, OQ-01) currently describes the case per user **and problem**: the scope must be aligned with Pair A, then confirmed by the mentor. | `submissions` | `CON-01`, `SPEC-F06` / Yulia | Yes |
 | C05-OQ-21 | Exact type and FK constraint for `problem_id` referencing `problems.id` | `submissions.problem_id` | `CON-04` / Yulia | Yes |
 | C05-OQ-22 | `ON DELETE` policy for `submissions.user_id` (and so for `results`): `RESTRICT` (keep history, block user deletion) or `CASCADE`. Depends on whether users can be deleted (`SPEC-F01`). | `submissions.user_id`, `results.submission_id` | `SPEC-F01` / Yulia | Yes |
-| C05-OQ-23 | Maximum size of `source_code` (and whether the DB enforces it with `CHECK (octet_length(source_code) <= N)` or only the API does). | `submissions.source_code` | `SPEC-F06` / Yulia | No |
-| C05-OQ-24 | Maximum number of attempts. `CON-01` says "e.g. maximum 3 attempts"; `CON-02` §6 says "retried 3 times" (= 4 attempts). Agree one number and whether these are the same retry level. | `submissions.attempt` | `CON-01`, `CON-02` / Yulia | No |
-| C05-OQ-25 | Should a terminal write be accepted only from the current attempt (`... WHERE id = $id AND attempt = $attempt`)? *First terminal write wins* does not stop a late result of attempt 1 while attempt 2 is still `RUNNING`. | `submissions.attempt`, `results.attempt` | `CON-01` / Yulia, `F07-01` | No |
+| C05-OQ-23 | Maximum size of `source_code`, and whether the DB also enforces it with `CHECK (octet_length(source_code) <= N)` or only the API does (`SPEC-F06` FR-04, OQ-04: `413 Content Too Large`). | `submissions.source_code` | `SPEC-F06` / Yulia | No |
+| C05-OQ-24 | Maximum number of attempts. **Proposed resolution:** 3 attempts in total, counted in `submissions.attempt`; above 3 the submission becomes `FAILED` / `INTERNAL_ERROR` (`CON-02` §4, §6 in PR #38, aligned with `CON-01`). Closes when `CON-02` is merged. | `submissions.attempt` | `CON-01`, `CON-02` / Yulia | No |
+| C05-OQ-25 | ~~Should a terminal write be accepted only from the current attempt?~~ **Resolved (20.11, mentor review on #40):** yes. All writes of a run are fenced by `attempt` (section 3.3, *Attempt fencing*). | `submissions.attempt`, `results.attempt` | `CON-01` / Yulia | — |
 | C05-OQ-26 | Which evaluation details `results` stores (per-test results, output, duration, memory), in what form (columns, JSONB or a child table), and whether a row is required for every `COMPLETED`/`FAILED` submission. Depends on test visibility rules. | `results` | `CON-04`, `SPEC-F08` / Yulia | No |
 | C05-OQ-27 | Crash recovery: `CON-01` defines retry only as `RUNNING → QUEUED` "triggered by the orchestrator". After an Orchestrator crash nobody makes this transition, and the redelivered message finds the submission still `RUNNING` (`CON-02` §4). Is taking a `RUNNING` submission again an allowed transition (with `attempt + 1`), and does it count toward the attempt bound (`C05-OQ-24`)? Needs a `CON-01` update. | `submissions.state`, `submissions.attempt` | `CON-01`, `CON-02` / Yulia | No |
