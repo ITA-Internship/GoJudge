@@ -1,6 +1,6 @@
 # Logging and request correlation
 
-Package: `internal/observability`. It uses only the standard library (`log/slog`, `net/http`, `crypto/rand`).
+Package: `internal/observability`. It uses the standard library (`log/slog`, `net/http`, `crypto/rand`) and the `middleware` package of `github.com/go-chi/chi/v5`.
 
 ## What the package provides
 
@@ -95,7 +95,7 @@ Records below the configured level are dropped.
 ## Error behaviour
 
 - The middleware never writes a response body, so no internal detail reaches clients.
-- If `crypto/rand` fails, `RequestID` answers with a bare `500` and an empty body, and the next handler is not called. Because `RequestID` is the outer wrapper, no access-log line is written for that request.
+- If a handler panics, AccessLog still writes its line, with status 500 if nothing had been written yet, or the status already written otherwise. The panic is not recovered and continues to propagate. If a handler writes nothing at all, the logged status is 200.
 
 ## Tests
 
