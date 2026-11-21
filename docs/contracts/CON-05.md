@@ -44,18 +44,36 @@
 ## 3. Entities
 
 ### 3.1 `users` *(Owner: Yevhen)*
-*Draft in progress.*
+
+Local user record provisioned on the first authenticated request (`SPEC-F01` FR-08, §7.2). Gives `submissions` (3.3) and dependent features (`F06`, `F08`, `F09`, `F10`) a stable internal UUID independent of the external identity provider.
 
 | Field | Type | Nullable | Default | Constraints / Description |
 |---|---|---|---|---|
-| `id` | `UUID` | NO | — | Primary Key |
+| `id` | `UUID` | NO | — (see `C05-OQ-04`) | Primary key. Referenced by `submissions.user_id`. |
+| `auth_subject` | `TEXT` | NO | — | `UNIQUE`. Identity provider subject (`sub` claim, `SPEC-F01` FR-08). `CHECK (char_length(auth_subject) BETWEEN 1 AND 255)`. Immutable once created; never exposed in API responses (`SPEC-F01` §7.1). |
+| `email` | `TEXT` | **YES** | `NULL` | Email from IdP claim (`SPEC-F01` §7.2). Empty or `> 320` chars treated as `NULL` on insert and left unchanged on refresh. `CHECK (email IS NULL OR char_length(email) BETWEEN 1 AND 320)`. Uniqueness constraint: `C05-OQ-03`. |
+| `display_name` | `TEXT` | **YES** | `NULL` | Trimmed display name from IdP claim (`SPEC-F01` §7.2; empty after trim treated as `NULL`, truncated to 100 chars). `CHECK (display_name IS NULL OR char_length(display_name) BETWEEN 1 AND 100)`. |
+| `role` | `TEXT` | NO | `'learner'` | Provisional inline role per `SPEC-F01` §7.2: `CHECK (role IN ('learner', 'administrator'))`. Whether stored inline here, normalized via `role_id` FK → `roles.id`, or resolved from Auth0 token claims is open in `C05-OQ-01` and `C05-OQ-03`. |
+| `created_at` | `TIMESTAMPTZ` | NO | `now()` | Time the local user record was provisioned. |
+| `updated_at` | `TIMESTAMPTZ` | NO | `now()` | Set by the application on every `UPDATE` (section 2), e.g. when refreshing `email`/`display_name` or designating an administrator (`SPEC-F01` FR-15). |
+
+**Provisioning rule (`SPEC-F01` §6, AC-04, AC-05):**
+- Concurrent first requests for the same `auth_subject` must be idempotent: insert via `INSERT INTO users (...) VALUES (...) ON CONFLICT (auth_subject) DO NOTHING`, followed by `SELECT` by `auth_subject` to return the single existing `users.id`.
+- Account deletion is out of scope in `SPEC-F01` §3 (affects `ON DELETE` policy in `C05-OQ-22`).
 
 ### 3.2 `roles` *(Owner: Yevhen)*
-*Draft in progress.*
+
+Provisional reference table for system roles (`SPEC-F01` FR-06: `learner` and `administrator`).
+
+> **Modeling status (`C05-OQ-01`, `C05-OQ-03`):** `SPEC-F01` §7.2 currently models role inline as `users.role` (`TEXT`) rather than a foreign key `users.role_id → roles.id`, while `SPEC-F01` `OQ-1` leaves open whether the source of truth is the local database or a validated Auth0 token claim. Keeping `roles` as a separate lookup table versus inline `users.role` will be finalized once `SPEC-F01` `OQ-1` and `OQ-9` are resolved.
 
 | Field | Type | Nullable | Default | Constraints / Description |
 |---|---|---|---|---|
-| `id` | `UUID` | NO | — | Primary Key |
+| `id` | `UUID` | NO | — (see `C05-OQ-04`) | Primary key. |
+| `name` | `TEXT` | NO | — | `UNIQUE`. Allowed role names per `SPEC-F01` FR-06: `CHECK (name IN ('learner', 'administrator'))`. |
+| `description` | `TEXT` | **YES** | `NULL` | Optional human-readable role description. |
+| `created_at` | `TIMESTAMPTZ` | NO | `now()` | Time the role record was created. |
+| `updated_at` | `TIMESTAMPTZ` | NO | `now()` | Set by the application on every `UPDATE` (section 2). |
 
 ### 3.3 `submissions` *(Owner: Yulia)*
 
@@ -145,9 +163,9 @@ A row exists only for `COMPLETED` and `FAILED` submissions. Whether it is requir
 
 | ID | Question | Affected Entity / Field | Source / Owner | Blocks Final Approval? |
 |---|---|---|---|---|
-| C05-OQ-01 | Role source and assignment mechanism (`SPEC-F01` OQ-1) | `users`, `roles` | `SPEC-F01` / Yevhen | Yes |
-| C05-OQ-02 | User profile / auth fields scope (`SPEC-F01` OQ-2) | `users` | `SPEC-F01` / Yevhen | Yes |
-| C05-OQ-03 | User model details (`SPEC-F01` OQ-9) | `users` | `SPEC-F01` / Yevhen | Yes |
+| C05-OQ-01 | Role source of truth and schema representation (`SPEC-F01` OQ-1): whether the authoritative role lives in PostgreSQL (inline `users.role` per `SPEC-F01` §7.2 vs. normalized `users.role_id → roles.id` lookup table) or in the validated Auth0 token claim (`https://gojudge-api/roles`). | `users`, `roles` | `SPEC-F01` / Yevhen | Yes |
+| C05-OQ-02 | Identity provider selection (`SPEC-F01` OQ-2, `DEC-03` provisional): `DEC-03` (Auth0) is not yet formally approved by the mentor; changing the IdP may affect `auth_subject` format/length (`<= 255`) and profile claim mapping (`SPEC-F01` OQ-5). | `users.auth_subject`, `users.email`, `users.display_name` | `SPEC-F01`, `DEC-03` / Yevhen | Yes |
+| C05-OQ-03 | Final agreement on the `users` and `roles` table model (`SPEC-F01` OQ-9), including inline `users.role` vs. `roles` lookup FK and whether `users.email` remains non-unique (`SPEC-F01` §7.2) or needs a partial unique index (`WHERE email IS NOT NULL`). | `users`, `roles` | `SPEC-F01` / Yevhen | Yes |
 | C05-OQ-04 | UUID generation strategy: DB-side (`gen_random_uuid()`, v4) vs. Go-side (`UUIDv7`) | All entities (`id`) | `INF-05` / Yevhen | No |
 | C05-OQ-20 | Duplicate submission while a previous one is `QUEUED`/`RUNNING` (`F-5`). **Proposed default:** one active submission per user across all problems, enforced by the partial unique index `submissions_one_active_per_user`; the API returns `409 Conflict` / `submission_in_progress` (`CON-01` default). `SPEC-F06` (FR-10, OQ-01) currently describes the case per user **and problem**: the scope must be aligned with Pair A, then confirmed by the mentor. | `submissions` | `CON-01`, `SPEC-F06` / Yulia | Yes |
 | C05-OQ-21 | Exact type and FK constraint for `problem_id` referencing `problems.id` | `submissions.problem_id` | `CON-04` / Yulia | Yes |
