@@ -12,7 +12,7 @@
 | Responsible pair | Pair A                                                           |
 | Reviewer pair    | Pair B, Pair D                                                   |
 | GitHub Issue     | [issue #29](https://github.com/ITA-Internship/GoJudge/issues/29) |
-| Last updated     | 2026-11-19                                                       |
+| Last updated     | 2026-11-22                                                       |
 
 ---
 
@@ -38,7 +38,7 @@
 - Persisting the submission with initial state `QUEUED` and `verdict: null` in accordance with [CON-01](../../docs/contracts/CON-01.md).
 - Dispatching an evaluation request to the message broker in accordance with `CON-02` (`F06-02`).
 - Providing a submission state lookup endpoint for the owning user (`F06-03`).
-- Defining client submit and state-polling behavior in the editor workspace (`F06-04`).
+- Defining client submit and regular short-polling behavior in the editor workspace (`F06-04`).
 
 **Out of scope:**
 
@@ -66,7 +66,7 @@ Each requirement must be numbered and observable, so that a tester can confirm i
 | FR-08 | The system shall expose an authenticated endpoint to retrieve the current state and verdict of a single submission by `id` (`F06-03`), returning a `CON-01` verdict when `COMPLETED` or `FAILED`, and `verdict: null` when `QUEUED`, `RUNNING`, or `CANCELLED`. |
 | FR-09 | The system shall restrict submission state retrieval to the owning user (`submission.user_id == caller.user_id`) and shall respond `404 Not Found` when a submission is owned by another user.                                                                                          |
 | FR-10 | Handling of a new submission while the same user already has an active (`QUEUED` or `RUNNING`) submission for the same problem shall follow the `CON-01` duplicate-submission policy (currently open; recorded as OQ-01).                                                               |
-| FR-11 | In the web editor (`F06-04`), triggering Submit shall send the current editor `source_code`, prevent duplicate accidental clicks while the creation request is in flight, and poll the state endpoint until a terminal state (`COMPLETED`, `FAILED`, or `CANCELLED`) is reached.        |
+| FR-11 | In the web editor (`F06-04`), triggering Submit shall send the current editor `source_code`, prevent duplicate accidental clicks while the creation request is in flight, and use regular short polling (bounded interval, stopping on terminal state) against the state endpoint until `COMPLETED`, `FAILED`, or `CANCELLED` is reached. |
 
 ---
 
@@ -211,15 +211,17 @@ Write each criterion as Given / When / Then. Number them AC-01, AC-02, and so on
 
 ### 7.2 Data Models *(if applicable)*
 
-Conceptual `Submission` fields used by `F06` (final table types and constraints are owned by `CON-05` in `#34`):
+Conceptual `Submission` fields used by `F06` (final PostgreSQL column types, constraints, and indexes are owned by `CON-05` in `#34`):
 
 - `id` (UUID, PK): Generated submission identifier.
 - `user_id` (UUID, FK): Local user identifier from `F01` (`users.id`), taken from auth context.
 - `problem_id` (UUID, FK): Target published problem identifier.
 - `source_code` (text): Untrusted Go source text submitted by the learner (size-bounded per OQ-04).
-- `state` (text): Lifecycle state from `CON-01` (`QUEUED`, `RUNNING`, `COMPLETED`, `FAILED`, `CANCELLED`).
-- `verdict` (text, nullable): Verdict from `CON-01`; must be `null` when `state` is `QUEUED`, `RUNNING`, or `CANCELLED`, and populated only when `state` is `COMPLETED` or `FAILED`.
+- `state` (`CON-01` lifecycle state; exact PostgreSQL type — e.g., `ENUM` vs `text` + `CHECK` — owned by `CON-05`): `QUEUED`, `RUNNING`, `COMPLETED`, `FAILED`, `CANCELLED`.
+- `verdict` (`CON-01` verdict, nullable; exact PostgreSQL type owned by `CON-05`): must be `null` when `state` is `QUEUED`, `RUNNING`, or `CANCELLED`, and populated only when `state` is `COMPLETED` or `FAILED`.
 - `created_at` / `updated_at` (timestamptz): Creation and last state-update timestamps.
+
+**Expected access patterns (input to `CON-05`):** lookup and atomic state update by `id`; checking for an active (`QUEUED` or `RUNNING`) submission by `(user_id, problem_id)` (or by `user_id`, depending on `CON-01`'s final scope for OQ-01); and listing a learner's own submissions ordered by `created_at` (aligned with `F08`).
 
 ### 7.3 Messaging Contracts *(if applicable)*
 
