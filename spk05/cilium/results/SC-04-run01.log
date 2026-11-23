@@ -1,0 +1,11 @@
+{"Time":"2026-11-20T12:49:51.821384885Z","Action":"start"}
+{"Time":"2026-11-20T12:49:51.823932843Z","Action":"run","Test":"TestNetworkEgress"}
+{"Time":"2026-11-20T12:49:51.823960968Z","Action":"output","Test":"TestNetworkEgress","Output":"=== RUN   TestNetworkEgress\n","OutputType":"frame"}
+{"Time":"2026-11-20T12:49:54.833424386Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to 1.1.1.1:443 blocked after 3.009s: dial tcp 1.1.1.1:443: i/o timeout\n"}
+{"Time":"2026-11-20T12:49:57.837817513Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to 8.8.8.8:53 blocked after 3.004s: dial tcp 8.8.8.8:53: i/o timeout\n"}
+{"Time":"2026-11-20T12:50:00.840688583Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to google.com:443 blocked after 3.003s: dial tcp: lookup google.com: i/o timeout\n"}
+{"Time":"2026-11-20T12:50:03.843770085Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to 10.43.0.1:443 blocked after 3.003s: dial tcp 10.43.0.1:443: i/o timeout\n"}
+{"Time":"2026-11-20T12:50:03.84387571Z","Action":"output","Test":"TestNetworkEgress","Output":"--- PASS: TestNetworkEgress (12.02s)\n","OutputType":"frame"}
+{"Time":"2026-11-20T12:50:03.84389271Z","Action":"pass","Test":"TestNetworkEgress","Elapsed":12.02}
+{"Time":"2026-11-20T12:50:03.843951501Z","Action":"output","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-20T12:50:03.844919376Z","Action":"pass","Elapsed":12.023}
