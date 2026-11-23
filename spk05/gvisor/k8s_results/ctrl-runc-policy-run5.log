@@ -1,0 +1,11 @@
+{"Time":"2026-11-22T19:01:05.006750433Z","Action":"start"}
+{"Time":"2026-11-22T19:01:05.008027409Z","Action":"run","Test":"TestNetworkEgress"}
+{"Time":"2026-11-22T19:01:05.008116989Z","Action":"output","Test":"TestNetworkEgress","Output":"=== RUN   TestNetworkEgress\n","OutputType":"frame"}
+{"Time":"2026-11-22T19:01:05.017845171Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:28: outbound TCP to 1.1.1.1:443 succeeded in 10ms (remote 1.1.1.1:443)\n","OutputType":"error"}
+{"Time":"2026-11-22T19:01:05.038983137Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:28: outbound TCP to 8.8.8.8:53 succeeded in 21ms (remote 8.8.8.8:53)\n","OutputType":"error"}
+{"Time":"2026-11-22T19:01:05.052677339Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:28: outbound TCP to google.com:443 succeeded in 14ms (remote 142.250.130.139:443)\n","OutputType":"error"}
+{"Time":"2026-11-22T19:01:05.053133511Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to 10.43.0.1:443 blocked after 0s: dial tcp 10.43.0.1:443: connect: connection refused\n"}
+{"Time":"2026-11-22T19:01:05.053158553Z","Action":"output","Test":"TestNetworkEgress","Output":"--- FAIL: TestNetworkEgress (0.05s)\n","OutputType":"frame"}
+{"Time":"2026-11-22T19:01:05.053161575Z","Action":"fail","Test":"TestNetworkEgress","Elapsed":0.05}
+{"Time":"2026-11-22T19:01:05.053171942Z","Action":"output","Output":"FAIL\n","OutputType":"frame"}
+{"Time":"2026-11-22T19:01:05.053374621Z","Action":"fail","Elapsed":0.047}

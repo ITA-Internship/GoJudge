@@ -1,0 +1,5 @@
+pod/pol-check created
+wget: can't connect to remote host (1.1.1.1): Connection refused
+command terminated with exit code 1
+exit=1
+pod "pol-check" deleted from spk01 namespace
