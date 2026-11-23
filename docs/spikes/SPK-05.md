@@ -6,6 +6,7 @@
 - **Owner:** Pair B
 - **Timebox:** 3 pair-days (Sprint 2)
 - **Starting point:** SPK-01 No-go (F-03: egress succeeded before per-Pod NetworkPolicy rules were installed)
+- **Outcome:** evidence collected for all four candidates; Cilium and gVisor with `network=none` block egress from the first attempt (E); recommendation in SC-B; nothing is approved
 - **Out of scope:** approving DEC-08 / DEC-02, production judge code, running learner code
 
 ## Evidence classes
@@ -97,13 +98,55 @@ Limitations: one node on Docker Desktop. 5 runs. The policy exists before the Jo
 
 ## SC-B: DEC-08 recommendation
 
-TODO: recommended option, rejected options with reasons. Nothing is adopted without MA-03.
+**Status:** recommendation and evidence only. This report does not approve DEC-08, DEC-02 or any production judge work. **Nothing is adopted without MA-03.**
 
-Interim gVisor input (evidence only, not a recommendation):
-- gVisor closes the start-up window only together with `network=none`; the gVisor runtime by itself does not (E8, E9, E12).
-- It needs a dedicated handler and RuntimeClass, and the choice is per Pod, so something must guarantee that learner Jobs use it (not tested).
-- No network means results can only leave through stdout and the exit code; no DNS, no API server access from the Pod.
-- Open for the comparison: behavior of the other criteria under `runsc`, and the cost of running `runsc` in the real cluster (not only WSL2).
+### What the decision turns on
+
+DEC-08 asks which mechanism isolates the judge's execution of untrusted code. Of the ten requirements in SC-A, only two separate the candidates:
+
+| Requirement | What the evidence shows |
+|---|---|
+| R2: egress blocked from the first attempt | A fails (E8). B, C and D with `network=none` block it on E evidence (SPK-01, E4/E5, E12) |
+| R10: boundary stronger than a plain container | Only D provides it, and only on **D-class** evidence [G2]. Cilium is a network layer, not a sandbox [C4] |
+
+R1, R3-R6 and R9 are handled by Kubernetes (Pod `securityContext`, limits, Jobs, namespace controls) and do not distinguish A, B and C. They are mostly **H** under `runsc` (see SC-A). R8 depends on DEC-09 (problem packaging), not on the isolation mechanism.
+
+### Options and verdicts
+
+| Option | Verdict | Reasons |
+|---|---|---|
+| **A. Baseline** (k3s NetworkPolicy) | Rejected | The start-up window of SPK-01 F-03 is reproduced on k3s v1.37.2: 5/5 runs connected with a deny-egress policy in place (E8). The policy does block once the Pod is running (E9), so the flaw is timing, not enforcement |
+| **B. Init-container gate** | Rejected as the primary mechanism (research candidate only, as the sprint plan states) | Blocked from t=1 ms in 5/5 runs (SPK-01), but with the SPK-01 §5.3 limits: single probe target, ~1 s resolution, +1 s start-up, `busybox` in the supply chain, assumes the controller installs all rules at once. It does not change the boundary (R10) |
+| **C. Cilium** | Fallback | 5/5 blocked with the policy created before the Job, control without the policy connected (E4, E5). Costs: it replaces the network plugin of the whole cluster (SPK-01 notes this needs agreement with Pair A), needs eBPF with `bpffs` and `cgroup2` mounted, start-up ordering is not documented [C2] (H). The boundary stays that of a plain container (R10) [C4] |
+| **D. gVisor with `network=none`** | Proposed primary candidate, on the conditions below | 5/5 blocked in k3s with the first probe at 0 s, including DNS and the API server (E12); 6/6 standalone (E2). Without `network=none` gVisor does **not** close the window (E8, E9). Stronger boundary per documentation only (R10) [G2]. Costs: `runsc` on every node, a dedicated handler and RuntimeClass, the Pod has no network so results leave only through stdout and the exit code |
+
+### Recommendation
+
+Take **D (gVisor with `network=none`)** to MA-03 as the primary candidate: it is the only option that combines closing the network window on E evidence (R2) with a stronger execution boundary (R10), and it changes only the Pods of the judge, not the whole cluster. Keep **C (Cilium)** as the fallback if the conditions below cannot be met. Reject **A** and **B** as the primary mechanism for the reasons above.
+
+C and D work at different layers (network and runtime), so they are not exclusive. A combination was not tested (H). A namespace deny-egress NetworkPolicy can stay as a second layer; its interplay with `network=none` was not tested (H).
+
+If neither C nor D can be demonstrated safe, the MVP proposal §7 already states the fallback: release stays internal-only or uses a vetted external sandbox service.
+
+### What the recommendation rests on
+
+- **E:** R2 for C and D (E4, E5, E12); the F-03 window reproduced on A (E8); a Pod under `runsc` sees the Sentry kernel, not the host kernel (E6).
+- **D:** R10 for gVisor [G2]; `--network=none` semantics [G4]; Cilium is not a sandbox [C4].
+- **H:** everything listed as a condition below.
+
+### Conditions before MA-03 can adopt D (each is a named risk, class H)
+
+1. **Other requirements under `runsc` are untested.** Non-root enforcement (`setuid(0)` EPERM), read-only root and `/tmp` writes, memory limit and OOM mapping, output cap, TTL cleanup and cancellation were not run under gVisor. The compatibility page warns of "known feature gaps" in Kubernetes [G8].
+2. **Environment coverage.** `runsc` was run on one host (WSL2, k3s v1.37.2). It was not run inside k3d, the local cluster tool in ADR-002 (Provisional), nor on the hosting that DEC-07 will choose. Start-up cost and overhead were not measured.
+3. **The choice of RuntimeClass is per Pod.** A Pod with another `runtimeClassName`, or none, has a normal network. The Job builder (F07-02a, a pure Go function that can be unit-tested without a cluster) can set and test it; cluster-level enforcement (INF-10) was not tested.
+4. **No network means results leave only through stdout and the exit code.** Log retrieval worked in the experiment (E12). The output cap and log limits from SPK-01 §5 item 4 still apply to F07-02b.
+5. **Fallback C is not fully characterised.** Policy created after the Pod, `always` mode, behavior under load, multi-node, the drop reason (not captured) and eBPF support on the target hosts were not tested.
+6. **Sample size.** One host per candidate, 4 probe targets, 5 runs, different k3s versions across candidates (SPK-01 v1.35.5, Cilium v1.36.4, gVisor v1.37.2).
+7. **Security review.** Only trusted code was run. The MVP proposal §7 requires a dedicated security review and adversarial tests before public deployment.
+
+### Outcome
+
+Evidence was collected for all four candidates. Two of them (C, and D with `network=none`) block egress from the first attempt on E evidence. The recommendation above goes to MA-03. It is a recommendation: it adopts nothing and approves neither DEC-08 nor DEC-02.
 
 ## Sources
 - **K1** Kubernetes, Security Context (page last modified 2026-09-27): https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
