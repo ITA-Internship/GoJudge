@@ -511,6 +511,98 @@ Each sprint's planned load is the sum of the items allocated to it. Gross capaci
 
 **Reading this plan.** Gross capacity is not the binding constraint in most sprints: every sprint's load is under 40. Realistic net is the constraint. The shortfall builds in Sprints 1–5 and reaches about 50.5 pair-days by the end of Sprint 5. Sprint 6 absorbs 0.5 of it and does not recover the rest. Work that cannot be moved earlier, because of dependencies, is what slips. §11.4 lists it.
 
+### 10.1 Sprint 2 planning summary, earlier synchronisation (13 November 2026, superseded)
+
+> **Superseded for the Sprint 2 figures.** The approved Sprint 2 summary is in §10.2. The text below is kept as the earlier record, including the 18.5 baseline and the F01-01 preparation task, which are no longer in Sprint 2.
+
+The planning baseline for Sprint 2 is [sprint-02.md](../planning/sprint-02.md). This summary follows it. The table above is the original six-sprint plan and is kept as historical context. The Sprint 2 row (38.5 pair-days) is **not** the Sprint 2 planning figure, and no item in that row has been deleted or re-estimated.
+
+| Measure | Value |
+|---------|-------|
+| Sprint 2 dates | 16–27 November 2026 (10 working days) |
+| Maximum committed task workload | **20 pair-days** across all four pairs (mentor, confirmed) |
+| Accepted planning baseline | **18.5 pair-days** |
+| Uncommitted capacity | 1.5 pair-days, kept unallocated |
+| Excluded from the limit | Meetings, reviews, planning, demos, handovers and other organisational activities. Accounted for separately. The backlog §11.3 Sprint 2 overhead estimate (15 pair-days) is for information only. |
+| Original Sprint 2 row in the table above | 38.5 pair-days (historical planning context) |
+
+**Accepted task workload by pair** (workstreams are provisional; the mentor assigns students to pairs):
+
+| Pair | Items | Pair-days |
+|------|-------|-----------|
+| A | SPEC-F06 (draft), SPEC-F08, CON-04 (draft) | 5.0 |
+| B | SPK-05, CON-02 (completion) | 4.5 |
+| C | INF-09 (conditional on MA-05), F01-01 (preparation only, not implementation) | 5.0 |
+| D | CON-05 (partial), DEC-11 (ADR) | 4.0 |
+| **Total** | | **18.5** |
+
+**Where each item in the original Sprint 2 row stands.** Nothing is moved silently. Items marked *not in accepted scope* are not deleted. They stay in §4 and need placement by the mentor.
+
+| Item (original row) | Original pair-days | Sprint 2 status (sprint-02.md) |
+|---------------------|--------------------|-------------------------------|
+| CON-04 (final) | 2 | Draft in Sprint 2 (2.0). Final in Sprint 3, once DEC-09 is decided. |
+| CON-02 | 1.5 | Completion in Sprint 2 (Pair B). Approval waits for DEC-04 and agreement. |
+| CON-03 (initial) | 2 | Not in accepted scope. |
+| CON-05 | 4 | Partial (3.0) in Sprint 2. The remainder is Sprint 3. |
+| INF-05 | 4 | Not in accepted scope. Depends on DEC-11 and CON-05. |
+| INF-07 | 4 | Not in accepted scope. |
+| INF-09 | 1.5 | Conditional on MA-05. |
+| INF-12a | 1.5 | Not in accepted scope. Stretch candidate (sprint-02.md §8.2). |
+| F01-01 | 4 | Preparation only (3.5, Pair C). Implementation not started. Needs SPEC-F01 Approved and INF-09. |
+| F02-01 | 4 | Not in accepted scope. Needs SPEC-F02, which has no specification file yet, and CON-04 and INF-05. |
+| SPEC-F03 | 1.5 | Not in the accepted Sprint 2 list. Approval is a Sprint 3 item. |
+| SPEC-F06 | 1.5 | Draft in Sprint 2 (Pair A). Approval waits for CON-02 agreement. |
+| SPEC-F07 | 4 | Not in accepted scope. The §10 note planned approval at the start of Sprint 3. |
+| SPK-05 | 3 | In scope (Pair B). Produces evidence and a recommendation only; DEC-08 is not approved. |
+| SPEC-F08 | (Sprint 3 row, 1.5) | In accepted scope (Pair A), earlier than the Sprint 3 row. |
+
+**Approval status at the start of Sprint 2.** The §10 Sprint 2 note said SPEC-F01 and SPEC-F02 would be approved at the start of the sprint. That is not the case:
+
+- **SPEC-F01** is not Approved. Its status is In Review. Reviewer outcomes are recorded in its §12, but the approval checklist is not complete, and critical questions OQ-1 and OQ-2 are open. F01-01 cannot start until approval.
+- **SPEC-F02** has no specification file yet. Approval at the start of Sprint 2 is not achievable, and SPEC-F02 is not in the accepted Sprint 2 scope.
+
+**Mentor decisions and technical gates that remain open** are listed in [sprint-02.md §11.3 and §11.4](../planning/sprint-02.md). They include MA-05 (INF-09), DEC-09 (CON-04 final), DEC-11 (migration tool), DEC-12 (dispatch, needed by 30 November), DEC-08 (isolation, needed at the start of Sprint 4), and SPEC-F01 OQ-1 and OQ-2.
+
+### 10.2 Sprint 2 approved summary (13 November 2026)
+
+The planning baseline for Sprint 2 is [sprint-02.md](../planning/sprint-02.md). The issue manifest is [sprint-02-issues.md](../planning/sprint-02-issues.md). The table in §10 is the original six-sprint plan and is kept as historical context. The Sprint 2 row (38.5 pair-days) is not the Sprint 2 planning figure. No item in it has been deleted, and no backlog estimate has been changed.
+
+| Measure | Value |
+|---------|-------|
+| Sprint 2 dates | 16–27 November 2026 (10 working days) |
+| Maximum committed task workload | **20 pair-days** across all four pairs (approved) |
+| Approved committed task workload | **17.5 pair-days** |
+| Uncommitted capacity | **2.5 pair-days** |
+| Excluded from the limit | Meetings, reviews, demos, handovers and other organisational overhead |
+| Conditional Stretch (not committed) | INF-09, 1.5 pair-days, conditional on MA-05, mentor authorisation and Pair C capacity. Not in the 17.5. |
+
+**Approved committed work, by pair** (workstreams are provisional; the mentor assigns students):
+
+| Pair | Committed item (backlog ID) | Sprint 2 pair-days | Full backlog size (for reference) |
+|------|-----------------------------|--------------------|-----------------------------------|
+| A | SPEC-F06 draft | 1.5 | 1.5 (specification, incl. approval) |
+| A | SPEC-F08 draft | 1.5 | 1.5 |
+| A | CON-04 draft (Sprint 2 share) | 2.0 | 4 in total. Remaining 2.0 is Sprint 3. |
+| B | SPK-05 spike | 3.0 | 3 (timebox) |
+| B | CON-02 completion (#23) | 1.5 | 1.5 |
+| C | INF-07 structured logging and request correlation (Sprint 2 subset) | 4.0 | 4 in total, including health endpoints and metrics, which are not in the Sprint 2 subset |
+| D | CON-05 preliminary contract (Sprint 2 share) | 3.0 | 4 in total. Remaining 1.0 is Sprint 3. |
+| D | DEC-11 ADR (ADR-003, Provisional) | 1.0 | Not sized in the backlog. Provisional estimate accepted by the mentor. |
+| | **Total committed** | **17.5** | |
+
+**Conditional Stretch.** INF-09 Auth0 development tenant configuration: 1.5 pair-days, Pair C, conditional on MA-05, explicit mentor authorisation and Pair C capacity. Pair C has 1.0 pair-days remaining against its 5.0 working figure, so the capacity condition is not met without a mentor decision.
+
+**Items not in Sprint 2 scope:**
+
+- **F01-01** (implementation and preparation). Not in Sprint 2. Its preparation task has been removed. Implementation waits for SPEC-F01 Approved and INF-09.
+- **SPEC-F02** has no specification file. It is not in Sprint 2 scope.
+- **SPEC-F03** approval is Sprint 3. Its draft is not in the Sprint 2 committed list.
+- **SPEC-F07, CON-03, INF-05, INF-08, INF-12a, F02-01, and all other items** in the original Sprint 2 row are not committed for Sprint 2. Each stays in §4 and needs placement by the mentor.
+
+**Partial deliverables.** A draft or preliminary issue may close when its explicitly defined Sprint 2 deliverable meets the applicable review and merge requirements. Closing it does **not** mean the full specification or contract is formally Approved. The Sprint 3 remainder is recorded in planning documentation only. SDD Workflow §6 states the closure rule for draft-only Issues: the closing comment says the draft is complete and the document is not formally approved. GitHub labels classify the type of Issue only (`type:*`), not its status (sprint-02-issues.md §2.2).
+
+**Gates that remain open.** MA-05 (INF-09), DEC-09 (CON-04 final), DEC-11 (ADR-003 approval, MA-23), DEC-12 (dispatch, needed by 30 November), DEC-04 (MA-26, gates CON-02 Done), DEC-08 (isolation, needed at the start of Sprint 4), and SPEC-F01 OQ-1 and OQ-2 (gate SPEC-F01 approval). None is approved in this summary.
+
 ---
 
 ## 11. Capacity Reassessment
@@ -659,5 +751,5 @@ No option below reduces mandatory functionality or security controls, except opt
 ## 14. Items Not Assigned and Not Created
 
 - No item is assigned to a named intern.
-- No GitHub Issues have been created from this backlog. Issues should be created when items enter Sprint planning, using the feature issue template and the labels in the [SDD Workflow §6](../sdd-workflow.md#6-github-issue-states).
+- No GitHub Issues have been created from this backlog. Issues should be created when items enter Sprint planning, using the matching issue form and the `type:*` labels in the [SDD Workflow §6](../sdd-workflow.md#6-github-issue-states).
 - Specifications for F01–F09 do not yet exist in `specs/features/`. Each is created from the template, and is approved before its implementation items start.
