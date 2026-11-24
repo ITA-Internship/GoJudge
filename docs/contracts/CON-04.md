@@ -68,7 +68,7 @@ This table lists the parts of a problem and who uses them. It defines content, n
 |------|----------|---------|--------|
 | ID | Yes | F02, F03, F06 (`problem_id`), F08, CON-05 | **Proposed:** UUID, so that it matches `submissions.problem_id` in CON-05 (preliminary, PR #40) and the examples in SPEC-F06 and SPEC-F08. Closes CON-05 `C05-OQ-21` (PR #40) when agreed. |
 | Title | Yes, non-empty | F02-02, F03-01, SPEC-F08 (`problem_title`) | Stated (F02-02 lists the title). Maximum length: C04-OQ-01. |
-| Difficulty | Yes | F02-02, F11 | Stated (F02-02). Allowed values: C04-OQ-02. |
+| Difficulty | Yes | F02-02, F11 | Stated (F02-02). **Proposed:** a numeric rating (integer), so that the catalogue can sort and filter by range. Allowed range: C04-OQ-02. |
 | Statement | Yes | F03-01 | Stated (F03-01). Text format (plain text or Markdown) and rendering rules: C04-OQ-03. |
 | Input/output contract and constraints | Yes | F03-01 | Stated (F03-01). Whether they are separate fields or part of the statement: C04-OQ-03. |
 | Public examples | Yes, at least one | F03-01 | Stated (F03-01). Whether they are the same as the sample tests: C04-OQ-04. |
@@ -87,7 +87,7 @@ This table lists the parts of a problem and who uses them. It defines content, n
 |---|------|--------|
 | P-08 | A problem may be published only if it has a title, a statement, at least one sample test and at least one hidden test. | **Proposed** (needed by F05 and F07-04; enforced by F09-01) |
 | P-09 | Changing the tests of a published problem does not change the verdicts of submissions that were already judged. | **Proposed.** Whether a new version of the tests is kept as a separate version: C04-OQ-07. |
-| P-10 | Unpublishing a problem does not delete it. Past submissions keep their `problem_id`, and SPEC-F08 keeps showing the title (SPEC-F08 FR-04a). | **Proposed**, consistent with SPEC-F08 (merged). Deleting a problem with submissions: C04-OQ-08. |
+| P-10 | Unpublishing a problem does not delete it. Past submissions keep their `problem_id`, and SPEC-F08 keeps showing the title (SPEC-F08 FR-04a). | **Proposed**, consistent with SPEC-F08 (In Review, PR #41). Deleting a problem with submissions: C04-OQ-08. |
 
 ---
 
@@ -207,7 +207,7 @@ None of A–D allows hidden content to be returned (V-02).
 | # | Question | Affects | Owner | Blocks final approval | Proposed default |
 |---|----------|---------|-------|-----------------------|------------------|
 | C04-OQ-01 | Maximum length of a title. | 3.2, F02, F08 | Pair A, Pair D | No | 120 characters |
-| C04-OQ-02 | Allowed difficulty values, and whether topic tags are in the MVP. Options: A. `easy`, `medium`, `hard`. B. Division style, `div4`, `div3`, `div2`, `div1`, with readable labels for learners. C. A numeric rating (for example 800–3500). | 3.2, F02, F11 | Mentor | No | A (`easy`, `medium`, `hard`), stored as a string with an allowed-values check so that B can be adopted later without a schema change; tags not in the MVP |
+| C04-OQ-02 | Allowed difficulty values, and whether topic tags are in the MVP. Options: A. `easy`, `medium`, `hard`. B. Division style, `div4`, `div3`, `div2`, `div1`, with readable labels for learners. C. A numeric rating (for example 800–3500). | 3.2, F02, F11 | Mentor | No | C, chosen by Pair A: an integer rating from 800 to 3500 in steps of 100, stored as an integer with a range check; tags not in the MVP |
 | C04-OQ-03 | Statement format (plain text or Markdown), how it is rendered safely, and whether the input/output contract and constraints are separate fields. | 3.2, F03 | Pair A, F03 owner | Yes | Markdown rendered without raw HTML; constraints as part of the statement |
 | C04-OQ-04 | Are the public examples on the problem page the same as the sample tests used by "Run samples"? | 3.2, F03, F05 | Pair A, F05 owner | Yes | Yes, one set |
 | C04-OQ-05 | Are time and memory limits set per problem, or global? What are the maximum values? | 3.2, F07-02a | Mentor, F07 owner | Yes | Per problem, capped by platform maximums set in F07-02a |
@@ -216,7 +216,7 @@ None of A–D allows hidden content to be returned (V-02).
 | C04-OQ-08 | Can a problem with submissions be deleted, or only unpublished? | P-10, SPEC-F08, CON-05 | Mentor, Pair D | No | Only unpublished (`RESTRICT` on `submissions.problem_id`) |
 | C04-OQ-09 | How does the judge Job keep hidden test assets unreadable by the learner's code (V-06)? | V-06, F07-04, DEC-08 | Pair C (F07-04), Pair B (SPK-05 / DEC-08 input) | Yes | Input for DEC-08 and SPK-05; no default here |
 | C04-OQ-10 | Can compiler messages contain hidden test code, and if so, how are they filtered before they are shown (V-08)? | V-08, F07-05 | Pair C | Yes | Depends on 6.2 |
-| C04-OQ-11 | Maximum size of a test asset or package, and allowed file types in a package (6.1 B and C). Note: SPK-05 SC-B proposes delivering code and tests into a `network=none` Pod via read-only volumes (e.g., ConfigMap, which imposes a ~1 MiB Kubernetes/etcd limit). | 6.1, F09-02, SPK-05 | Pair A, F09 owner | No | Decided after DEC-09 and DEC-08 |
+| C04-OQ-11 | Maximum size of a test asset or package, and allowed file types in a package (6.1 B and C). Note: SPK-05 SC-B suggests, if option D is chosen for DEC-08, delivering code and tests into a `network=none` Pod as read-only volumes, for example a ConfigMap. A ConfigMap is limited to 1 MiB by Kubernetes; SPK-05 did not test this mechanism and leaves the size limit to F07 and DEC-09. | 6.1, F09-02, SPK-05 | Pair A, F09 owner | No | Decided after DEC-09 and DEC-08 |
 | C04-OQ-12 | Go module (`go.mod`), Go version pin (DEC-14) and allowed package dependencies in a problem package under offline (`no network`) judge execution (SPK-01, SPK-05). | 3.2, 6.2, F07-04, F09-02, TST-01 | Pair A, F07 owner, Mentor | Yes | Standard library only, pinned `go.mod` per DEC-14 (no external module downloads) |
 
 ---
@@ -250,4 +250,4 @@ The contract cannot be marked Approved until all of the following are true:
 | Date | Change | Author |
 |------|--------|--------|
 | 2026-11-22 | First draft for Sprint 2 (issue #31) | Pair A |
-| 2026-11-24 | Added Go dependency/offline build question (C04-OQ-12), SPK-05 ConfigMap size constraint (C04-OQ-11), missing backlog dependents (SPEC-F09, TST-01), synced merged CON-02/F06/F08 refs vs CON-05 PR #40, and resolved T-07/V-05/F04 cross-ref gaps | Pair A |
+| 2026-11-24 | Proposed a numeric difficulty rating (C04-OQ-02, option C); added Go dependency/offline build question (C04-OQ-12), SPK-05 ConfigMap size constraint (C04-OQ-11), missing backlog dependents (SPEC-F09, TST-01), synced merged CON-02/F06/F08 refs vs CON-05 PR #40, and resolved T-07/V-05/F04 cross-ref gaps | Pair A |
