@@ -9,7 +9,7 @@
 | Dependent pairs | Pair C (F07-04 and later consumers), Pair D (CON-05 entities, SPEC-F04), Pair B (CON-02, F07-01) |
 | GitHub Issue | [#31](https://github.com/ITA-Internship/GoJudge/issues/31) |
 | Blocking decision | DEC-09 (MA-14), **Open** |
-| Last updated | 2026-11-22 |
+| Last updated | 2026-11-24 |
 
 > **Draft.** This document is the Sprint 2 draft of CON-04. It is **not** an approved contract. DEC-09 is open, and no DEC-09 option is selected here (section 6). Values marked **Stated** come from an approved or merged source that is named next to them. Values marked **Proposed** are suggestions for review and are not decided. Everything else is an open question (section 8). Final approval is planned for Sprint 3, after DEC-09 is decided and every dependent pair has agreed (section 9).
 
@@ -58,7 +58,7 @@ This contract defines three things that several features share:
 | P-04 | The release must include at least one algorithmic challenge and one HTTP-handler challenge. | Stated | MVP proposal §11 |
 | P-05 | A problem has a draft or published status. Learners only see published problems. | Stated | Product backlog F02-01, F09-01; SPEC-F06 FR-03 |
 | P-06 | Each problem has sample tests and hidden tests. Administrators upload, store and replace them. | Stated | MVP proposal §2 and §3 (F05, F09); product backlog F09-02 |
-| P-07 | The submission message carries IDs only. The judge side loads source code and tests from PostgreSQL. | Stated in a draft | CON-02 §3 (draft, PR #38). Any DEC-09 option that stores tests outside PostgreSQL needs a CON-02 change (section 6.1). |
+| P-07 | The submission message carries IDs only. The judge side loads source code and tests from PostgreSQL. | Stated (pending DEC-04 / DEC-12) | CON-02 §3 (`docs/contracts/CON-02.md`, merged; DEC-04 and DEC-12 not yet approved). Any DEC-09 option that stores tests outside PostgreSQL needs a CON-02 change (section 6.1). |
 
 ### 3.2 Logical content of a problem
 
@@ -66,7 +66,7 @@ This table lists the parts of a problem and who uses them. It defines content, n
 
 | Part | Required | Used by | Status |
 |------|----------|---------|--------|
-| ID | Yes | F02, F03, F06 (`problem_id`), F08, CON-05 | **Proposed:** UUID, so that it matches `submissions.problem_id` in CON-05 and the examples in SPEC-F06 and SPEC-F08. Closes CON-05 `C05-OQ-21` when agreed. |
+| ID | Yes | F02, F03, F06 (`problem_id`), F08, CON-05 | **Proposed:** UUID, so that it matches `submissions.problem_id` in CON-05 (preliminary, PR #40) and the examples in SPEC-F06 and SPEC-F08. Closes CON-05 `C05-OQ-21` (PR #40) when agreed. |
 | Title | Yes, non-empty | F02-02, F03-01, SPEC-F08 (`problem_title`) | Stated (F02-02 lists the title). Maximum length: C04-OQ-01. |
 | Difficulty | Yes | F02-02, F11 | Stated (F02-02). Allowed values: C04-OQ-02. |
 | Statement | Yes | F03-01 | Stated (F03-01). Text format (plain text or Markdown) and rendering rules: C04-OQ-03. |
@@ -87,7 +87,7 @@ This table lists the parts of a problem and who uses them. It defines content, n
 |---|------|--------|
 | P-08 | A problem may be published only if it has a title, a statement, at least one sample test and at least one hidden test. | **Proposed** (needed by F05 and F07-04; enforced by F09-01) |
 | P-09 | Changing the tests of a published problem does not change the verdicts of submissions that were already judged. | **Proposed.** Whether a new version of the tests is kept as a separate version: C04-OQ-07. |
-| P-10 | Unpublishing a problem does not delete it. Past submissions keep their `problem_id`, and SPEC-F08 keeps showing the title (SPEC-F08 FR-04a). | **Proposed**, consistent with SPEC-F08 (PR #41). Deleting a problem with submissions: C04-OQ-08. |
+| P-10 | Unpublishing a problem does not delete it. Past submissions keep their `problem_id`, and SPEC-F08 keeps showing the title (SPEC-F08 FR-04a). | **Proposed**, consistent with SPEC-F08 (merged). Deleting a problem with submissions: C04-OQ-08. |
 
 ---
 
@@ -106,9 +106,9 @@ This table lists the parts of a problem and who uses them. It defines content, n
 
 | # | Value | Status |
 |---|-------|--------|
-| T-05 | One Go source file, as UTF-8 text, with `\n` line endings. | **Proposed** (SPEC-F06 accepts a single-file submission, so the template has the same shape) |
-| T-06 | Maximum size: the same limit as `source_code` (CON-05 `C05-OQ-23`, SPEC-F06 OQ-04), so that a template can always be submitted unchanged. | **Proposed** |
-| T-07 | The template must compile together with the problem's test suite, so that submitting it unchanged gives a test verdict (normally `WRONG_ANSWER`), not `COMPILATION_ERROR`. | **Proposed.** Checked by F09-02 before publishing (C04-OQ-06). |
+| T-05 | One Go source file, as UTF-8 text without NUL (U+0000), with `\n` line endings. | **Proposed** (matches SPEC-F06 single-file and NUL rules; line-ending handling aligns with SPEC-F04 OQ-14) |
+| T-06 | Maximum size: the same limit as `source_code` (SPEC-F04 OQ-09, SPEC-F06 OQ-04, CON-05 `C05-OQ-23` in PR #40), so that a template can always be submitted unchanged. | **Proposed** |
+| T-07 | When provided, the template must compile together with the problem's test suite, so that submitting it unchanged gives a test verdict (normally `WRONG_ANSWER`), not `COMPILATION_ERROR`. | **Proposed.** Checked by F09-02 before publishing (C04-OQ-06); optionality per section 3.2 stands. |
 | T-08 | The template contains no part of any hidden test, and no hint derived from hidden content. | **Stated as a visibility rule** (V-02). |
 | T-09 | The shape of the template (full program, function or HTTP handler, and the package name) follows the submission contract. | Open: DEC-09 (section 6.3). |
 | T-10 | The format closes SPEC-F04 OQ-06 once DEC-09 is decided. | Dependency note |
@@ -125,12 +125,12 @@ This table lists the parts of a problem and who uses them. It defines content, n
 | V-02 | **Hidden content is never returned to a learner, in any response or log.** This covers every learner-facing API response (problem details, run samples, submission, submission state, history, error responses), every page, every message a learner can read, and every log line a learner can see. It covers test code, inputs, expected outputs, fixtures, test names and the output produced while hidden tests run. | **Stated** (issue #31, product backlog F07-04, RSK-07) |
 | V-03 | Hidden content is written to no application log at any level. Logs refer to tests by ID or index only. | **Stated** as part of V-02; INF-07 logging rules apply. |
 | V-04 | Only the judge (F07-04) and administrator-only endpoints (F09-02) may read hidden test assets. No learner-facing endpoint reads them. | **Stated** (product backlog F07-04: "available only to the judge Job"; F09-01: admin endpoints restricted to administrators) |
-| V-05 | Output from a hidden-test run (stdout, stderr, `go test` output, panic messages) is not returned to the learner, because the learner's code can print the hidden inputs it receives. Only the CON-01 verdict and the details allowed by section 6.4 are returned. | **Stated** as part of V-02 |
+| V-05 | Output from a hidden-test run (stdout, stderr, `go test` output, panic messages) is not returned to the learner (except filtered compilation diagnostics if permitted under V-08 / C04-OQ-10), because the learner's code can print the hidden inputs it receives. Only the CON-01 verdict and the details allowed by section 6.4 are returned. | **Stated** as part of V-02 |
 | V-06 | The learner's code must not be able to read hidden test assets during execution beyond what the test run itself passes to it (for example, by reading test files from the filesystem and printing them). | **Stated as a requirement for F07-04 and DEC-08.** How it is enforced: C04-OQ-09. Tested by F07-07 ("hidden test reads"). |
 | V-07 | Sample tests and their results may be shown to the learner, including inputs, expected outputs and the program output, bounded by the output limit (`OUTPUT_LIMIT_EXCEEDED`, CON-01 §2). | **Stated** (MVP proposal F05: "per-case feedback") |
 | V-08 | A compilation error message may be shown to the learner only if it cannot contain hidden test code. | **Proposed.** Depends on how the code is combined with the tests (DEC-09, section 6.2). C04-OQ-10. |
 | V-09 | An administrator may view and download hidden test assets only through administrator-only endpoints. | **Stated** (F09-01, F09-02) |
-| V-10 | The data in the `results` table (CON-05 §3.4) that a learner may see follows section 6.4. Data that may contain hidden content is never placed in a learner-facing response. | Stated rule; storage is CON-05 `C05-OQ-26`. |
+| V-10 | The data in the `results` table (CON-05 §3.4, preliminary PR #40) that a learner may see follows section 6.4. Data that may contain hidden content is never placed in a learner-facing response. | Stated rule; storage is CON-05 `C05-OQ-26` (PR #40). |
 
 ### 5.2 How the rules are checked
 
@@ -162,7 +162,7 @@ This table lists the parts of a problem and who uses them. It defines content, n
 | Option | Description | For | Against |
 |--------|-------------|-----|---------|
 | A. Input/output pairs | Each test case is an input text and an expected output text. A fixed harness runs the program and compares the output. | Simple for algorithmic problems; easy admin forms; per-case feedback for F05 is natural. | Does not cover HTTP-handler challenges (P-04). The proposal asks for "Go testing framework instead of stdin/stdout-only evaluation" (MVP proposal §12, Proposed). |
-| B. Go test files per problem | The admin writes `_test.go` files that call the learner's code. The judge runs `go test`. | Covers functions, components and HTTP handlers (P-02, P-04) with the standard library (`net/http/httptest`). Matches P-03. | Test files are compiled into the same package as the learner's code, which makes V-06 and V-08 harder. Admins must write Go tests. Mapping individual test results to per-case feedback needs `go test -json`. |
+| B. Go test files per problem | The admin writes `_test.go` files that call the learner's code. The judge runs `go test`. | Covers functions, components and HTTP handlers (P-02, P-04) with the standard library (`net/http/httptest`). Matches P-03. | Test files are compiled alongside the learner's code (same package or external `<pkg>_test` package), so V-06 and V-08 still require isolating test sources from runtime access and filtering compiler diagnostics. Admins must write Go tests. Mapping individual test results to per-case feedback needs `go test -json`. |
 | C. Hybrid | Test cases are data (input and expected output, or request and expected response); one Go test harness per problem type reads them and runs them with `go test`. | Covers both challenge types; admins mostly edit data; per-case results are easy to report. | More design work; harnesses for each challenge type must be written and reviewed. |
 
 ### 6.3 Submission contract and template shape
@@ -194,10 +194,11 @@ None of A–D allows hidden content to be returned (V-02).
 | SPEC-F04, F04-01 (editor) | Section 4; closes SPEC-F04 OQ-06 | Pair D (SPEC-F04 author) |
 | F05 (run samples) | Sample tests, V-07, 6.2 | To be confirmed by the mentor |
 | F07-04 (hidden test assets, judge) | 6.1, 6.2, V-02 to V-06 | Pair C (`sprint-02.md` §9: "F07-04 later") |
-| F09-02 (admin test management) | 6.1, 6.2, P-08, P-09, V-09 | To be confirmed by the mentor |
-| CON-05 (data model) | 6.1, section 3.2; closes `C05-OQ-21`, input to `C05-OQ-26` | Pair D |
+| SPEC-F09, F09-02 (admin problem and test management) | 3.2, 6.1, 6.2, P-08, P-09, V-09 | To be confirmed by the mentor |
+| CON-05 (data model, preliminary PR #40) | 6.1, section 3.2; closes `C05-OQ-21`, input to `C05-OQ-26` | Pair D |
 | CON-02 (messaging) | P-07 must stay true, or CON-02 changes (6.1 option C) | Pair B |
 | SPEC-F08 (history) | Title (3.2), P-10, 6.4; closes SPEC-F08 OQ-04 and the `problems` source of `problem_title` | Pair A |
+| TST-01 (reference challenge fixtures) | 3.2, 4.2, 6.1–6.3, C04-OQ-12 (algorithmic and HTTP-handler fixtures) | To be confirmed by the mentor |
 
 ---
 
@@ -213,9 +214,10 @@ None of A–D allows hidden content to be returned (V-02).
 | C04-OQ-06 | Is a reference solution required, and must F09 check before publishing that it passes all tests and that the starter template compiles (T-07)? | 3.2, 4.2, F09-02 | Mentor | No | Yes to both |
 | C04-OQ-07 | Are tests versioned when an admin replaces them? Does a submission record which test version judged it? | P-09, CON-05 | Pair A, Pair D | Yes | Yes, a version number on the test set, stored with the result |
 | C04-OQ-08 | Can a problem with submissions be deleted, or only unpublished? | P-10, SPEC-F08, CON-05 | Mentor, Pair D | No | Only unpublished (`RESTRICT` on `submissions.problem_id`) |
-| C04-OQ-09 | How does the judge Job keep hidden test assets unreadable by the learner's code (V-06)? | V-06, F07-04, DEC-08 | Pair C, DEC-08 owner | Yes | Input for DEC-08 and SPK-05; no default here |
+| C04-OQ-09 | How does the judge Job keep hidden test assets unreadable by the learner's code (V-06)? | V-06, F07-04, DEC-08 | Pair C (F07-04), Pair B (SPK-05 / DEC-08 input) | Yes | Input for DEC-08 and SPK-05; no default here |
 | C04-OQ-10 | Can compiler messages contain hidden test code, and if so, how are they filtered before they are shown (V-08)? | V-08, F07-05 | Pair C | Yes | Depends on 6.2 |
-| C04-OQ-11 | Maximum size of a test asset or package, and allowed file types in a package (6.1 B and C). | 6.1, F09-02 | Pair A, F09 owner | No | Decided after DEC-09 |
+| C04-OQ-11 | Maximum size of a test asset or package, and allowed file types in a package (6.1 B and C). Note: SPK-05 SC-B proposes delivering code and tests into a `network=none` Pod via read-only volumes (e.g., ConfigMap, which imposes a ~1 MiB Kubernetes/etcd limit). | 6.1, F09-02, SPK-05 | Pair A, F09 owner | No | Decided after DEC-09 and DEC-08 |
+| C04-OQ-12 | Go module (`go.mod`), Go version pin (DEC-14) and allowed package dependencies in a problem package under offline (`no network`) judge execution (SPK-01, SPK-05). | 3.2, 6.2, F07-04, F09-02, TST-01 | Pair A, F07 owner, Mentor | Yes | Standard library only, pinned `go.mod` per DEC-14 (no external module downloads) |
 
 ---
 
@@ -224,8 +226,8 @@ None of A–D allows hidden content to be returned (V-02).
 The contract cannot be marked Approved until all of the following are true:
 
 1. DEC-09 is decided by the mentor (MA-14), covering 6.1, 6.2, 6.3 and 6.4.
-2. The open questions marked "Blocks final approval: Yes" in section 8 are resolved: C04-OQ-03, 04, 05, 07, 09 and 10.
-3. CON-05 defines the problem and test-asset entities that follow section 3.2 and DEC-09, and closes `C05-OQ-21`.
+2. The open questions marked "Blocks final approval: Yes" in section 8 are resolved: C04-OQ-03, 04, 05, 07, 09, 10 and 12.
+3. CON-05 (preliminary, PR #40) defines the problem and test-asset entities that follow section 3.2 and DEC-09, and closes `C05-OQ-21`.
 4. CON-02 is confirmed to match the chosen storage (P-07).
 5. Every dependent pair in section 7 has recorded its agreement in section 10.
 
@@ -239,6 +241,8 @@ The contract cannot be marked Approved until all of the following are true:
 | Pair C | No (draft) | — | — |
 | Pair D | No (draft) | — | — |
 
+*Note: final sign-off rows will be confirmed once Sprint 3 owners are assigned for SPEC-F03, F03-01, F05, SPEC-F09, F09-02 and TST-01 (section 7).*
+
 ---
 
 ## 11. Change Log
@@ -246,3 +250,4 @@ The contract cannot be marked Approved until all of the following are true:
 | Date | Change | Author |
 |------|--------|--------|
 | 2026-11-22 | First draft for Sprint 2 (issue #31) | Pair A |
+| 2026-11-24 | Added Go dependency/offline build question (C04-OQ-12), SPK-05 ConfigMap size constraint (C04-OQ-11), missing backlog dependents (SPEC-F09, TST-01), synced merged CON-02/F06/F08 refs vs CON-05 PR #40, and resolved T-07/V-05/F04 cross-ref gaps | Pair A |
