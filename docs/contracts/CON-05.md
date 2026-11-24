@@ -96,12 +96,14 @@ One row per submission. Holds the lifecycle **state** (CON-01 §1) and the final
 ```sql
 CONSTRAINT submissions_state_verdict_chk CHECK (
      (state IN ('QUEUED', 'RUNNING', 'CANCELLED') AND verdict IS NULL)
-  OR (state = 'COMPLETED' AND verdict IN (
+  OR (state = 'COMPLETED' AND verdict IS NOT NULL AND verdict IN (
         'ACCEPTED', 'WRONG_ANSWER', 'COMPILATION_ERROR', 'RUNTIME_ERROR',
         'TIME_LIMIT_EXCEEDED', 'MEMORY_LIMIT_EXCEEDED', 'OUTPUT_LIMIT_EXCEEDED'))
-  OR (state = 'FAILED' AND verdict = 'INTERNAL_ERROR')
+  OR (state = 'FAILED' AND verdict IS NOT NULL AND verdict = 'INTERNAL_ERROR')
 )
 ```
+
+**Why `verdict IS NOT NULL` is needed.** SQL uses three-valued logic: `NULL IN (...)` and `NULL = '...'` are `NULL`, not `FALSE`. PostgreSQL accepts a row when a `CHECK` is `TRUE` **or `NULL`**, so without the explicit test `COMPLETED` / `FAILED` with a `NULL` verdict would pass. With it, every invalid pair evaluates to `FALSE`.
 
 | `state` | `verdict` |
 |---|---|
