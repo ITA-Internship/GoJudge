@@ -1,0 +1,11 @@
+{"Time":"2026-11-25T09:19:02.412997137Z","Action":"start"}
+{"Time":"2026-11-25T09:19:02.413868803Z","Action":"run","Test":"TestNetworkEgress"}
+{"Time":"2026-11-25T09:19:02.413884553Z","Action":"output","Test":"TestNetworkEgress","Output":"=== RUN   TestNetworkEgress\n","OutputType":"frame"}
+{"Time":"2026-11-25T09:19:02.452334804Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:28: outbound TCP to 1.1.1.1:443 succeeded in 38ms (remote 1.1.1.1:443)\n","OutputType":"error"}
+{"Time":"2026-11-25T09:19:02.453113512Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:28: outbound TCP to 8.8.8.8:53 succeeded in 1ms (remote 8.8.8.8:53)\n","OutputType":"error"}
+{"Time":"2026-11-25T09:19:02.486287679Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:28: outbound TCP to google.com:443 succeeded in 33ms (remote 142.250.120.102:443)\n","OutputType":"error"}
+{"Time":"2026-11-25T09:19:02.486405804Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:28: outbound TCP to 10.43.0.1:443 succeeded in 0s (remote 10.43.0.1:443)\n","OutputType":"error"}
+{"Time":"2026-11-25T09:19:02.486418804Z","Action":"output","Test":"TestNetworkEgress","Output":"--- FAIL: TestNetworkEgress (0.07s)\n","OutputType":"frame"}
+{"Time":"2026-11-25T09:19:02.486421554Z","Action":"fail","Test":"TestNetworkEgress","Elapsed":0.07}
+{"Time":"2026-11-25T09:19:02.48642847Z","Action":"output","Output":"FAIL\n","OutputType":"frame"}
+{"Time":"2026-11-25T09:19:02.486599929Z","Action":"fail","Elapsed":0.074}

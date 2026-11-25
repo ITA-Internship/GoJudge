@@ -1,0 +1,11 @@
+{"Time":"2026-11-25T09:20:36.391702597Z","Action":"start"}
+{"Time":"2026-11-25T09:20:36.392496555Z","Action":"run","Test":"TestProcessLimit"}
+{"Time":"2026-11-25T09:20:36.392513764Z","Action":"output","Test":"TestProcessLimit","Output":"=== RUN   TestProcessLimit\n","OutputType":"frame"}
+{"Time":"2026-11-25T09:20:36.39252443Z","Action":"output","Test":"TestProcessLimit","Output":"    procs_test.go:24: pids.max: max\n"}
+{"Time":"2026-11-25T09:20:36.430940847Z","Action":"output","Test":"TestProcessLimit","Output":"    cpu_test.go:82: /sys/fs/cgroup/pids.current:\n"}
+{"Time":"2026-11-25T09:20:36.430959055Z","Action":"output","Test":"TestProcessLimit","Output":"        127\n"}
+{"Time":"2026-11-25T09:20:36.430961305Z","Action":"output","Test":"TestProcessLimit","Output":"    procs_test.go:48: stopped after 119 processes: fork/exec /bin/sleep: resource temporarily unavailable\n"}
+{"Time":"2026-11-25T09:20:36.436713722Z","Action":"output","Test":"TestProcessLimit","Output":"--- PASS: TestProcessLimit (0.04s)\n","OutputType":"frame"}
+{"Time":"2026-11-25T09:20:36.436724847Z","Action":"pass","Test":"TestProcessLimit","Elapsed":0.04}
+{"Time":"2026-11-25T09:20:36.436730889Z","Action":"output","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-25T09:20:36.436847847Z","Action":"pass","Elapsed":0.045}

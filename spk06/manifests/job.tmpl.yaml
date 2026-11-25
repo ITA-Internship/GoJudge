@@ -1,0 +1,52 @@
+# One Job per check. run-suite.sh fills the __PLACEHOLDERS__
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: spk06-__AREA__-
+  namespace: spk06
+  labels:
+    app: spk06
+    area: __AREA__
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: __DEADLINE__
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: spk06
+        area: __AREA__
+    spec:
+      runtimeClassName: __RUNTIME_CLASS__
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 1
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: judge
+          image: gojudge-spk06:dev
+          imagePullPolicy: Never
+          command: __COMMAND__
+          env:
+            - name: HOME
+              value: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests: { memory: "__MEMORY__", cpu: "250m" }
+            limits:   { memory: "__MEMORY__", cpu: "__CPU__" }
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi

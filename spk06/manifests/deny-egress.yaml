@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: spk06-deny-egress
+  namespace: spk06
+spec:
+  podSelector:
+    matchLabels:
+      app: spk06
+  policyTypes:
+    - Egress
+  # no egress rules: all outbound traffic is denied, DNS included

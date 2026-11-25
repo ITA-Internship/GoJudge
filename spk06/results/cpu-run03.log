@@ -1,0 +1,19 @@
+{"Time":"2026-11-25T09:19:25.1485278Z","Action":"start"}
+{"Time":"2026-11-25T09:19:25.149254633Z","Action":"run","Test":"TestCPUBurn"}
+{"Time":"2026-11-25T09:19:25.149271633Z","Action":"output","Test":"TestCPUBurn","Output":"=== RUN   TestCPUBurn\n","OutputType":"frame"}
+{"Time":"2026-11-25T09:19:25.149280467Z","Action":"output","Test":"TestCPUBurn","Output":"    cpu_test.go:62: cpu.max: 100000 100000\n"}
+{"Time":"2026-11-25T09:19:30.149748136Z","Action":"output","Test":"TestCPUBurn","Output":"    cpu_test.go:44: workers=10 wall=5s cpu=5.044s used_cores=1.01 limit_cores=1.00\n"}
+{"Time":"2026-11-25T09:19:30.149811386Z","Action":"output","Test":"TestCPUBurn","Output":"    cpu_test.go:82: /sys/fs/cgroup/cpu.stat:\n"}
+{"Time":"2026-11-25T09:19:30.149816427Z","Action":"output","Test":"TestCPUBurn","Output":"        usage_usec 5054402\n"}
+{"Time":"2026-11-25T09:19:30.149818427Z","Action":"output","Test":"TestCPUBurn","Output":"        user_usec 5012893\n"}
+{"Time":"2026-11-25T09:19:30.149820552Z","Action":"output","Test":"TestCPUBurn","Output":"        system_usec 41508\n"}
+{"Time":"2026-11-25T09:19:30.149822219Z","Action":"output","Test":"TestCPUBurn","Output":"        nice_usec 0\n"}
+{"Time":"2026-11-25T09:19:30.149824636Z","Action":"output","Test":"TestCPUBurn","Output":"        nr_periods 50\n"}
+{"Time":"2026-11-25T09:19:30.149828927Z","Action":"output","Test":"TestCPUBurn","Output":"        nr_throttled 50\n"}
+{"Time":"2026-11-25T09:19:30.149831511Z","Action":"output","Test":"TestCPUBurn","Output":"        throttled_usec 30975500\n"}
+{"Time":"2026-11-25T09:19:30.149836802Z","Action":"output","Test":"TestCPUBurn","Output":"        nr_bursts 0\n"}
+{"Time":"2026-11-25T09:19:30.149838594Z","Action":"output","Test":"TestCPUBurn","Output":"        burst_usec 0\n"}
+{"Time":"2026-11-25T09:19:30.149844969Z","Action":"output","Test":"TestCPUBurn","Output":"--- PASS: TestCPUBurn (5.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-25T09:19:30.149849719Z","Action":"pass","Test":"TestCPUBurn","Elapsed":5}
+{"Time":"2026-11-25T09:19:30.149859844Z","Action":"output","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-25T09:19:30.150345136Z","Action":"pass","Elapsed":5.002}

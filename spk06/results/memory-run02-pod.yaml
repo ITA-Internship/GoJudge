@@ -1,0 +1,161 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2026-11-25T09:19:37Z"
+  generateName: spk06-memory-5mbgb-
+  generation: 1
+  labels:
+    app: spk06
+    area: memory
+    batch.kubernetes.io/controller-uid: 6e9546a6-d737-4fb0-96ac-1568430a11ac
+    batch.kubernetes.io/job-name: spk06-memory-5mbgb
+    controller-uid: 6e9546a6-d737-4fb0-96ac-1568430a11ac
+    job-name: spk06-memory-5mbgb
+  name: spk06-memory-5mbgb-d7nrr
+  namespace: spk06
+  ownerReferences:
+  - apiVersion: batch/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Job
+    name: spk06-memory-5mbgb
+    uid: 6e9546a6-d737-4fb0-96ac-1568430a11ac
+  resourceVersion: "3555"
+  uid: 3eb73a09-a84b-4705-8924-9058ce1706ff
+spec:
+  automountServiceAccountToken: false
+  containers:
+  - command:
+    - /usr/local/bin/test2json
+    - -t
+    - /usr/local/bin/trusted.test
+    - -test.v=test2json
+    - -test.run
+    - ^TestMemoryExhaustion$
+    env:
+    - name: HOME
+      value: /tmp
+    image: gojudge-spk06:dev
+    imagePullPolicy: Never
+    name: judge
+    resources:
+      limits:
+        cpu: "1"
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: true
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /tmp
+      name: tmp
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: k3d-spk06-server-0
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Never
+  schedulerName: default-scheduler
+  securityContext:
+    runAsGroup: 65532
+    runAsNonRoot: true
+    runAsUser: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 1
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - emptyDir:
+      sizeLimit: 256Mi
+    name: tmp
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2026-11-25T09:19:40Z"
+    observedGeneration: 1
+    status: "False"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2026-11-25T09:19:37Z"
+    observedGeneration: 1
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2026-11-25T09:19:39Z"
+    observedGeneration: 1
+    reason: PodFailed
+    status: "False"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2026-11-25T09:19:39Z"
+    observedGeneration: 1
+    reason: PodFailed
+    status: "False"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2026-11-25T09:19:37Z"
+    observedGeneration: 1
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - allocatedResources:
+      cpu: 250m
+      memory: 512Mi
+    containerID: containerd://87377369817e2bf2f8662876224b202178f8007aaeed4402375a41891f0fe20e
+    image: docker.io/library/gojudge-spk06:dev
+    imageID: sha256:9357d550097c36f0da86bffac80268bfc4c88818773f2c62bbde285404727f0a
+    lastState: {}
+    name: judge
+    ready: false
+    resources:
+      limits:
+        cpu: "1"
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    restartCount: 0
+    started: false
+    state:
+      terminated:
+        containerID: containerd://87377369817e2bf2f8662876224b202178f8007aaeed4402375a41891f0fe20e
+        exitCode: 137
+        finishedAt: "2026-11-25T09:19:38Z"
+        reason: OOMKilled
+        startedAt: "2026-11-25T09:19:38Z"
+    user:
+      linux:
+        gid: 65532
+        supplementalGroups:
+        - 65532
+        uid: 65532
+    volumeMounts:
+    - mountPath: /tmp
+      name: tmp
+  hostIP: 172.23.0.3
+  hostIPs:
+  - ip: 172.23.0.3
+  observedGeneration: 1
+  phase: Failed
+  podIP: 10.42.0.37
+  podIPs:
+  - ip: 10.42.0.37
+  qosClass: Burstable
+  startTime: "2026-11-25T09:19:37Z"
