@@ -22,7 +22,7 @@
 |----------|--------------------------------------|-----------------------|
 | `SPEC-F03` *(missing)* | **No specification file exists yet** (outside Sprint 2 committed scope; mentor confirmed on 25 Nov to work from existing descriptions) | Source requirements derived from `docs/product/mvp-proposal.md` (§3, §11), `docs/product/product-backlog.md` (`F03-01`, `F03-02`, `SPEC-F03`), `specs/features/F04-browser-code-editor.md` (`FR-10`–`FR-14`, `OQ-13`), `specs/features/F06-submit-solution.md` (`FR-03`), and `CON-04` (`§3.2`, `P-05`, `V-02`, `V-04`). Gaps recorded explicitly as missing requirements / blockers. |
 | `SPEC-F06` | `specs/features/F06-submit-solution.md` (merged on `main`, Status: `In Review`, not formally Approved) | Full inventory (`FR-01`–`FR-11`, `AC-01`–`AC-08`, `OQ-01`–`OQ-04`). |
-| `SPEC-F08` | `specs/features/F08-submission-history.md` (branch `docs/spec-f08`, PR `#41`, Status: `In Review`; not yet merged to `main` as of 2026-11-26 and not formally Approved) | Full inventory (`FR-01`–`FR-21` including `FR-04a`, `AC-01`–`AC-19`, `OQ-01`–`OQ-10`). |
+| `SPEC-F08` | `specs/features/F08-submission-history.md` (merged on `main` via PR `#41` on 2026-11-26, Status: `In Review`, not formally Approved) | Full inventory (`FR-01`–`FR-21` including `FR-04a`, `AC-01`–`AC-19`, `OQ-01`–`OQ-10`). |
 | `CON-01` | `docs/contracts/CON-01.md` (merged on `main`) | Canonical submission lifecycle states (`QUEUED`, `RUNNING`, `COMPLETED`, `FAILED`, `CANCELLED`), verdicts, invariants, and open `Duplicate Submissions` question. |
 | `CON-02` | `docs/contracts/CON-02.md` (merged on `main`; `DEC-04` and `DEC-12` not yet approved) | Publisher contract (`F06-02`: IDs-only payload, `schema_version: 1`, `submissions.dispatch`, `idempotency_key = submission_id`) and crash-recovery / cancellation open questions. |
 | `CON-04` | `docs/contracts/CON-04.md` (branch `docs/con-04-draft`, issue `#31`, PR `#47`, Status: `Draft`; `DEC-09` Open) | Problem logical content (`§3.2`), package rules (`P-01`–`P-10`), starter template (`§4`), and hidden-test visibility rules (`V-01`–`V-10`). |
@@ -255,7 +255,7 @@
 
 ### 2.4 Submission History and Pagination Scenarios
 
-> **Status of the source.** `SPEC-F08` is in review (PR `#41`) and not approved. The scenarios below test what `SPEC-F08` currently states. Where the expected result depends on an open decision (`F08 OQ-02`, `OQ-07`, `OQ-09`, `OQ-08`, `OQ-10`, `C04-OQ-08`), the scenario is marked *Partially Blocked* and the open part is written as a competing interpretation, not as a rule (`MQ-07`, `MQ-08`).
+> **Status of the source.** `SPEC-F08` is merged on `main` (PR `#41`) with status `In Review` and is not approved. The scenarios below test what `SPEC-F08` currently states. Where the expected result depends on an open decision (`F08 OQ-02`, `OQ-07`, `OQ-09`, `OQ-08`, `OQ-10`, `C04-OQ-08`), the scenario is marked *Partially Blocked* and the open part is written as a competing interpretation, not as a rule (`MQ-07`, `MQ-08`).
 
 #### `SCN-HIS-01` – Empty history for a signed-in learner with no submissions
 
@@ -457,7 +457,7 @@
 | AC-07 | AC | Duplicate active submission handling (open question `OQ-01`) | `SCN-SUB-04` | Blocked | Blocked on `CON-01` Duplicate Submissions, `F06 OQ-01`, and `CON-05 C05-OQ-20` (`MQ-02`). |
 | AC-08 | AC | Editor submit action and regular short polling until terminal state | `SCN-E2E-01`, `SCN-E2E-02`, `SCN-SUB-05` | Partially Blocked | Exact polling interval/timeout open (`INC-06`, `MQ-06`). |
 
-### 3.3 `SPEC-F08` – Submission History (`specs/features/F08-submission-history.md`, PR `#41`)
+### 3.3 `SPEC-F08` – Submission History (`specs/features/F08-submission-history.md`)
 
 | Req ID | Type | Summary | Mapped Scenarios | Status | Rationale / Blocker |
 |--------|------|---------|------------------|--------|---------------------|
