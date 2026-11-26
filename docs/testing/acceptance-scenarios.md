@@ -90,7 +90,7 @@
   3. Repeat `GET /api/v1/submissions` against the pre-`F07-05` fixture where no verdicts are written yet.
 - **Observable expected results:**
   1. `F06` state endpoint returns `200 OK` with exact `CON-01` names: `S-QUEUED` → `QUEUED` / `null`; `S-RUN` → `RUNNING` / `null`; `S-WA` → `COMPLETED` / `"WRONG_ANSWER"`; `S-FAIL` → `FAILED` / `"INTERNAL_ERROR"`; `S-CANCEL` → `CANCELLED` / `null`. UI polling stops for `COMPLETED`, `FAILED`, and `CANCELLED` (`F06 FR-11`, `AC-08`).
-  2. `F08` history endpoint returns identical `state` and `verdict` values for all five items (`F08 FR-05`, `FR-06`, `AC-05`, `AC-06`). The UI displays `"Pending"` for `QUEUED` and `RUNNING`, `"WRONG_ANSWER"` for `S-WA`, `"INTERNAL_ERROR"` for `S-FAIL`, and `"—"` for `CANCELLED` (`F08 FR-17`, `AC-14`).
+  2. `F08` history endpoint returns identical `state` and `verdict` values for all five items (`F08 FR-05`, `FR-06`, `AC-05`, `AC-06`). The UI displays the problem title (`"Two Sum"`), the send time (`created_at`) in the user's local time zone, the state, and `"Pending"` for `QUEUED` and `RUNNING`, `"WRONG_ANSWER"` for `S-WA`, `"INTERNAL_ERROR"` for `S-FAIL`, and `"—"` for `CANCELLED` in the verdict column (`F08 FR-16`, `FR-17`, `AC-14`).
   3. On the pre-`F07-05` fixture, `GET /api/v1/submissions` returns `200 OK` with `verdict: null` for every item without inventing verdicts (`F08 FR-07`, `AC-07`).
   4. *Open dependency notes:* (a) How `CANCELLED` propagates to an in-flight execution is open in `CON-02` (Owner: `F07-01`); this scenario verifies only the read contract once `CANCELLED` is persisted. (b) Interaction between pre-`F07-05` `F07-01` mock completion and `CON-05 submissions_state_verdict_chk` is recorded in `INC-09`.
 
@@ -275,7 +275,7 @@
 
 #### `SCN-HIS-02` – Problem title for published, unpublished and unavailable problems *(Partially Blocked — Unresolved Decision)*
 
-- **Source references:** `SPEC-F08 (FR-04, FR-04a, FR-16, AC-04, AC-18, §6, §8)`, `SPEC-F06 (FR-03)`, `CON-04 (§3.2, P-10)`, `CON-05 (C05-OQ-22, C05-OQ-26)`.
+- **Source references:** `SPEC-F08 (FR-04, FR-04a, FR-16, AC-04, AC-18, §6, §8)`, `SPEC-F06 (FR-03)`, `CON-04 (§3.2, P-10)`, `CON-05 (§1, C05-OQ-21)`.
 - **Preconditions:**
   - Learner A owns three submissions: `S-T1` for problem `P-PUB` (published, title `"Two Sum"`), `S-T2` for problem `P-UNPUB` (title `"Valid Parentheses"`, created as published and **unpublished after** the submission was made), and `S-T3` for problem `P-GONE`, whose problem record cannot be read.
   - `P-GONE` is created with a test double or a fixture without the problem row. Whether a real problem can be deleted is open (`C04-OQ-08`, proposed default: only unpublished), so this scenario does not assume a delete operation exists.
@@ -289,7 +289,7 @@
   2. The page shows `"Two Sum"` and `"Valid Parentheses"` for the first two rows, and the fixed text `"Problem unavailable"` with no link for `S-T3` (`F08 FR-16`, `AC-18`).
   3. The new submission to `P-UNPUB` is rejected with `404 Not Found`, while the old `S-T2` stays in the history. This shows that `F06 FR-03` applies only when a submission is created (`F08 §8`, `SCN-SUB-03`).
   4. After the rename, `S-T1` shows `problem_title: "Two Sum II"` (the current title, not a copy taken at submission time).
-  5. *Unresolved parts:* (a) whether `S-T3` can occur in production depends on whether problems can be deleted (`C04-OQ-08`) and on the foreign key in `CON-05` (`C05-OQ-22`); `P-10` in `CON-04` is `Proposed`. (b) The exact `problems` table and title column are not defined (`F08 §7.2`, `CON-05 C05-OQ-26`). Both are recorded in `INC-10` and `MQ-08`.
+  5. *Unresolved parts:* (a) whether `S-T3` can occur in production depends on whether problems can be deleted (`C04-OQ-08`) and on the `submissions.problem_id` foreign key in `CON-05` (`C05-OQ-21`); `P-10` in `CON-04` is `Proposed`. (b) The exact `problems` table and title column are not defined (`F08 §7.2`, `CON-05 §1` explicitly excludes `problem` entities, `C05-OQ-21`). Both are recorded in `INC-10` and `MQ-08`.
 
 #### `SCN-HIS-03` – History is read-only; unexpected stored data returns `500 internal_error` *(Partially Blocked — Unresolved Decision)*
 
@@ -321,7 +321,7 @@
   2. Sign in and open the page. Note the rows shown.
   3. While the page is open, let `S-25` reach `COMPLETED` / `ACCEPTED`, wait, then press "Refresh".
   4. Press "Load more" until the control disappears.
-  5. Make the next API call fail (`503`, then `500`, then a dropped connection), press "Load more" or "Refresh", then restore the API and press "Try again".
+  5. Make the next API call fail (`503`, then `500`, then `400`, then a dropped connection), press "Load more" or "Refresh", then restore the API and press "Try again".
 - **Observable expected results:**
   1. A visitor without a valid session cannot see any submission rows. The API call returns `401` with no data (`F08 FR-13`, `AC-12`) and the sign-in flow of `F01` is used. *Unresolved part:* the exact redirect or message is defined by `F01`, not by `F08` (`F08 FR-15` states only that the page is reachable by signed-in users).
   2. After sign-in the page shows 20 rows (default page size), the "Load more" control and the newest row `S-25` with `"Pending"` in the verdict column (`F08 FR-17`, `AC-14`).
@@ -368,7 +368,7 @@
   | 24 | `S-02` | 10:01:00 | 3 | 2 |
   | 25 | `S-01` | 10:00:00 | 3 | 2 |
 
-  - Learner B's 5 submissions have `created_at` of 10:03:30, 10:08:30, 10:12:00 (same as the first tie group), 10:16:30 and 10:19:30.
+  - Learner B's 5 submissions have `created_at` of 10:03:30, 10:08:30, 10:12:00 (same as the first split tie group `S-14`–`S-16`), 10:16:30 and 10:19:30.
 - **Actions:**
   1. Learner A calls `GET /api/v1/submissions?page_size=10`, then calls it again with each returned `next_page_token` as `page_token`, until `next_page_token` is empty. Record every page.
   2. Learner A calls `GET /api/v1/submissions?page_size=25` once, and calls it without `page_size` and then with the returned token.
@@ -376,7 +376,7 @@
   4. Open the history page as Learner A, press "Load more" once.
 - **Observable expected results:**
   1. Step 1 gives three pages with 10, 10 and 5 items. `next_page_token` is non-empty on pages 1 and 2 and `""` on page 3 (`F08 FR-09`, `AC-09`). Page 1 holds `S-25` … `S-16`, page 2 holds `S-15` … `S-06`, page 3 holds `S-05` … `S-01`.
-  2. The 25 `id` values of the three pages are all different and are exactly the 25 ids of the dataset (no duplicate, no omission), including the three members of the first tie group and both members of the second one (`F08 AC-09`).
+  2. The 25 `id` values of the three pages are all different and are exactly the 25 ids of the dataset (no duplicate, no omission), including the three members of the first split tie group (`S-14`–`S-16`) and both members of the second split tie group (`S-05`/`S-06`) (`F08 AC-09`).
   3. The concatenation of the three pages is identical, item by item, to the single response with `page_size=25`, which has `next_page_token: ""` (stable order, `F08 FR-08`, `AC-08`).
   4. Without `page_size` the first page has 20 items (`S-25` … `S-06`) and the second page has 5 items (`S-05` … `S-01`), with no duplicates (`F08 AC-16`).
   5. No item of Learner B appears in any page of Learner A, and no item of Learner A appears for Learner B; each traversal of Learner B's 5 submissions with `page_size=2` gives 2, 2 and 1 items without duplicates (`F08 FR-03`).
@@ -390,7 +390,7 @@
   - Learner A owns 130 submissions (fixture; any valid states). Learner B owns 3 submissions.
   - Learner A has obtained a valid `next_page_token` `T-A` from `GET /api/v1/submissions?page_size=10`.
 - **Test data:**
-  - `page_size` values: *(unset)*, `0`, `1`, `20`, `100`, `101`, `500`, `-1`, `abc`, `1.5`.
+  - `page_size` values: *(unset)*, `0`, `1`, `20`, `100`, `101`, `500`, `-1`, `abc`, `1.5`, and an empty value.
   - `page_token` values: a valid token (`T-A`), `T-A` with one character changed, `T-A` cut in half, an arbitrary string (`"abc"`), a base64 string built by the client with a plausible `created_at` and `id`, and an empty value.
 - **Actions:**
   1. Learner A calls the endpoint with each `page_size` value.
@@ -465,19 +465,19 @@
 | FR-02 | FR | Derive owner strictly from validated token; ignore query/header/body user ID or role | `SCN-SEC-02` | Covered | — |
 | FR-03 | FR | Never return another user's submissions (learners and administrators alike) | `SCN-SEC-02` | Covered | — |
 | FR-04 | FR | Return the six `F06` fields plus `problem_title` | `SCN-E2E-01`, `SCN-E2E-02` | Covered | — |
-| FR-04a | FR | `problem_title` shows current title (published or unpublished), or `null` if problem missing | `SCN-HIS-02` | Partially Blocked | The unpublished-problem case is covered. The missing-problem case depends on whether problems can be deleted (`C04-OQ-08`) and on the foreign key (`C05-OQ-22`); `CON-04 P-10` is `Proposed` (`INC-10`, `MQ-08`). |
+| FR-04a | FR | `problem_title` shows current title (published or unpublished), or `null` if problem missing | `SCN-HIS-02` | Partially Blocked | The unpublished-problem case is covered. The missing-problem case depends on whether problems can be deleted (`C04-OQ-08`) and on the `submissions.problem_id` foreign key (`C05-OQ-21`); `CON-04 P-10` is `Proposed` (`INC-10`, `MQ-08`). |
 | FR-05 | FR | Exact `CON-01` state and verdict names | `SCN-E2E-01`, `SCN-E2E-02` | Covered | — |
 | FR-06 | FR | `verdict` is `null` for `QUEUED`, `RUNNING`, `CANCELLED`; test verdict for `COMPLETED`; `INTERNAL_ERROR` for `FAILED` | `SCN-E2E-01`, `SCN-E2E-02` | Covered | — |
 | FR-07 | FR | Read stored verdict only; `null` until `F07-05` populates verdicts | `SCN-E2E-02` | Covered | See `INC-09` (`CON-05` check constraint vs `F07-01` mock). |
 | FR-08 | FR | Order by `created_at DESC`, tie-break by `id DESC` | `SCN-PAG-01` | Covered | Ordering rule is stated in `F08 FR-08`; the index (`F08 OQ-06`) affects only performance. |
-| FR-09 | FR | Keyset pagination (`page_size` default 20, max 100; `next_page_token`, empty on last page) | `SCN-PAG-01`, `SCN-PAG-03` | Partially Blocked | Keyset pagination, parameter names and response shape are open in `F08 OQ-02`; behaviour under concurrent inserts has no `AC` in `F08` (`INC-05`, `MQ-08`). |
+| FR-09 | FR | Keyset pagination (`page_size` default 20, max 100; `next_page_token`, empty on last page) | `SCN-PAG-01`, `SCN-PAG-02`, `SCN-PAG-03` | Partially Blocked | Keyset pagination, parameter names and response shape are open in `F08 OQ-02`; behaviour under concurrent inserts has no `AC` in `F08` (`INC-05`, `MQ-08`). |
 | FR-10 | FR | Reject negative/non-integer `page_size` or invalid `page_token` with `400` | `SCN-PAG-02` | Partially Blocked | Rules are open in `F08 OQ-02`; the result of another user's valid token and of empty parameter values is not stated (`MQ-08`). |
 | FR-11 | FR | `200 OK` with empty `submissions` list when caller has no submissions | `SCN-HIS-01` | Covered | — |
 | FR-12 | FR | Never return `source_code`, hidden test data, other users' data, `auth_subject`, email, or tokens | `SCN-E2E-01`, `SCN-SEC-03` | Covered | — |
 | FR-13 | FR | `401` without valid access token | `SCN-SEC-01` | Covered | — |
 | FR-14 | FR | Endpoint is strictly read-only | `SCN-HIS-03` | Covered | — |
 | FR-15 | FR | "My submissions" page reachable only by signed-in users | `SCN-HIS-04` | Covered | Exact sign-in redirect belongs to `F01`. |
-| FR-16 | FR | Row displays `problem_title` (or `"Problem unavailable"` when `null`), local time, state, verdict | `SCN-E2E-01`, `SCN-E2E-02`, `SCN-HIS-02` | Partially Blocked | Display of a title is covered; the `"Problem unavailable"` branch depends on `C04-OQ-08` and `C05-OQ-22` (`INC-10`, `MQ-08`). |
+| FR-16 | FR | Row displays `problem_title` (or `"Problem unavailable"` when `null`), local time, state, verdict | `SCN-E2E-01`, `SCN-E2E-02`, `SCN-HIS-02` | Partially Blocked | Display of a title is covered; the `"Problem unavailable"` branch depends on `C04-OQ-08` and `C05-OQ-21` (`INC-10`, `MQ-08`). |
 | FR-17 | FR | UI verdict column shows `"Pending"` (`QUEUED`/`RUNNING`) and `"—"` (`CANCELLED` / other `null`) | `SCN-E2E-02` | Covered | — |
 | FR-18 | FR | Empty history message + catalogue link | `SCN-HIS-01` | Covered | — |
 | FR-19 | FR | "Load more" control using `next_page_token`, hidden when empty | `SCN-PAG-01`, `SCN-HIS-04` | Partially Blocked | Token and page-size rules are open in `F08 OQ-02` (`MQ-08`). |
@@ -500,7 +500,7 @@
 | AC-15 | AC | UI "Refresh" reloads updated state/verdict | `SCN-HIS-04` | Partially Blocked | Manual refresh only; auto-refresh is open (`F08 OQ-07`, `MQ-06`). |
 | AC-16 | AC | UI "Load more" appends next page and hides when exhausted | `SCN-PAG-01`, `SCN-HIS-04` | Partially Blocked | Open in `F08 OQ-02` (`MQ-08`). |
 | AC-17 | AC | UI error state + "Try again" on network/`503`/`500` | `SCN-HIS-03`, `SCN-HIS-04` | Partially Blocked | The `500` case depends on `F08 OQ-09` (`INC-03`, `MQ-07`). |
-| AC-18 | AC | Unpublished problem keeps title; missing problem shows `null` / `"Problem unavailable"` | `SCN-HIS-02` | Partially Blocked | Missing-problem branch depends on `C04-OQ-08` and `C05-OQ-22` (`INC-10`, `MQ-08`). |
+| AC-18 | AC | Unpublished problem keeps title; missing problem shows `null` / `"Problem unavailable"` | `SCN-HIS-02` | Partially Blocked | Missing-problem branch depends on `C04-OQ-08` and `C05-OQ-21` (`INC-10`, `MQ-08`). |
 | AC-19 | AC | Unknown `state`/`verdict` in storage returns `500 internal_error` and logs submission ID | `SCN-HIS-03` | Partially Blocked | `500 internal_error` not yet shared with `F01`/`F06` (`F08 OQ-09`, `INC-03`, `MQ-07`). |
 
 ---
