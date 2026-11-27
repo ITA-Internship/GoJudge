@@ -98,7 +98,7 @@ Contribution rules and review responsibilities are described in [CONTRIBUTING.md
 │   └── templates/
 │       └── feature-spec-template.md
 ├── cmd/                 # Main applications for this project
-│   └── gojudge/             # Placeholder entry point; replace with real code
+│   └── gojudge/         # API server entry point (see docs/architecture/http-server.md)
 ├── internal/            # Private application and library code
 ├── infra/               # Local infrastructure: k3d cluster, RabbitMQ, PostgreSQL
 ├── pkg/                 # Library code safe to be imported by external applications
@@ -115,7 +115,13 @@ Contribution rules and review responsibilities are described in [CONTRIBUTING.md
 
 A local Kubernetes cluster (k3d) with RabbitMQ and PostgreSQL is set up from [infra/README.md](/infra/README.md). It covers the tools you need, the full setup from a clean machine, checks and how to connect to each service.
 
-Application setup is **to be documented** once application code exists.
+### Run the API server
+
+```bash
+go run ./cmd/gojudge
+```
+
+The server listens on `:8080` by default and exposes `GET /livez` and `GET /readyz`. Configuration, health semantics and shutdown are described in [docs/architecture/http-server.md](docs/architecture/http-server.md).
 
 ## Development Workflow
 
@@ -156,6 +162,8 @@ They are defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml):
 | [infra/README.md](/infra/README.md) | Local infrastructure: cluster, RabbitMQ and PostgreSQL |
 | [.github/ISSUE_TEMPLATE/](.github/ISSUE_TEMPLATE/) | GitHub Issue templates |
 | [.github/pull_request_template.md](.github/pull_request_template.md) | Pull request template |
+| [docs/architecture/logging.md](docs/architecture/logging.md) | Structured logging, request IDs and middleware order |
+| [docs/architecture/http-server.md](docs/architecture/http-server.md) | HTTP server configuration, health endpoints and shutdown |
 
 ## Project Status
 

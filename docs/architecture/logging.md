@@ -36,6 +36,7 @@ Example access-log line:
 | `status` | int | HTTP response status code. |
 | `duration_ms` | int | Time spent handling the request, in milliseconds. |
 | `request_id` | string | The request ID (see below). |
+| `addr` | string | Listen address, logged once at server startup. |
 
 Handlers may add other structured fields (for example `component`), provided they follow the rules below. Add any new field to this table in the same pull request.
 
@@ -63,6 +64,8 @@ The ID is for correlation only. It is not a secret and must not be used for auth
 ```go
 handler := observability.RequestID(observability.AccessLog(logger)(mux))
 ```
+
+The server in `internal/httpserver` applies this order to every handler. See [http-server.md](http-server.md).
 
 If the order is reversed, `AccessLog` runs before the ID exists and logs `request_id` as `""`.
 
