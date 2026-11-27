@@ -76,7 +76,7 @@
 | FR-11 | The system shall respond `403 Forbidden` when an authenticated user calls an action that requires a role they do not hold. |
 | FR-12 | The system shall deny by default: an endpoint is accessible only to callers it explicitly allows. |
 | FR-13 | The system shall provide `GET /api/v1/me` returning the caller's own profile. |
-| FR-14 | The system shall determine a caller's role only from server-controlled data and shall ignore any role value supplied in a request body, query string or any token claim not designated as trusted by the OQ-1 decision. |
+| FR-14 | The system shall determine a caller's role from PostgreSQL as the authoritative, server-controlled source and shall ignore role values supplied in a request body, query string or token claim. |
 | FR-15 | The system shall provide a documented way to designate at least one administrator that is not available through any public endpoint. |
 | FR-16 | The system shall not store, log or return passwords or access tokens. |
 | FR-17 | The system shall log authentication and authorization failures with a reason code and, where known, the user ID, using structured logging. |
@@ -156,7 +156,7 @@
 ### AC-12 – Role cannot be self-assigned
 
 - **Given** a signed-in `learner`
-- **When** they send a request containing a role value in the body or query string, or present a token whose role claim is not the one designated as trusted by the OQ-1 decision
+- **When** they send a request containing a role value in the body or query string, or present a token with a role claim
 - **Then** their role remains `learner`, and `GET /api/v1/me` still returns `"role": "learner"`
 
 ### AC-13 – Profile is own data only
@@ -221,14 +221,14 @@
 **Dependencies:**
 
 - Auth0 tenant (identity provider). A development tenant was verified in SPK-02. Tenant access was confirmed with the mentor (MA-05). No secrets or tokens are stored in the repository.
-- `github.com/auth0/go-jwt-middleware/v3`. SPK-02 recommends it for production because it greatly shortens parsing code and provides JWKS caching, `RS256` algorithm pinning and standard clock-skew handling.
+- `github.com/auth0/go-jwt-middleware/v3` is the approved API authentication foundation (DEC-03 / ADR-004), supported by SPK-02's successful validation outcome.
 - PostgreSQL, for the local `users` table.
-- DEC-03 (Authentication with Auth0): provisional. Formal approval and ADR recording remain with the mentor (OQ-2).
+- DEC-03 (Authentication with Auth0): Approved by the mentor and recorded in [ADR-004](../../docs/architecture/adr/ADR-004.md). OQ-2's approval/ADR requirement is resolved; this does not approve SPEC-F01.
 - SPK-02 (Auth0 OIDC token validation and role claim mapping): Go outcome. Its code is on branch `spike/SPK-02-auth0-oidc`. F01-01 may reuse its test approach.
 
 **Architecture decisions:**
 
-- DEC-03 (Authentication with Auth0): provisional, confirmed viable by SPK-02, not yet approved.
+- DEC-03 (Authentication with Auth0): Approved; SPK-02 provides successful token-validation evidence. Production uses `github.com/auth0/go-jwt-middleware/v3`, not the spike's role-mapping experiment or Resource Owner Password Flow.
 
 ---
 
@@ -289,6 +289,8 @@ Table `users`:
 | `updated_at` | timestamptz | Not null, default now. |
 
 
+**Role authority:** PostgreSQL is the authoritative source of application roles and permissions (SPEC-F01 OQ-1 / CON-05 C05-OQ-01, mentor-approved 2026-11-27). Do not grant application privileges solely from JWT role claims. Physical role-table representation remains subject to CON-05 agreement.
+
 ### 7.3 Messaging Contracts
 
 Not applicable. F01 neither publishes nor consumes queue or topic messages.
@@ -329,8 +331,8 @@ Not applicable. A user record has no lifecycle states.
 
 ## 9. Security Considerations *(Required)*
 
-- [x] **Authentication:** The caller is identified by an RS256-signed OIDC access token issued by the identity provider (Auth0, DEC-03 provisional). The API validates signature, issuer, audience and expiry on every protected request and requires a subject (FR-09). The algorithm is pinned to RS256. Issuer and audience come from configuration. Signing keys come from the provider's JWKS endpoint and are cached with a bounded TTL. The basic token validation was verified by SPK-02 using the official middleware; cache TTL behavior and unknown-key refresh were not exercised during the spike (OQ-3) and are defined with a 24-hour stale cache fallback grace period. The production sign-in flow for the web application is hosted login with Authorization Code and PKCE (provisional, OQ-6). The validation error text is logged as a reason code only and is never returned.
-- [x] **Authorization:** Roles are `learner` and `administrator`. The role is read from server-controlled data and never from client input (FR-14, AC-12). Administrator-only actions, including everything that exposes hidden tests (F09), return `403` to learners (AC-10). The API is the single authority. Denied attempts are logged with the user ID.
+- [x] **Authentication:** The caller is identified by an RS256-signed OIDC access token issued by the mentor-approved Auth0 identity provider (DEC-03, ADR-004). The API uses `github.com/auth0/go-jwt-middleware/v3` and validates signature, issuer, audience and expiry on every protected request and requires a subject (FR-09). The algorithm is pinned to RS256. Issuer and audience come from configuration. Signing keys come from the provider's JWKS endpoint and are cached with a bounded TTL. The basic token validation was verified by SPK-02; cache TTL behavior and unknown-key refresh were not exercised during the spike (OQ-3) and are defined with a 24-hour stale cache fallback grace period. The production sign-in flow for the web application remains subject to OQ-6. The validation error text is logged as a reason code only and is never returned.
+- [x] **Authorization:** Roles are `learner` and `administrator`, with PostgreSQL as the authoritative source for application roles and permissions (OQ-1 / C05-OQ-01). JWT role claims alone do not grant application privileges. The role is read from server-controlled data and never from client input (FR-14, AC-12). Administrator-only actions, including everything that exposes hidden tests (F09), return `403` to learners (AC-10). The API is the single authority. Denied attempts are logged with the user ID.
 - [x] **Input validation:** The Authorization header is parsed strictly. Token claims used for the local profile are length-bounded and treated as untrusted text. No role is accepted from any request field. Registration input (email format, password strength) is validated by the identity provider. `GET /api/v1/me` takes no input.
 - [x] **Sensitive data:** The application never receives or stores passwords. Access tokens are not stored server-side and are never logged or echoed in responses (AC-14). The only personal data stored is email and display name. The email is returned only to its owner and kept out of logs.
 - [ ] **Execution isolation:** Not applicable. F01 does not run learner-submitted code.
@@ -339,8 +341,8 @@ Not applicable. A user record has no lifecycle states.
 
 | Gap identified in SPK-02 | Security impact | Recorded as |
 |----------------|-----------------|-------------|
-| The spike read the role from the claim `https://gojudge-api/roles` in the token. It did not decide whether that claim or the local database is the source of truth. | Decides who can grant `administrator`. | OQ-1 |
-| DEC-03 is confirmed viable but not formally approved. | The identity provider choice could change. | OQ-2 |
+| The spike read the role from the claim `https://gojudge-api/roles` in the token. The mentor has selected PostgreSQL as the authoritative source; the claim is not an application authority. | Prevents role claims alone from granting application privileges. | OQ-1 resolved; see DEC-03 / ADR-004 |
+| DEC-03 is mentor-approved and recorded in ADR-004. | Identity-provider selection is fixed; SPEC-F01 still needs reviewer-pair approval. | OQ-2 resolved; remaining spec approval is separate |
 | Stale-cache behavior after the 5-minute TTL, and refresh on an unknown key ID, were not exercised. | AC-15 and the unknown-key edge case depend on it. | OQ-3 |
 | The administrator test user's claim contained a misspelling ("Adminisrator") and the learner's was capitalized ("Learner"). The spike mapper lower-cases and trims, and the evidence notes tenant typo handling. | Approximate matching must never grant `administrator`. | OQ-4 |
 | Which claims (`email`, name) appear in the access token was inspected but not recorded. | Affects profile fields only. | OQ-5 |
@@ -383,16 +385,16 @@ Not applicable. A user record has no lifecycle states.
 - **F09 – Problem and test administration.** Requires the `administrator` role (FR-11, AC-10). Hidden test definitions are administrator-only. Detailed test feedback to learners follows each problem's visibility rules.
 - **F10 – Progress.** Keyed by `users.id`.
 - **CON-01 (S1-08) – Submission lifecycle and verdict model.** F01 defines no submission states or verdicts and supplies only `users.id` as owner.
-- **DEC-03 – Authentication with Auth0.** Provisional.
+- **DEC-03 – Authentication with Auth0.** Approved; see [ADR-004](../../docs/architecture/adr/ADR-004.md).
 
 **Open questions:**
 
 | # | Question | Owner | Status | Critical |
 |---|----------|-------|--------|----------|
-| OQ-1 | What is the source of truth for the role: the local `users.role` column or the validated Auth0 claim, which SPK-02 showed can be mapped? Or a defined combination of both? | Pair C, Pair D | Open | Yes |
-| OQ-2 | Formal approval and ADR for DEC-03 (Auth0). The spec is written against it as provisional. | Mentor | Open | Yes |
+| OQ-1 | **Resolved:** PostgreSQL is the authoritative source of application roles and permissions; JWT role claims alone do not grant privileges. The physical schema representation remains in CON-05 OQ-9/C05-OQ-01. | Mentor decision 2026-11-27; recorded in ADR-004 | Resolved | No |
+| OQ-2 | **Resolved:** DEC-03 (Auth0) is approved and recorded in ADR-004. This does not approve SPEC-F01. | Mentor decision 2026-11-27 | Resolved | No |
 | OQ-3 | Confirm that the JWKS caching provider can serve stale keys for the 24-hour grace period and that an unknown key ID triggers a single bounded refresh. The required behavior is defined in §6, §8 and AC-15. | Pair C | Open | No |
-| OQ-4 | If the claim is used (OQ-1) fix tenant role values to exact `learner` / `administrator`, and drop any approximate matching from the production mapper. | Pair C | Open | No |
+| OQ-4 | **Not applicable:** production does not use a JWT role claim as the application role source; do not carry the spike's typo mapping into production. | OQ-1 / C05-OQ-01 | Resolved | No |
 | OQ-5 | Which claims (`email`, display name) are present in the access token, and under what names? The spec allows both to be null. | Pair C | Open | No |
 | OQ-6 | Is the production web sign-in flow hosted login with Authorization Code and PKCE, and what is the logout URL and allowed redirect configuration? | Pair D | Open | No |
 | OQ-7 | Agree the error envelope, JSON field naming (`display_name`), user ID type (UUID) and log reason codes. | Pair D | Open | No |
@@ -401,7 +403,7 @@ Not applicable. A user record has no lifecycle states.
 
 **Blockers:**
 
-- OQ-1 and OQ-2 must be closed, with decision references, before the specification can be approved.
+- OQ-1 and OQ-2 are resolved with decision references. SPEC-F01 remains subject to reviewer-pair approval and all other applicable open questions, including OQ-9.
 
 ---
 

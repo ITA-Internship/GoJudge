@@ -53,7 +53,7 @@ Local user record provisioned on the first authenticated request (`SPEC-F01` FR-
 | `auth_subject` | `TEXT` | NO | — | `UNIQUE`. Identity provider subject (`sub` claim, `SPEC-F01` FR-08). `CHECK (char_length(auth_subject) BETWEEN 1 AND 255)`. Immutable once created; never exposed in API responses (`SPEC-F01` §7.1). |
 | `email` | `TEXT` | **YES** | `NULL` | Email from IdP claim (`SPEC-F01` §7.2). Empty or `> 320` chars treated as `NULL` on insert and left unchanged on refresh. `CHECK (email IS NULL OR char_length(email) BETWEEN 1 AND 320)`. Uniqueness constraint: `C05-OQ-03`. |
 | `display_name` | `TEXT` | **YES** | `NULL` | Trimmed display name from IdP claim (`SPEC-F01` §7.2; empty after trim treated as `NULL`, truncated to 100 chars). `CHECK (display_name IS NULL OR char_length(display_name) BETWEEN 1 AND 100)`. |
-| `role` | `TEXT` | NO | `'learner'` | Provisional inline role per `SPEC-F01` §7.2: `CHECK (role IN ('learner', 'administrator'))`. Whether stored inline here, normalized via `role_id` FK → `roles.id`, or resolved from Auth0 token claims is open in `C05-OQ-01` and `C05-OQ-03`. |
+| `role` | `TEXT` | NO | `'learner'` | PostgreSQL is the authoritative source of application roles and permissions (mentor-approved SPEC-F01 OQ-1 / C05-OQ-01). The physical representation—inline here or normalized through `role_id` → `roles.id`—remains open in `C05-OQ-01` and `C05-OQ-03`. JWT role claims alone do not grant privileges. |
 | `created_at` | `TIMESTAMPTZ` | NO | `now()` | Time the local user record was provisioned. |
 | `updated_at` | `TIMESTAMPTZ` | NO | `now()` | Set by the application on every `UPDATE` (section 2), e.g. when refreshing `email`/`display_name` or designating an administrator (`SPEC-F01` FR-15). |
 
@@ -65,7 +65,7 @@ Local user record provisioned on the first authenticated request (`SPEC-F01` FR-
 
 Provisional reference table for system roles (`SPEC-F01` FR-06: `learner` and `administrator`).
 
-> **Modeling status (`C05-OQ-01`, `C05-OQ-03`):** `SPEC-F01` §7.2 currently models role inline as `users.role` (`TEXT`) rather than a foreign key `users.role_id → roles.id`, while `SPEC-F01` `OQ-1` leaves open whether the source of truth is the local database or a validated Auth0 token claim. Keeping `roles` as a separate lookup table versus inline `users.role` will be finalized once `SPEC-F01` `OQ-1` and `OQ-9` are resolved.
+> **Modeling status (`C05-OQ-01`, `C05-OQ-03`):** PostgreSQL is the approved source of application roles and permissions; JWT role claims alone are not authoritative. The physical representation—inline `users.role` or a foreign key `users.role_id → roles.id`—and related table details remain open for CON-05 agreement under `SPEC-F01` OQ-9.
 
 | Field | Type | Nullable | Default | Constraints / Description |
 |---|---|---|---|---|
@@ -165,8 +165,8 @@ A row exists only for `COMPLETED` and `FAILED` submissions. Whether it is requir
 
 | ID | Question | Affected Entity / Field | Source / Owner | Blocks Final Approval? |
 |---|---|---|---|---|
-| C05-OQ-01 | Role source of truth and schema representation (`SPEC-F01` OQ-1): whether the authoritative role lives in PostgreSQL (inline `users.role` per `SPEC-F01` §7.2 vs. normalized `users.role_id → roles.id` lookup table) or in the validated Auth0 token claim (`https://gojudge-api/roles`). | `users`, `roles` | `SPEC-F01` / Yevhen | Yes |
-| C05-OQ-02 | Identity provider selection (`SPEC-F01` OQ-2, `DEC-03` provisional): `DEC-03` (Auth0) is not yet formally approved by the mentor; changing the IdP may affect `auth_subject` format/length (`<= 255`) and profile claim mapping (`SPEC-F01` OQ-5). | `users.auth_subject`, `users.email`, `users.display_name` | `SPEC-F01`, `DEC-03` / Yevhen | Yes |
+| C05-OQ-01 | Role authority is resolved: PostgreSQL is authoritative and JWT role claims alone do not grant privileges. Remaining schema question: inline `users.role` or normalized `users.role_id → roles.id` representation. | `users`, `roles` | Mentor decision 2026-11-27; schema agreement / SPEC-F01 OQ-9 | Yes |
+| C05-OQ-02 | Auth0 is approved under DEC-03 / ADR-004. Confirm the selected Auth0 subject format/length (`<= 255`) and profile claim mapping; this question does not reopen IdP selection (`SPEC-F01` OQ-5). | `users.auth_subject`, `users.email`, `users.display_name` | `SPEC-F01` / Yevhen | Yes |
 | C05-OQ-03 | Final agreement on the `users` and `roles` table model (`SPEC-F01` OQ-9), including inline `users.role` vs. `roles` lookup FK and whether `users.email` remains non-unique (`SPEC-F01` §7.2) or needs a partial unique index (`WHERE email IS NOT NULL`). | `users`, `roles` | `SPEC-F01` / Yevhen | Yes |
 | C05-OQ-04 | UUID generation strategy: DB-side (`gen_random_uuid()`, v4) vs. Go-side (`UUIDv7`) | All entities (`id`) | `INF-05` / Yevhen | No |
 | C05-OQ-20 | Duplicate submission while a previous one is `QUEUED`/`RUNNING` (`F-5`). **Proposed default:** one active submission per user across all problems, enforced by the partial unique index `submissions_one_active_per_user`; the API returns `409 Conflict` / `submission_in_progress` (`CON-01` default). `SPEC-F06` (FR-10, OQ-01) currently describes the case per user **and problem**: the scope must be aligned with Pair A, then confirmed by the mentor. | `submissions` | `CON-01`, `SPEC-F06` / Yulia | Yes |

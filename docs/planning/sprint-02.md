@@ -41,7 +41,8 @@ The mentor has confirmed that completed Sprint 1 work is Done. This table record
 
 | Item | Pair-days |
 |------|-----------|
-| Maximum committed task workload across all four pairs (mentor, approved) | **20** |
+| Calendar gross capacity (4 pairs × 10 working days) | **40** |
+| Maximum committed task workload (effective part-time planning limit, mentor-approved) | **20** |
 | Approved committed task workload (§3.2) | **17.5** |
 | Uncommitted capacity (approved) | **2.5** |
 | Excluded from the limit: meetings, reviews, planning, demos, handovers and other organisational activities | Accounted for separately (§3.3) |
@@ -77,7 +78,7 @@ The mentor has confirmed that the 20 pair-day limit covers committed task worklo
 | **SPK-05** | SPK-01 report (merged, No-go) | Report merged | **Yes**, as an evidence spike. | Does not approve DEC-08, DEC-02 or production judge work (§5.1). |
 | **CON-02 (completion, #23)** | CON-01 (done), SPK-03 (done); DEC-04 approval (MA-26); dependent-pair agreement | Draft not on `main`. #23 open. | Completion: **yes**. Formal Done: **no** until blockers B1–B3 (§8.4). | Explicit blockers, not weakened criteria. |
 | **INF-07 subset (S2-06)** | INF-01 (done), INF-02 (done) | Not implemented. No branch or PR. | **Yes.** No external gate. | Standard library only. No ADR required (mentor-approved). |
-| **CON-05 (preliminary)** | CON-01 (done) | Not started | **Yes, preliminary.** Final: **no**, needs CON-04 final. | Sprint 3 remainder 1.0. |
+| **CON-05 (preliminary)** | CON-01 (done) | Not started | **Yes, preliminary.** Sprint 3 slice: not agreed; broader contract remains preliminary until its open questions are resolved. | Sprint 3 targets agreement on its schema slice (1.0); not blanket final approval. |
 | **DEC-11 (ADR-003)** | Engineering options | Open | **Yes, Provisional ADR.** Approval: MA-23. | Estimate 1.0 accepted provisionally by the mentor. |
 | **INF-09 (stretch)** | MA-05; mentor authorisation; Pair C capacity | No record of tenant ownership or admin access | **No, unless all three hold.** | Not in the 17.5. Pair C has 1.0 left against 1.5 (§4.3). |
 | **F01-01** | SPEC-F01 Approved; INF-09 | Neither met | **No.** Not in Sprint 2 scope. | Preparation task removed (§5.5). |
@@ -90,7 +91,7 @@ The mentor has confirmed that the 20 pair-day limit covers committed task worklo
 
 1. **CON-02 (S2-05).** Its Sprint 2 completion is committed. Formal Done needs DEC-04 approval (MA-26), agreement from every dependent pair (owners of F06-02 and F07-01 not yet named, MA-28), and review and merge (§8.4). If these are not met by 27 November, #23 stays open with the blocker named.
 2. **CON-04 (S2-03).** The draft is committed. The final contract, and its remaining 2.0 pair-days, are Sprint 3 work after DEC-09.
-3. **CON-05 (S2-07).** The preliminary contract is committed. Its problem and test-asset entities wait for CON-04 final. Final approval and the remaining 1.0 pair-day are Sprint 3 work.
+3. **CON-05 (S2-07).** The preliminary contract is committed. Sprint 3 targets agreement only on the applicable data-model slice after CON-04 and relevant SPEC-F01 questions are resolved. Broader contract approval remains separate; the 1.0 pair-day is not a claim that every open section will be finalized.
 4. **SPEC-F06 and SPEC-F08 (S2-01, S2-02).** Drafts are committed. Formal approval is Sprint 3 work. SPEC-F06 approval also needs CON-02 agreement.
 
 ### 4.3 Stretch and capacity constraint (INF-09)
@@ -268,7 +269,7 @@ No successor issue is created by this plan. The work below is recorded here and 
 | SPEC-F06 approval | Formal approval | Not separately sized (review overhead) | CON-02 agreement; approval checklist |
 | SPEC-F08 approval | Formal approval | Not separately sized (review overhead) | Approval checklist |
 | CON-02 remainder (#23) | Anything left if B1–B3 are not met by 27 November | Not sized. Mentor to size. | DEC-04; dependent-pair agreement |
-| INF-07 remainder | Health endpoints, basic metrics, HTTP server wiring | Not sized. Mentor to size. | Mentor sizing |
+| INF-07 remainder (reconciled at closure) | Basic metrics only; ST-04 completed HTTP bootstrap/configuration, liveness/readiness, middleware, timeouts, graceful shutdown, tests and documentation. | Proposed 1.0 pair-day metrics-only estimate; acceptance scope needs confirmation. | Mentor scope confirmation; do not allocate completed ST-04 work again |
 | INF-09 (ST-01) | If not started in Sprint 2 | 1.5 (backlog) | MA-05; authorisation; Pair C capacity |
 | ADR-003 approval | Mentor approval of the migration tool | No task effort | MA-23 |
 | F01-01 | Preparation and implementation | Backlog 4, not reduced | SPEC-F01 Approved; INF-09 done |
@@ -428,3 +429,23 @@ Not changed: GitHub Issues, specifications, contracts, ADRs, application code, t
 | F-5 | CON-01 duplicate-submission question has no recorded answer. | Pair D, mentor | SPEC-F06 draft completeness |
 | F-6 | SPEC-F01 open questions OQ-1 to OQ-9 are open. OQ-1 and OQ-2 are critical. | Pairs C and D, mentor for OQ-2 | SPEC-F01 approval |
 | F-7 | **Resolved.** The committed Issues exist (#23, #29 to #35). Links are in sprint-02-issues.md §1.1. | — | — |
+
+---
+
+## 16. Sprint 2 Closure Addendum (mentor-confirmed)
+
+**Closure basis:** the mentor has authoritatively confirmed that all originally committed Sprint 2 tasks and all additional stretch tasks were completed according to their respective scopes. This addendum records that confirmation only; it does not inspect or re-verify GitHub Issues, pull requests, merge status, source code, or implementation details.
+
+| Measure | Closure record |
+|---------|----------------|
+| Original committed work | **17.5 pair-days**, unchanged from the approved Sprint 2 estimate in §3.2. |
+| Additional completed stretch | ST-02–ST-04: **15 story points / 10.5 pair-days** in aggregate. The item-level effort split is not supplied and is not inferred. |
+| Completed estimated workload | **28 pair-days** (17.5 original commitment + 10.5 ST-02–ST-04). This is an estimate-based planning indicator, not measured actual working time and not a capacity guarantee. |
+| Capacity interpretation | Calendar gross capacity was **40 pair-days** (4 pairs × 10 working days); the approved **20 pair-day** task-work limit is the effective part-time planning limit, not gross capacity. The 28 pair-day completed estimate exceeds that limit by 8, indicating an estimate/availability discrepancy for future planning, not measured overtime. |
+| Legacy conditional stretch | ST-01 / INF-09 is treated as completed under the mentor's blanket Sprint 2 completion confirmation. The backlog's 1.5 pair-day estimate is retired once; it is not added as a separate actual to the ST-02–ST-04 aggregate. |
+| INF-07 | Sprint 2 logging/request-correlation is complete. ST-04 completed HTTP server bootstrap and validated configuration; liveness and readiness endpoints; request-ID and structured access-log middleware integration; HTTP timeouts; graceful shutdown; unit/integration tests; and documentation. Do not schedule or estimate these completed activities again. Only basic metrics may remain in the backlog, with a proposed 1.0 pair-day metrics-only estimate subject to scope confirmation. |
+| Partial deliverables | CON-04 remains a draft with its 2.0 pair-day finalization scope outstanding. CON-05 remains preliminary with its 1.0 pair-day finalization scope outstanding. |
+| Formal status | Completion of work does not approve any specification, contract, ADR, or architectural decision. Existing SDD review, agreement, and mentor approval gates in §§8.3–8.5 and §11.4 remain in force. |
+| Sprint 3 baseline | See [Product Backlog §11.6](../product/product-backlog.md#116-sprint-2-closure-and-remaining-capacity-forecast) and the proposed [Sprint 3 Plan](sprint-03.md). |
+
+The Sprint 2 stretch-issues document named in the planning request was not present in the repository inventory. Its item-level contents or estimates are therefore not reconstructed here.

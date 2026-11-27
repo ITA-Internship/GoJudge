@@ -2,7 +2,7 @@
 
 **Status:** Finalised for mentor review. **GitHub Issues for the eight committed items were created on 13 November 2026**, and #23 was updated (links in §1.1). The stretch item ST-01 has no Issue. Issues have no assignees, and pair composition is finalised during Sprint Planning.
 
-**Approved workload (mentor):** committed task workload **17.5 pair-days**. Maximum committed task workload **20 pair-days**. **Uncommitted 2.5 pair-days.** Meetings, reviews, demos and organisational overhead are excluded from these figures.
+**Approved workload (mentor):** calendar gross capacity was **40 pair-days** (4 pairs × 10 working days). The maximum committed task workload was **20 effective pair-days** (part-time planning limit); committed task workload was **17.5 pair-days**, leaving **2.5 effective pair-days uncommitted**. Meetings, reviews, demos and organisational overhead are excluded from these task-work figures.
 
 **Revision history:** revision 1 proposed S2-07 as F01-01 preparation (3.5). Revision 2 replaced it with INF-07 (4.0) and made INF-09 conditional (1.5). Revision 3 (this file) makes INF-07 the approved committed item, moves INF-09 to **conditional Stretch**, accepts the partial-deliverable model, and records the Sprint 3 follow-up in planning documentation only.
 
@@ -549,7 +549,7 @@ DEC-12 does not block Done, provided the contract names dispatch as dependent on
 | SPEC-F06 approval | Formal specification approval | Not separately sized. Review overhead (sprint-02.md §3.3). | CON-02 agreement; approval checklist; no critical open question |
 | SPEC-F08 approval | Formal specification approval | Not separately sized. Review overhead. | Approval checklist; no critical open question |
 | CON-02 (#23) | Remaining B1–B3 if not Done by 27 November | **Not sized.** Mentor to size any residual. | DEC-04 approved; dependent-pair agreement |
-| INF-07 remainder | Health endpoints, basic metrics, HTTP server wiring | **Not sized.** The backlog total is 4 and the Sprint 2 subset takes 4. Mentor to size. | Mentor sizing (MA-33 follow-up) |
+| INF-07 remainder | Basic metrics only; ST-04's HTTP bootstrap/configuration, liveness/readiness, middleware, timeouts, graceful shutdown, tests and documentation are complete. | **Proposed 1.0 pair-day metrics-only estimate.** Confirm acceptance scope; do not schedule completed ST-04 work again. | Mentor scope confirmation; no metrics technology is assumed. |
 | INF-09 (ST-01) | If not started in Sprint 2: the stretch, unchanged | 1.5 (backlog) | MA-05; mentor authorisation; Pair C capacity (PC-3) |
 | DEC-11 / ADR-003 | Mentor approval of the migration tool decision | Not sized. No task effort. | MA-23 |
 | F01-01 | Preparation and implementation, after SPEC-F01 approval and INF-09 | Backlog 4 (not reduced) | SPEC-F01 Approved; INF-09 done |
@@ -563,4 +563,26 @@ DEC-12 does not block Done, provided the contract names dispatch as dependent on
 1. Approve the committed list (S2-01 to S2-08) and the stretch (ST-01), and record PC-1 to PC-3.
 2. Confirm pair composition (F-4) before any reviewer or owner is named on an issue. Assignees stay empty.
 3. Done: the eight committed Issues exist (§1.1). ST-01 is created only if authorised. Pair composition and GitHub assignees are finalised during Sprint Planning.
+
+---
+
+## 10. Sprint 2 Closure Addendum (mentor-confirmed)
+
+The mentor has authoritatively confirmed that all originally committed Sprint 2 tasks and all additional stretch tasks were completed according to their respective scopes. This status is not independently verified from GitHub or source code, and does not imply formal approval of specifications, contracts, ADRs, or architecture decisions.
+
+| Scope | Closure record |
+|-------|----------------|
+| S2-01 through S2-08 | Completed within the originally committed **17.5 pair-days**. This does not change the estimates or the distinction between draft completion and formal approval in §§2.1 and 3. |
+| Completed estimated workload | **28 pair-days** (17.5 committed + 10.5 ST-02–ST-04). This is a planning indicator based on estimates, not measured actual working time or a capacity guarantee. |
+| Capacity interpretation | Calendar gross capacity was **40 pair-days** (4 pairs × 10 working days); the approved 20-pair-day task-work maximum is effective part-time capacity, not gross capacity. The 28-pair-day estimated workload does not establish routine availability above 20. |
+| ST-01 / INF-09 | Counted complete under the blanket mentor confirmation. Its backlog estimate is 1.5 pair-days; it remains separate from the 17.5 committed amount. |
+| ST-02 / TST-05 | Cross-feature consistency and acceptance scenarios completed. |
+| ST-03 / SPK-06 | Isolation validation and security regression suite completed. A completed validation suite does not approve DEC-08 or DEC-02. |
+| ST-04 / INF-07 remaining scope | HTTP server bootstrap and validated configuration, liveness/readiness endpoints, request-ID and structured access-log middleware integration, timeouts, graceful shutdown, unit/integration tests and documentation completed. Do not schedule or estimate these activities again. Basic metrics alone may remain; Product Backlog §11.6 proposes 1.0 pair-day for metrics only, pending scope confirmation. |
+| Aggregate stretch effort | The mentor-supplied aggregate for ST-02–ST-04 is **15 story points / 10.5 pair-days**. No per-item split is inferred. ST-01 is not added again to this aggregate. |
+| Remaining INF-07 | Only basic metrics may remain; health endpoints and all other ST-04 scope are complete. The Sprint 2 subset estimate of 4.0 pair-days is not repeated; the metrics-only work has a separate proposed estimate in [Product Backlog §11.6](../product/product-backlog.md#116-sprint-2-closure-and-remaining-capacity-forecast). |
+| Partial contracts | CON-04's 2.0-pair-day remainder and the 1.0-pair-day CON-05 Sprint 3 slice remain separate from the completed Sprint 2 draft/preliminary deliverables. The CON-05 slice is not blanket final approval of the broader contract. |
+| Sprint 3 | See [Sprint 3 Issue Manifest](sprint-03-issues.md). No GitHub Issues are created or updated by this documentation addendum. |
+
+The specifically named `docs/planning/sprint_2_stretch_issues.md` was not present in the repository inventory; no missing item-level scope or estimate has been fabricated.
 4. The issues have **no** GitHub milestone or project assignment.

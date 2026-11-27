@@ -1,6 +1,6 @@
 # GoJudge Product Backlog
 
-**Status:** Draft for mentor review (revision 3). Not approved. No GitHub Issues have been created from this backlog.
+**Status:** Draft for mentor review (revision 5). Not approved. No GitHub Issues have been created from this backlog.
 
 **Source of scope:** [MVP Project Proposal](mvp-proposal.md), version 0.1. Feature titles, priorities, expected behaviour and mandatory security controls are preserved from that document. Where this backlog adds work, it is marked as a proposal.
 
@@ -16,12 +16,36 @@ Revision 3 applies the confirmed internship calendar and reassesses capacity aga
 |------|--------|
 | Calendar | Internship runs 2 November 2026 to 29 January 2027. Six sprints of 10 working days each (60 in total). Non-working days: 24–27 December 2026 and 31 December 2026 – 3 January 2027. Final internship demo on 29 January 2027. See §1.4. |
 | Gross capacity | 4 pairs × 60 working days = **240 pair-days**. This is unchanged from revision 2, but it now rests on the confirmed calendar. |
-| Realistic net capacity | **About 164 pair-days** (range 140–180), after SDD reviews, pull request review, training, meetings and integration support. Revision 2 used a flat 20% reserve, which understated these costs. See §11.3. |
-| Backlog against capacity | **213.5 pair-days** of backlog. This is about **50 pair-days (31%) over** realistic net capacity. The plan does not fit. See §11.4. |
+| Realistic net capacity | Revision 3's historical forecast was **163.5 pair-days** (range 140–180), after SDD reviews, pull request review, training, meetings and integration support. See §11.3. Revision 5 distinguishes 40 calendar-gross from 20 documented effective task pair-days for Sprint 3; see §11.6. |
+| Backlog against capacity | Revision 3's historical backlog was **213.5 pair-days**, about **50 pair-days (31%) over** its original realistic net forecast. The current revision 5 remaining estimate is **170.0 pair-days** at Sprint 2 closure; see §11.6. |
 | Sprint 1 | Committed load is 28.5 pair-days against a realistic 24.5. This is 4 pair-days over, and it needs a mentor decision (MA-15). INF-08 moved to Sprint 3. See §9. |
-| Plan | Six-sprint plan re-dated to the confirmed calendar, with per-sprint load against realistic net. The release-critical tail is about 51 pair-days and would not finish by 29 January (§10, §11.4). |
+| Plan | Revision 3's six-sprint forecast is retained as historical context. The revised Sprint 3 allocation and remaining-capacity forecast are in §11.6 and [sprint-03.md](../planning/sprint-03.md). |
 | Options | Simplifications, a meeting cadence change, added capacity, scope change, and an internal-only release are set out in §11.5. Scope is not reduced in this revision. |
 | Unchanged | F01–F09 requirements, mandatory and security controls (§3.1), all item definitions (§4), spike criteria (§5), decision status (§6), critical path (§7), parallel streams (§8). |
+
+Revision 4 recorded Sprint 2 closure and a preliminary capacity/backlog reconciliation. Its INF-07, capacity and remaining-effort figures are superseded by the mentor corrections in revision 5 below. It did not change Sprint 2's original committed estimates or treat completed work as formal approval.
+
+| Area | Revision 4 baseline |
+|------|---------------------|
+| Sprint 2 completion | The approved 17.5 pair-day commitment is recorded as completed. Additional stretch scope ST-02–ST-04 is recorded separately as 15 story points / 10.5 pair-days in aggregate. |
+| Partial contracts | CON-04 has 2.0 pair-days remaining; CON-05 has 1.0 pair-day remaining. Their approval gates remain in force. |
+| INF-07 | ST-04's HTTP bootstrap/configuration, liveness/readiness, middleware, timeouts, graceful shutdown, tests and documentation are complete. Only basic metrics may remain; the proposed 1.0 pair-day estimate is for metrics alone. |
+| Sprint 2 workload indicator | **28 estimated pair-days completed** (17.5 original commitment + 10.5 ST-02–ST-04); this is not measured actual time or a capacity guarantee. |
+| Remaining effort | 170.0 pair-days at the Sprint 2 closure baseline, including the proposed metrics-only estimate and excluding unsized approval/review overhead. |
+| Sprint 3 proposal | Mentor-approved target: 23.5 pair-days plus 4.0 optional stretch, respectively 3.5 / 7.5 above the documented 20 effective baseline. Stretch remains subject to availability confirmation. See [Sprint 3 Plan](../planning/sprint-03.md). |
+| Forecast | Target plan leaves 146.5 pair-days after committed work (142.5 if optional stretch is completed); the capacity-safe alternative leaves 152.0. See §11.6. |
+
+**Completed stretch scope recorded in revision 4 (no item-level estimates inferred):**
+
+| Stretch ID | Backlog reference | Completed scope |
+|------------|------------------|-----------------|
+| ST-02 | TST-05 | Cross-feature consistency and acceptance scenarios |
+| ST-03 | SPK-06 | Isolation validation and security regression suite |
+| ST-04 | INF-07 remaining scope | HTTP API foundation and middleware integration |
+
+The mentor-confirmed aggregate for ST-02–ST-04 is 15 story points / 10.5 pair-days. The aggregate is not split among the three items because no item-level estimates were supplied. The earlier conditional ST-01 (INF-09) is also counted complete under the authoritative Sprint 2 closure; its 1.5 pair-day backlog estimate is retired once in the reconciliation below.
+
+**Revision 5 — mentor corrections (27 November 2026):** Calendar gross capacity is 40 pair-days per 10-working-day sprint (4 pairs × 10 days). The documented 20 pair-day task-work limit is effective capacity, not gross capacity. Sprint 2 completed an estimated workload of 28 pair-days (17.5 committed plus 10.5 ST-02–ST-04); this is a planning indicator, not measured working time or evidence that 28 pair-days are routinely available. ST-04's completed INF-07 scope includes HTTP bootstrap/configuration, liveness/readiness, request-ID/access-log middleware, timeouts, graceful shutdown, tests and documentation. Only basic metrics may remain; the proposed metrics-only estimate is 1.0 pair-day. The mentor approved the Sprint 3 target of 23.5 pair-days; the additional 4.0-pair-day stretch remains subject to availability confirmation. The 18.0-pair-day fallback preserves 2.0 pair-days against the documented baseline.
 
 ---
 
@@ -58,7 +82,8 @@ Each backlog item has exactly one type. The type determines what "done" means fo
 
 - **Priority:** every committed item is **Must** (required for the MVP). No Should or Could items are committed.
 - **Size:** a planning estimate of implementation effort in **pair-days**. Sizes exclude SDD reviews, meetings and training, which are counted separately in §11.3. Pairs must validate these estimates in Sprint 1 and report actuals at each sprint boundary.
-- **Capacity basis:** each sprint has 10 working days. A pair therefore has 10 pair-days per sprint and 60 across the internship. Four pairs give 240 gross pair-days. This assumes all four pairs are fully staffed for every working day (MA-11).
+- **Calendar gross capacity:** each sprint has 10 working days. Four pairs × 10 days = **40 calendar gross pair-days** per sprint and 240 for the 60-working-day internship, assuming all pairs are staffed (MA-11).
+- **Effective task capacity:** Sprint 2's approved maximum task workload and the documented Sprint 3 planning baseline are **20 pair-days per sprint**, reflecting the part-time planning limit, not gross calendar capacity. The mentor separately approved the Sprint 3 target of 23.5 pair-days; optional stretch requires additional availability confirmation. The completed Sprint 2 estimate of 28 pair-days is a planning indicator only, not a basis for inferring routine capacity.
 
 ### 1.4 Sprint calendar
 
@@ -152,7 +177,7 @@ Specifications must be **Approved** before the implementation items they gate.
 | CON-01 | Submission lifecycle and verdict model | Contract | 1.5 | None | States, transitions, verdicts, infrastructure vs test-failure classification | SPEC-F06, SPEC-F07, F06-01, F07-05 |
 | CON-02 | Messaging contract | Contract | 1.5 | CON-01, SPK-03 | Queue names, message schema, idempotency key, acknowledgement, retry and dead-letter behaviour | F06-02, F07-01 |
 | CON-03 | OpenAPI contract for MVP endpoints | Contract | 4 | Approved specs for the endpoints in each extension | OpenAPI 3.x document. Initial part in Sprint 2, extended in Sprint 3. | INF-06, all API items |
-| CON-04 | Problem packaging format and test visibility rules | Contract | 4 | DEC-09 (draft in Sprint 1, final in Sprint 2) | Packaging format, starter template format, visibility rules | SPEC-F03, F07-04, F09-02 |
+| CON-04 | Problem packaging format and test visibility rules | Contract | 4 | DEC-09 approved; apply choices to existing PR #47 artifact after merge | PostgreSQL rows; Go test files per problem; function/type/handler in fixed package; verdict and permitted counts only | SPEC-F03, F07-04, F09-02 |
 | CON-05 | Data model | Contract | 4 | CON-01, CON-04 | Entities for users, roles, problems, test assets, submissions and results | INF-05, F01-02, F02-01 |
 
 ### 4.2 Infrastructure and technical work
@@ -165,7 +190,7 @@ Specifications must be **Approved** before the implementation items they gate.
 | INF-04 | ADR process and initial records | 1 | None | ADR template and records for approved decisions |
 | INF-05 | PostgreSQL schema, migrations and data access | 4 | CON-05, INF-03, DEC-11 | Migrations, pgx and sqlc setup |
 | INF-06 | OpenAPI validation in CI | 1.5 | CON-03, INF-02 | Contract validation step in CI |
-| INF-07 | Structured logging, health endpoints and basic metrics | 4 | INF-01 | Logging standard, health endpoints, basic metrics (see §3.2) |
+| INF-07 | Structured logging, health endpoints and basic metrics | 4 (original estimate; completed scope is not re-estimated) | INF-01 | Sprint 2 completed structured logging/request correlation. ST-04 completed HTTP bootstrap and validated configuration, liveness/readiness endpoints, request-ID/access-log middleware, server timeouts, graceful shutdown, unit/integration tests and documentation. Only basic metrics may remain; a proposed 1.0 pair-day estimate is for metrics alone, subject to acceptance-scope confirmation. |
 | INF-08 | Frontend scaffold | 1.5 | INF-02 | React, TypeScript and Vite project with Monaco Editor dependency and CI build. Planned for Sprint 3 (see §9.4). |
 | INF-09 | Auth0 development tenant configuration | 1.5 | DEC-03, MA-05 | Development tenant and application configuration. No secrets in the repository. |
 | INF-10 | Judge namespace, RBAC, resource quotas and namespace network policy | 4 | DEC-08, MA-03, INF-03 | Cluster-level controls for the judge namespace, validated. Job-level security settings are in F07-02a. |
@@ -344,7 +369,7 @@ Startup and run latency are recorded for information (median and range). They ar
 
 ## 6. Decisions
 
-Status values are: **Proposed** (from the proposal, not approved), **Provisional** (adopted only for spike work, not approved), **Open** (not yet decided), **Assumption** (to be confirmed). **Approved: none.** No decision in this backlog is approved.
+Status values are: **Proposed** (from the proposal, not approved), **Provisional** (adopted only for spike work, not approved), **Open** (not yet decided), **Assumption** (to be confirmed), and **Approved** (mentor decision recorded). The mentor decisions listed as Approved below were confirmed on 27 November 2026; this does not approve any specification or contract.
 
 ### 6.1 Needed on Sprint 1 day 1 (to start work)
 
@@ -363,19 +388,20 @@ The spikes test these decisions. They stay **Provisional** until the spike repor
 |----|----------|--------|---------------|----------|
 | DEC-01 | Submission evaluation through the Go testing framework | Provisional | After SPK-01 report | SPK-01 |
 | DEC-02 | Execution orchestration with Kubernetes Jobs and client-go | Provisional | After SPK-01 report | SPK-01 |
-| DEC-03 | Authentication with Auth0 | Provisional | After SPK-02 report and MA-05 | SPK-02 |
 | DEC-04 | Messaging with RabbitMQ and Watermill | Provisional | After SPK-03 report | SPK-03 |
 
-### 6.3 Need spike evidence or later input
+### 6.3 Decision status register
 
 | ID | Decision | Status | Needed by | Input required |
 |----|----------|--------|-----------|----------------|
+| DEC-03 | Auth0 as identity provider; use `github.com/auth0/go-jwt-middleware/v3` for API authentication and JWT validation | **Approved** | F01-01 | Successful SPK-02 validation outcome; mentor approval recorded in [ADR-004](../architecture/adr/ADR-004.md). PostgreSQL remains the authoritative source of application roles and permissions; do not grant privileges solely from JWT role claims. |
+| SPEC-F01 OQ-1 / CON-05 C05-OQ-01 | PostgreSQL is the authoritative source of application roles | **Approved** | F01-01, CON-05 Sprint 3 slice | Mentor decision recorded in [ADR-004](../architecture/adr/ADR-004.md); the physical role schema representation remains subject to CON-05 agreement. |
 | DEC-05 | Concurrency target of at least two concurrent submissions | Proposed | Sprint 6 | TST-03 evidence in staging |
 | DEC-07 | Hosting: GKE or VM-hosted k3s | Open | Start of Sprint 4 (14 Dec 2026) | SPK-04 report, MA-04 |
 | DEC-08 | Execution isolation mechanism | Open | Start of Sprint 4 (14 Dec 2026, MA-03) | SPK-01 and SPK-05 reports |
-| DEC-09 | Problem packaging and test visibility rules | Open | Draft in Sprint 1, final in Sprint 2 | Product input from the mentor; the proposal says "finalised during architecture design" and it is not in its §12 table |
+| DEC-09 | Problem packaging and test visibility rules: §6.1 Option A (PostgreSQL rows); §6.2 Option B (Go test files per problem); §6.3 Option B (function, type or handler in a fixed package); §6.4 Option B (verdict and permitted counts) | **Approved** | S3-01 CON-04 update after PR #47 artifact is merged | Mentor decision confirmed 27 Nov. Learners never receive hidden-test content/names/inputs/expected outputs or unfiltered diagnostics. DEC-08 remains open. |
 | DEC-10 | Run-samples uses the same isolated execution path as submit | Assumption | Sprint 4 | SPK-01 result and SPEC-F05. Must be confirmed; security-sensitive. |
-| DEC-11 | Database migration tool | Open | Sprint 2 | Engineering ADR. No spike needed. Not in the proposal. |
+| DEC-11 | Database migration tool: `pressly/goose` | **Approved** | INF-05 | Mentor approval (MA-23) recorded in [ADR-003](../architecture/adr/ADR-003.md); alternatives and rationale are retained there. |
 | DEC-12 | Dispatch consistency between database write and message publish | Open | **Start of Sprint 3** (30 Nov 2026; F06-02 depends on it) | SPK-03 report. Reliability requirement in proposal §6. Not in the proposal's §12 table. |
 | DEC-13 | Editor session-preservation mechanism | Open | Sprint 3 (in SPEC-F04) | Product input, recorded in the spec. Not in the proposal's §12 table. |
 
@@ -497,7 +523,7 @@ Cross-pair reviews consume capacity from all four pairs. This is a known risk (R
 
 ## 10. Six-Sprint Plan with Load
 
-Each sprint's planned load is the sum of the items allocated to it. Gross capacity per sprint is **40 pair-days** (4 pairs × 10 working days). Realistic net per sprint is taken from §11.3. Loads above net are flagged. Loads above gross are not feasible.
+The table below is the revision 3 six-sprint estimate and is retained as historical context. Its Sprint 3 allocation and capacity assumptions are superseded by the current [Sprint 3 Plan](../planning/sprint-03.md); the remaining-effort baseline is reconciled in §11.6.
 
 | Sprint | Dates | Items (planned load) | Load | Realistic net | Over (+) / spare (−) | Notes |
 |--------|-------|----------------------|------|---------------|----------------------|-------|
@@ -509,7 +535,7 @@ Each sprint's planned load is the sum of the items allocated to it. Gross capaci
 | **6** | 15–28 Jan | F07-08 (3); F09-02 (7); F09-03 (4); TST-02 (3); TST-03 (3); TST-04 (4); HRD-01 (4); HRD-02 (3); INF-13 (1.5) | **32.5** | 33 | **−0.5** | Demos 15 and 22 Jan. Final internship demo 29 Jan. |
 | **Total** | 2 Nov – 29 Jan | | **213.5** | **163.5** | **+50** | About 31% over realistic net (§11.4) |
 
-**Reading this plan.** Gross capacity is not the binding constraint in most sprints: every sprint's load is under 40. Realistic net is the constraint. The shortfall builds in Sprints 1–5 and reaches about 50.5 pair-days by the end of Sprint 5. Sprint 6 absorbs 0.5 of it and does not recover the rest. Work that cannot be moved earlier, because of dependencies, is what slips. §11.4 lists it.
+**Reading this plan.** Gross capacity is not the binding constraint in most sprints: every sprint's load is under 40. Realistic net is the constraint. The shortfall builds in Sprints 1–5 and reaches about 50.5 pair-days by the end of Sprint 5. Sprint 6 absorbs 0.5 of it and does not recover the rest. Work that cannot be moved earlier, because of dependencies, is what slips. §11.4 lists it. This table remains a historical revision 3 schedule, not the current issue allocation: the Sprint 3 proposal pulls F04-01 forward from the historical Sprint 4 row. Do not allocate it twice. The §11.6 Sprint 4–6 figure is a capacity forecast, not an item-level commitment list; the remaining roadmap must be resequenced at Sprint 4 planning.
 
 ### 10.1 Sprint 2 planning summary, earlier synchronisation (13 November 2026, superseded)
 
@@ -609,16 +635,59 @@ The planning baseline for Sprint 2 is [sprint-02.md](../planning/sprint-02.md). 
 
 ### 11.1 Backlog estimate
 
-| Category | Items | Pair-days (revision 3) | Revision 2 | First draft |
-|----------|-------|------------------------|------------|-------------|
-| Specifications and contracts | SPEC-F01 to SPEC-F09, CON-01 to CON-05 | 31 | 31 | 29 |
-| Infrastructure | INF-01 to INF-13 (INF-14 removed) | 36 | 36 | 44 |
-| Spikes | SPK-01 to SPK-05 | 20 | 20 | 22 |
-| Features | F01-01 to F09-03 | 105.5 | 105.5 | 116 |
-| Test and hardening | TST-01 to TST-04, HRD-01 to HRD-02 | 21 | 21 | 22 |
-| **Total** | | **213.5** | **213.5** | **233** |
+| Category | Items | Original estimate (revision 3) | Remaining at Sprint 2 closure (revision 5) |
+|----------|-------|--------------------------------|--------------------------------------------|
+| Specifications and contracts | SPEC-F01 to SPEC-F09, CON-01 to CON-05 | 31 | 17 |
+| Infrastructure | INF-01 to INF-13 (INF-14 removed) | 36 | 23.5 |
+| Spikes | SPK-01 to SPK-05 | 20 | 3 |
+| Features | F01-01 to F09-03 | 105.5 | 105.5 |
+| Test and hardening | TST-01 to TST-04, HRD-01 to HRD-02 | 21 | 21 |
+| **Total** | | **213.5** | **170** |
 
-The backlog itself is unchanged by this revision. What changes is the capacity it is measured against. The first draft's 233 is superseded: it mixed sizes for the same kinds of item, and it counted INF-14 separately from TST-04. The figure of 213.5 is the corrected estimate.
+Revision 3 remains the historical starting estimate. The current baseline reflects completed Sprint 1 and Sprint 2 backlog-estimated work, preserves the CON-04 and CON-05 remainders, and adds a proposed 1.0 pair-day estimate for basic metrics only. Health endpoints and all other ST-04 scope are complete and receive no remaining estimate. New completed stretch items TST-05 and SPK-06 were not part of the original 213.5 estimate and do not reduce it. The 10.5 pair-day ST-02–ST-04 aggregate is not split or subtracted again from original backlog items.
+
+### 11.6 Sprint 2 closure and remaining capacity forecast
+
+The following reconciliation uses the original backlog estimates once per backlog item. Sprint 2's committed task estimate remains **17.5 pair-days**; this historical commitment is not revised. ST-02–ST-04 added **15 story points / 10.5 pair-days** in aggregate, so Sprint 2's completed estimated workload is **28 pair-days**. This workload indicator is not measured working time. No individual stretch estimate or story-point-to-pair-day conversion is inferred.
+
+The completed original estimates counted below are: SPEC-F01, SPEC-F04, SPEC-F06, SPEC-F08, CON-01, CON-02, the 2.0 pair-day CON-04 draft share, and the 3.0 pair-day CON-05 preliminary share (14.0 total); INF-01, INF-02, INF-03, INF-04, INF-07's Sprint 2 subset, and INF-09 (13.5 total); and SPK-01, SPK-02, SPK-03, and SPK-05 (17.0 total). The repeated Sprint 2 CON-02 completion estimate is not subtracted a second time from the backlog item.
+
+| Reconciliation | Pair-days |
+|----------------|-----------|
+| Revision 3 backlog estimate | 213.5 |
+| Completed original backlog estimates: specifications/contracts (14), infrastructure (13.5), spikes (17) | −44.5 |
+| Remaining INF-07 basic metrics only, proposed estimate after completed ST-04 scope is excluded | +1.0 |
+| **Remaining estimated backlog at Sprint 2 closure** | **170.0** |
+| Sprint 3 target committed work (mentor-approved) | −23.5 |
+| **Estimated backlog remaining after target Sprint 3 commitment** | **146.5** |
+| Optional Sprint 3 stretch (TST-01, only if capacity is confirmed and gates pass) | −4.0 |
+| **Estimated backlog remaining if optional stretch is completed** | **142.5** |
+| Capacity-safe Sprint 3 alternative (18.0 committed) | −18.0 |
+| **Estimated backlog remaining under capacity-safe alternative** | **152.0** |
+
+The specification and contract authoring estimates are counted as work completed where the draft deliverables are complete. This does **not** make SPEC-F01, SPEC-F04, SPEC-F06, SPEC-F08, CON-02, CON-04 or CON-05 formally approved. Approval, agreement and decision gates remain separate; review and meeting overhead is not priced in the backlog total.
+
+Key partially completed items carried forward are CON-04 (2.0 pair-days), CON-05 (1.0 pair-day), and INF-07 basic metrics only (proposed 1.0 pair-day, acceptance scope to be confirmed). INF-09's 1.5 pair-day estimate is counted complete under the mentor's blanket Sprint 2 closure.
+
+No remaining estimate is assigned to ST-04's completed HTTP server, endpoint, middleware, timeout, shutdown, test or documentation scope. The proposed 1.0 pair-day INF-07 residual covers basic metrics only. It is not a claim that a metrics format or new technology has been approved, and it is not selected for Sprint 3.
+
+| Forecast basis | Pair-days |
+|----------------|-----------|
+| Sprint 3 calendar gross capacity (4 pairs × 10 working days) | 40 |
+| Documented effective task capacity | 20 |
+| Sprint 3 target commitment / over effective capacity | 23.5 / 3.5 |
+| Optional stretch / total above effective capacity | 4.0 / 7.5 |
+| Capacity-safe Sprint 3 alternative / reserve | 18.0 / 2.0 |
+| Sprint 4–6 realistic net forecast carried forward from §11.3 | 89 |
+| Conservative capacity through Sprint 6: 20 effective + 89 net | 109 |
+| Remaining backlog at Sprint 2 closure | 170 |
+| **Conservative forecast shortfall** | **61** |
+| Observed-throughput indicator: 28 estimated pair-days × 4 remaining sprints | 112 |
+| **Observed-throughput scenario shortfall** | **58** |
+| Target commitment plus Sprint 4–6 net forecast | 112.5 against 170 |
+| **Target-plan shortfall using Sprint 4–6 net forecast** | **57.5** |
+
+The conservative case applies the documented 20 effective task pair-days in Sprint 3 and the existing 89-pair-day Sprint 4–6 net forecast; it is a baseline comparison, not a rejection of the mentor-approved 23.5-pair-day target. The observed-throughput case applies Sprint 2's 28 estimated completed pair-days to each of the four remaining sprints; it is a planning indicator, not measured time, validated capacity or a commitment. The 23.5-pair-day Sprint 3 target plus the 89-pair-day later-sprint forecast leaves 57.5 pair-days uncovered; optional TST-01 would reduce this to 53.5 only if actually completed. Under the capacity-safe 18-pair-day alternative, the remaining 152 pair-days versus 89 later-sprint net capacity leaves 63 uncovered. The 29 January completion forecast remains high risk without further delivery-capacity decisions. Preserve all mandatory security work.
 
 ### 11.2 Gross capacity under the confirmed calendar
 
@@ -649,9 +718,9 @@ Net capacity is gross capacity less the work that a pair must do on the backlog'
 
 These overhead figures are unvalidated (RSK-16). They are the largest uncertainty in this assessment.
 
-### 11.4 Fit test
+### 11.4 Fit test (revision 3 historical forecast)
 
-The backlog, at 213.5, is compared with realistic net, 163.5.
+This fit test preserves revision 3's original 213.5 backlog and 163.5 realistic-net forecast. Revision 4's current remaining-effort and capacity forecast is in §11.6.
 
 | Sprint | Load | Realistic net | Over (+) / spare (−) | Cumulative shortfall |
 |--------|------|---------------|----------------------|----------------------|
