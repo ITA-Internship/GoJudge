@@ -1,0 +1,11 @@
+{"Time":"2026-11-26T09:55:13.474412032Z","Action":"start"}
+{"Time":"2026-11-26T09:55:13.481481622Z","Action":"run","Test":"TestNetworkEgress"}
+{"Time":"2026-11-26T09:55:13.481646714Z","Action":"output","Test":"TestNetworkEgress","Output":"=== RUN   TestNetworkEgress\n","OutputType":"frame"}
+{"Time":"2026-11-26T09:55:13.483072481Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to 1.1.1.1:443 blocked after 0s: dial tcp 1.1.1.1:443: connect: network is unreachable\n"}
+{"Time":"2026-11-26T09:55:13.483339418Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to 8.8.8.8:53 blocked after 0s: dial tcp 8.8.8.8:53: connect: network is unreachable\n"}
+{"Time":"2026-11-26T09:55:13.485645397Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to google.com:443 blocked after 2ms: dial tcp: lookup google.com on 10.43.0.10:53: dial udp 10.43.0.10:53: connect: network is unreachable\n"}
+{"Time":"2026-11-26T09:55:13.485711601Z","Action":"output","Test":"TestNetworkEgress","Output":"    netdial_test.go:32: outbound TCP to 10.43.0.1:443 blocked after 0s: dial tcp 10.43.0.1:443: connect: network is unreachable\n"}
+{"Time":"2026-11-26T09:55:13.485730232Z","Action":"output","Test":"TestNetworkEgress","Output":"--- PASS: TestNetworkEgress (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-26T09:55:13.485749056Z","Action":"pass","Test":"TestNetworkEgress","Elapsed":0}
+{"Time":"2026-11-26T09:55:13.485767031Z","Action":"output","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-26T09:55:13.486234331Z","Action":"pass","Elapsed":0.012}

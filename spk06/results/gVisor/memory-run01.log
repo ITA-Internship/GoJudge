@@ -1,0 +1,28 @@
+{"Time":"2026-11-26T09:55:39.170047129Z","Action":"start"}
+{"Time":"2026-11-26T09:55:39.176402708Z","Action":"run","Test":"TestMemoryExhaustion"}
+{"Time":"2026-11-26T09:55:39.176530863Z","Action":"output","Test":"TestMemoryExhaustion","Output":"=== RUN   TestMemoryExhaustion\n","OutputType":"frame"}
+{"Time":"2026-11-26T09:55:39.25490972Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 100 MiB\n"}
+{"Time":"2026-11-26T09:55:39.336882279Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 200 MiB\n"}
+{"Time":"2026-11-26T09:55:39.419693454Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 300 MiB\n"}
+{"Time":"2026-11-26T09:55:39.510064087Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 400 MiB\n"}
+{"Time":"2026-11-26T09:55:39.604652252Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 500 MiB\n"}
+{"Time":"2026-11-26T09:55:39.708907468Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 600 MiB\n"}
+{"Time":"2026-11-26T09:55:39.806441562Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 700 MiB\n"}
+{"Time":"2026-11-26T09:55:39.912493926Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 800 MiB\n"}
+{"Time":"2026-11-26T09:55:40.024680938Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 900 MiB\n"}
+{"Time":"2026-11-26T09:55:40.130161139Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 1000 MiB\n"}
+{"Time":"2026-11-26T09:55:40.224396039Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 1100 MiB\n"}
+{"Time":"2026-11-26T09:55:40.316661318Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 1200 MiB\n"}
+{"Time":"2026-11-26T09:55:40.422157304Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 1300 MiB\n"}
+{"Time":"2026-11-26T09:55:40.517976996Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 1400 MiB\n"}
+{"Time":"2026-11-26T09:55:40.618168911Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 1500 MiB\n"}
+{"Time":"2026-11-26T09:55:40.717530914Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 1600 MiB\n"}
+{"Time":"2026-11-26T09:55:40.826410281Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 1700 MiB\n"}
+{"Time":"2026-11-26T09:55:40.920757347Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 1800 MiB\n"}
+{"Time":"2026-11-26T09:55:41.032192106Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 1900 MiB\n"}
+{"Time":"2026-11-26T09:55:41.127954774Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 2000 MiB\n"}
+{"Time":"2026-11-26T09:55:41.227176487Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 2100 MiB\n"}
+{"Time":"2026-11-26T09:55:41.50472513Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 2200 MiB\n"}
+{"Time":"2026-11-26T09:55:41.601160047Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 2300 MiB\n"}
+{"Time":"2026-11-26T09:55:41.731868819Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 2400 MiB\n"}
+{"Time":"2026-11-26T09:55:42.052609363Z","Action":"output","Test":"TestMemoryExhaustion","Output":"    memhog_test.go:14: allocated 2500 MiB\n"}

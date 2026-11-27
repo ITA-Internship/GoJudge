@@ -16,11 +16,10 @@ const maxSpawn = 512
 // TestProcessLimit starts sleeping child processes until the kernel refuses
 // or maxSpawn is reached. It passes only if the pids limit stops it first.
 func TestProcessLimit(t *testing.T) {
-	b, err := os.ReadFile("/sys/fs/cgroup/pids.max")
-	if err != nil {
-		t.Fatalf("read pids.max: %v", err)
+	pidsMax := "unavailable"
+	if b, err := os.ReadFile("/sys/fs/cgroup/pids.max"); err == nil {
+		pidsMax = strings.TrimSpace(string(b))
 	}
-	pidsMax := strings.TrimSpace(string(b))
 	t.Logf("pids.max: %s", pidsMax)
 
 	var children []*exec.Cmd

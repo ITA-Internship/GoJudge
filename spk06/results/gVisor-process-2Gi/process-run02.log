@@ -1,0 +1,9 @@
+{"Time":"2026-11-27T08:19:26.633558826Z","Action":"start"}
+{"Time":"2026-11-27T08:19:26.641808199Z","Action":"run","Test":"TestProcessLimit"}
+{"Time":"2026-11-27T08:19:26.642001977Z","Action":"output","Test":"TestProcessLimit","Output":"=== RUN   TestProcessLimit\n","OutputType":"frame"}
+{"Time":"2026-11-27T08:19:26.642143196Z","Action":"output","Test":"TestProcessLimit","Output":"    procs_test.go:23: pids.max: unavailable\n"}
+{"Time":"2026-11-27T08:19:26.807064241Z","Action":"output","Test":"TestProcessLimit","Output":"    procs_test.go:47: stopped after 42 processes: fork/exec /bin/sleep: cannot allocate memory\n"}
+{"Time":"2026-11-27T08:19:26.815579243Z","Action":"output","Test":"TestProcessLimit","Output":"--- PASS: TestProcessLimit (0.17s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T08:19:26.81604629Z","Action":"pass","Test":"TestProcessLimit","Elapsed":0.17}
+{"Time":"2026-11-27T08:19:26.816147818Z","Action":"output","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-27T08:19:26.816228525Z","Action":"pass","Elapsed":0.183}

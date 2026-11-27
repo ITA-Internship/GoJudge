@@ -1,0 +1,10 @@
+{"Time":"2026-11-27T08:12:50.700777159Z","Action":"start"}
+{"Time":"2026-11-27T08:12:50.708439869Z","Action":"run","Test":"TestCPUBurn"}
+{"Time":"2026-11-27T08:12:50.70866599Z","Action":"output","Test":"TestCPUBurn","Output":"=== RUN   TestCPUBurn\n","OutputType":"frame"}
+{"Time":"2026-11-27T08:12:50.709000188Z","Action":"output","Test":"TestCPUBurn","Output":"    cpu_test.go:62: cpu.max not readable: open /sys/fs/cgroup/cpu.max: no such file or directory\n"}
+{"Time":"2026-11-27T08:12:54.169424959Z","Action":"output","Test":"TestCPUBurn","Output":"    cpu_test.go:44: workers=2 wall=5s cpu=7.3s used_cores=1.46 limit_cores=0.00\n"}
+{"Time":"2026-11-27T08:12:54.169991419Z","Action":"output","Test":"TestCPUBurn","Output":"    cpu_test.go:48: no CPU quota visible, behaviour recorded without comparison\n"}
+{"Time":"2026-11-27T08:12:54.17025284Z","Action":"output","Test":"TestCPUBurn","Output":"--- PASS: TestCPUBurn (5.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-27T08:12:54.170598489Z","Action":"pass","Test":"TestCPUBurn","Elapsed":5}
+{"Time":"2026-11-27T08:12:54.170641342Z","Action":"output","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-27T08:12:54.171630023Z","Action":"pass","Elapsed":5.011}

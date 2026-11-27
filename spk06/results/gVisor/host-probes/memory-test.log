@@ -1,0 +1,28 @@
+=== RUN   TestMemoryExhaustion
+    memhog_test.go:14: allocated 100 MiB
+    memhog_test.go:14: allocated 200 MiB
+    memhog_test.go:14: allocated 300 MiB
+    memhog_test.go:14: allocated 400 MiB
+    memhog_test.go:14: allocated 500 MiB
+    memhog_test.go:14: allocated 600 MiB
+    memhog_test.go:14: allocated 700 MiB
+    memhog_test.go:14: allocated 800 MiB
+    memhog_test.go:14: allocated 900 MiB
+    memhog_test.go:14: allocated 1000 MiB
+    memhog_test.go:14: allocated 1100 MiB
+    memhog_test.go:14: allocated 1200 MiB
+    memhog_test.go:14: allocated 1300 MiB
+    memhog_test.go:14: allocated 1400 MiB
+    memhog_test.go:14: allocated 1500 MiB
+    memhog_test.go:14: allocated 1600 MiB
+    memhog_test.go:14: allocated 1700 MiB
+    memhog_test.go:14: allocated 1800 MiB
+    memhog_test.go:14: allocated 1900 MiB
+    memhog_test.go:14: allocated 2000 MiB
+    memhog_test.go:14: allocated 2100 MiB
+    memhog_test.go:14: allocated 2200 MiB
+    memhog_test.go:14: allocated 2300 MiB
+    memhog_test.go:14: allocated 2400 MiB
+    memhog_test.go:14: allocated 2500 MiB
+waiting on pid 3: waiting on PID 3 in sandbox "0fed15b2bc5a6f038cfb6e6a619810457bebf2e0b27dcd4ff86112b91f7a470b": urpc method "containerManager.WaitPID" failed: EOF
+command terminated with exit code 128

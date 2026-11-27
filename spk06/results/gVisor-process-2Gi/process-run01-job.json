@@ -1,0 +1,143 @@
+{
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+        "creationTimestamp": "2026-11-27T08:19:21Z",
+        "generateName": "spk06-process-",
+        "generation": 1,
+        "labels": {
+            "app": "spk06",
+            "area": "process"
+        },
+        "name": "spk06-process-g6j5s",
+        "namespace": "spk06",
+        "resourceVersion": "2810",
+        "uid": "4b65288d-58af-4b48-a3b2-2400c38ff380"
+    },
+    "spec": {
+        "activeDeadlineSeconds": 60,
+        "backoffLimit": 0,
+        "completionMode": "NonIndexed",
+        "completions": 1,
+        "manualSelector": false,
+        "parallelism": 1,
+        "podReplacementPolicy": "TerminatingOrFailed",
+        "selector": {
+            "matchLabels": {
+                "batch.kubernetes.io/controller-uid": "4b65288d-58af-4b48-a3b2-2400c38ff380"
+            }
+        },
+        "suspend": false,
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app": "spk06",
+                    "area": "process",
+                    "batch.kubernetes.io/controller-uid": "4b65288d-58af-4b48-a3b2-2400c38ff380",
+                    "batch.kubernetes.io/job-name": "spk06-process-g6j5s",
+                    "controller-uid": "4b65288d-58af-4b48-a3b2-2400c38ff380",
+                    "job-name": "spk06-process-g6j5s"
+                }
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "command": [
+                            "/usr/local/bin/test2json",
+                            "-t",
+                            "/usr/local/bin/trusted.test",
+                            "-test.v=test2json",
+                            "-test.run",
+                            "^TestProcessLimit$"
+                        ],
+                        "env": [
+                            {
+                                "name": "HOME",
+                                "value": "/tmp"
+                            }
+                        ],
+                        "image": "gojudge-spk06:dev",
+                        "imagePullPolicy": "Never",
+                        "name": "judge",
+                        "resources": {
+                            "limits": {
+                                "cpu": "1",
+                                "memory": "2Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "2Gi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            },
+                            "readOnlyRootFilesystem": true
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/tmp",
+                                "name": "tmp"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "restartPolicy": "Never",
+                "runtimeClassName": "gvisor-nonet",
+                "schedulerName": "default-scheduler",
+                "securityContext": {
+                    "runAsGroup": 65532,
+                    "runAsNonRoot": true,
+                    "runAsUser": 65532,
+                    "seccompProfile": {
+                        "type": "RuntimeDefault"
+                    }
+                },
+                "terminationGracePeriodSeconds": 1,
+                "volumes": [
+                    {
+                        "emptyDir": {
+                            "sizeLimit": "256Mi"
+                        },
+                        "name": "tmp"
+                    }
+                ]
+            }
+        },
+        "ttlSecondsAfterFinished": 600
+    },
+    "status": {
+        "completionTime": "2026-11-27T08:19:24Z",
+        "conditions": [
+            {
+                "lastProbeTime": "2026-11-27T08:19:24Z",
+                "lastTransitionTime": "2026-11-27T08:19:24Z",
+                "message": "Reached expected number of succeeded pods",
+                "reason": "CompletionsReached",
+                "status": "True",
+                "type": "SuccessCriteriaMet"
+            },
+            {
+                "lastProbeTime": "2026-11-27T08:19:24Z",
+                "lastTransitionTime": "2026-11-27T08:19:24Z",
+                "message": "Reached expected number of succeeded pods",
+                "reason": "CompletionsReached",
+                "status": "True",
+                "type": "Complete"
+            }
+        ],
+        "ready": 0,
+        "startTime": "2026-11-27T08:19:21Z",
+        "succeeded": 1,
+        "terminating": 0,
+        "uncountedTerminatedPods": {}
+    }
+}

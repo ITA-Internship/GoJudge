@@ -1,0 +1,6 @@
+=== RUN   TestCPUBurn
+    cpu_test.go:62: cpu.max not readable: open /sys/fs/cgroup/cpu.max: no such file or directory
+    cpu_test.go:44: workers=2 wall=5.015s cpu=7.37s used_cores=1.47 limit_cores=0.00
+    cpu_test.go:48: no CPU quota visible, behaviour recorded without comparison
+--- PASS: TestCPUBurn (5.02s)
+PASS

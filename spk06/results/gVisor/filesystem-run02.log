@@ -1,0 +1,14 @@
+{"Time":"2026-11-26T09:56:29.829836223Z","Action":"start"}
+{"Time":"2026-11-26T09:56:29.836647502Z","Action":"run","Test":"TestFilesystemWrite"}
+{"Time":"2026-11-26T09:56:29.836807355Z","Action":"output","Test":"TestFilesystemWrite","Output":"=== RUN   TestFilesystemWrite\n","OutputType":"frame"}
+{"Time":"2026-11-26T09:56:29.83715365Z","Action":"output","Test":"TestFilesystemWrite","Output":"    fswrite_test.go:24: root mount: none / 9p ro,trans=fd,rfdno=42,wfdno=42,aname=/,dfltuid=4294967294,dfltgid=4294967294,dcache=1000,cache=fscache,disable_fifo_open,overlayfs_stale_read,directfs 0 0\n"}
+{"Time":"2026-11-26T09:56:29.837287202Z","Action":"output","Test":"TestFilesystemWrite","Output":"    fswrite_test.go:43: write to /root/hack.txt blocked by another error: open /root/hack.txt: permission denied\n"}
+{"Time":"2026-11-26T09:56:29.837414178Z","Action":"output","Test":"TestFilesystemWrite","Output":"    fswrite_test.go:43: write to /hack.txt blocked by another error: open /hack.txt: permission denied\n"}
+{"Time":"2026-11-26T09:56:29.837443449Z","Action":"output","Test":"TestFilesystemWrite","Output":"    fswrite_test.go:43: write to /etc/hack.txt blocked by another error: open /etc/hack.txt: permission denied\n"}
+{"Time":"2026-11-26T09:56:29.837468212Z","Action":"output","Test":"TestFilesystemWrite","Output":"    fswrite_test.go:43: write to /workspace/hack.txt blocked by another error: open /workspace/hack.txt: permission denied\n"}
+{"Time":"2026-11-26T09:56:29.837566677Z","Action":"output","Test":"TestFilesystemWrite","Output":"    fswrite_test.go:43: write to /usr/local/go/hack.txt blocked by another error: open /usr/local/go/hack.txt: permission denied\n"}
+{"Time":"2026-11-26T09:56:29.83766465Z","Action":"output","Test":"TestFilesystemWrite","Output":"    fswrite_test.go:52: write to allowed path /tmp/allowed.txt succeeded\n"}
+{"Time":"2026-11-26T09:56:29.837767902Z","Action":"output","Test":"TestFilesystemWrite","Output":"--- PASS: TestFilesystemWrite (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-26T09:56:29.837850111Z","Action":"pass","Test":"TestFilesystemWrite","Elapsed":0}
+{"Time":"2026-11-26T09:56:29.838041957Z","Action":"output","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-11-26T09:56:29.838330823Z","Action":"pass","Elapsed":0.008}

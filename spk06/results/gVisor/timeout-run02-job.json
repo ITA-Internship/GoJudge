@@ -1,0 +1,142 @@
+{
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+        "creationTimestamp": "2026-11-26T09:56:11Z",
+        "generateName": "spk06-timeout-",
+        "generation": 1,
+        "labels": {
+            "app": "spk06",
+            "area": "timeout"
+        },
+        "name": "spk06-timeout-r2w44",
+        "namespace": "spk06",
+        "resourceVersion": "1253",
+        "uid": "65ff6a58-757d-410c-8721-a33186ac457b"
+    },
+    "spec": {
+        "activeDeadlineSeconds": 5,
+        "backoffLimit": 0,
+        "completionMode": "NonIndexed",
+        "completions": 1,
+        "manualSelector": false,
+        "parallelism": 1,
+        "podReplacementPolicy": "TerminatingOrFailed",
+        "selector": {
+            "matchLabels": {
+                "batch.kubernetes.io/controller-uid": "65ff6a58-757d-410c-8721-a33186ac457b"
+            }
+        },
+        "suspend": false,
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app": "spk06",
+                    "area": "timeout",
+                    "batch.kubernetes.io/controller-uid": "65ff6a58-757d-410c-8721-a33186ac457b",
+                    "batch.kubernetes.io/job-name": "spk06-timeout-r2w44",
+                    "controller-uid": "65ff6a58-757d-410c-8721-a33186ac457b",
+                    "job-name": "spk06-timeout-r2w44"
+                }
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "command": [
+                            "/usr/local/bin/test2json",
+                            "-t",
+                            "/usr/local/bin/trusted.test",
+                            "-test.v=test2json",
+                            "-test.run",
+                            "^TestInfiniteLoop$"
+                        ],
+                        "env": [
+                            {
+                                "name": "HOME",
+                                "value": "/tmp"
+                            }
+                        ],
+                        "image": "gojudge-spk06:dev",
+                        "imagePullPolicy": "Never",
+                        "name": "judge",
+                        "resources": {
+                            "limits": {
+                                "cpu": "1",
+                                "memory": "512Mi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "512Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            },
+                            "readOnlyRootFilesystem": true
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/tmp",
+                                "name": "tmp"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "restartPolicy": "Never",
+                "runtimeClassName": "gvisor-nonet",
+                "schedulerName": "default-scheduler",
+                "securityContext": {
+                    "runAsGroup": 65532,
+                    "runAsNonRoot": true,
+                    "runAsUser": 65532,
+                    "seccompProfile": {
+                        "type": "RuntimeDefault"
+                    }
+                },
+                "terminationGracePeriodSeconds": 1,
+                "volumes": [
+                    {
+                        "emptyDir": {
+                            "sizeLimit": "256Mi"
+                        },
+                        "name": "tmp"
+                    }
+                ]
+            }
+        },
+        "ttlSecondsAfterFinished": 600
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": "2026-11-26T09:56:16Z",
+                "lastTransitionTime": "2026-11-26T09:56:16Z",
+                "message": "Job was active longer than specified deadline",
+                "reason": "DeadlineExceeded",
+                "status": "True",
+                "type": "FailureTarget"
+            },
+            {
+                "lastProbeTime": "2026-11-26T09:56:17Z",
+                "lastTransitionTime": "2026-11-26T09:56:17Z",
+                "message": "Job was active longer than specified deadline",
+                "reason": "DeadlineExceeded",
+                "status": "True",
+                "type": "Failed"
+            }
+        ],
+        "failed": 1,
+        "ready": 0,
+        "startTime": "2026-11-26T09:56:11Z",
+        "terminating": 0,
+        "uncountedTerminatedPods": {}
+    }
+}

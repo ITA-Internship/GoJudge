@@ -1,0 +1,1 @@
+{"terminated":{"containerID":"containerd://9e6e3f8736e89819eb7853a8a30a1aa9a3966fbb35120ef059bd01b2a064e230","exitCode":137,"finishedAt":"2026-11-27T10:05:18Z","reason":"OOMKilled","startedAt":"2026-11-27T10:05:12Z"}}

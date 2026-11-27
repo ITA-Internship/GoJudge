@@ -1,0 +1,35 @@
+area=cpu runtime_class=gvisor-nonet pod=probe-cpu cgroup=/sys/fs/cgroup/kubepods/burstable/podab498417-9159-4698-9d61-91cd4189cc53
+2026-11-27T10:04:54Z
+cpu.max=100000 100000 memory.max=536870912
+--- samples every 0.5 s (cgroup of the Pod on the node)
+mem_cur=18MiB mem_peak=18MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 86510 nr_periods 8 nr_throttled 0 throttled_usec 0 
+mem_cur=18MiB mem_peak=18MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 86510 nr_periods 8 nr_throttled 0 throttled_usec 0 
+mem_cur=18MiB mem_peak=18MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 87533 nr_periods 10 nr_throttled 0 throttled_usec 0 
+mem_cur=24MiB mem_peak=25MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 529787 nr_periods 14 nr_throttled 3 throttled_usec 337864 
+mem_cur=24MiB mem_peak=25MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 1041384 nr_periods 19 nr_throttled 8 throttled_usec 991015 
+mem_cur=25MiB mem_peak=25MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 1546977 nr_periods 24 nr_throttled 13 throttled_usec 1576891 
+mem_cur=25MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 2051794 nr_periods 29 nr_throttled 18 throttled_usec 2232329 
+mem_cur=24MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 2549000 nr_periods 34 nr_throttled 23 throttled_usec 2815113 
+mem_cur=24MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 3047122 nr_periods 39 nr_throttled 28 throttled_usec 3454859 
+mem_cur=24MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 3545541 nr_periods 44 nr_throttled 33 throttled_usec 4100712 
+mem_cur=24MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 4054013 nr_periods 50 nr_throttled 39 throttled_usec 4805825 
+mem_cur=24MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 4573041 nr_periods 55 nr_throttled 44 throttled_usec 5523113 
+mem_cur=25MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5084535 nr_periods 60 nr_throttled 49 throttled_usec 6108242 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5151536 nr_periods 63 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5151536 nr_periods 63 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152135 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
+mem_cur=23MiB mem_peak=26MiB | low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0  | usage_usec 5152374 nr_periods 65 nr_throttled 50 throttled_usec 6234562 
